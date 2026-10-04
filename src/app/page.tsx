@@ -34,7 +34,7 @@ export default function Home() {
               Bring venues, suppliers, and crew into one clear plan from booking through approval.
             </p>
             <div className="hero-actions" id="hero-actions">
-              <Link className="button button-primary" href="/onboarding">
+              <Link className="button button-primary" href="/auth/sign-up?role=organizer">
                 Plan an event <ArrowRight size={17} aria-hidden="true" />
               </Link>
               <Link className="hero-demo-link" href="/demo">Explore demo</Link>

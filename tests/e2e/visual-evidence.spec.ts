@@ -20,7 +20,10 @@ test("capture desktop light and dark evidence", async ({ page }, testInfo) => {
 test("capture mobile light and dark evidence", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile-chromium", "mobile evidence only");
   const failed: string[] = [];
-  page.on("requestfailed", (request) => failed.push(`${request.method()} ${request.url()}`));
+  page.on("requestfailed", (request) => {
+    const reason = request.failure()?.errorText ?? "unknown";
+    if (reason !== "net::ERR_ABORTED") failed.push(`${request.method()} ${request.url()} (${reason})`);
+  });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
@@ -33,9 +36,12 @@ test("capture mobile light and dark evidence", async ({ page }, testInfo) => {
 });
 
 test("primary routes respond and menus remain readable", async ({ page }) => {
-  for (const route of ["/", "/onboarding", "/demo", "/organizer", "/supplier", "/crew", "/support"]) {
+  for (const route of ["/", "/onboarding", "/demo", "/organizer", "/supplier", "/crew", "/support", "/auth/sign-up?role=organizer", "/auth/sign-in"]) {
     const response = await page.goto(route);
     expect(response?.status(), route).toBe(200);
     await expect(page.locator("body")).not.toHaveCSS("overflow-x", "scroll");
   }
+  await page.goto("/auth/sign-up?role=organizer");
+  await expect(page.getByRole("heading", { name: "Create your Pactset account." })).toBeVisible();
+  await expect(page.getByLabel("Starting role")).toHaveValue("organizer");
 });

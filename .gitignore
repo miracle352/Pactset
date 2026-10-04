@@ -10,6 +10,8 @@ test-results/
 .env
 .env.*
 !.env.example
+.stage2a-test-state.local.json
+supabase/.temp/
 *.pem
 *.key
 *.seed

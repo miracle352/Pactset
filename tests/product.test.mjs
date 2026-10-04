@@ -35,3 +35,25 @@ test("pavilion fallback is scenery-only and not represented as interactive 3D", 
   assert.match(source, /pavilion-dark\.webp/);
   assert.doesNotMatch(source, /interactive 3D|temporary label|browser frame/i);
 });
+
+test("Stage 2A migration enforces authorization and concurrency boundaries", async () => {
+  const migration = await read("supabase/migrations/20261004133435_stage_2a_core.sql");
+  for (const table of ["profiles", "account_roles", "provider_profiles", "inventory_items", "events", "requests", "offers", "offer_versions", "offer_reservations", "agreements", "audit_events"]) {
+    assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  }
+  assert.match(migration, /revoke all on all tables in schema public from anon/i);
+  assert.match(migration, /roles_insert_public[\s\S]*role in \('organizer','supplier','crew'\)[\s\S]*assigned_by is null/i);
+  assert.doesNotMatch(migration, /roles_insert_public[\s\S]{0,250}role in \([^)]*support/i);
+  assert.match(migration, /pg_advisory_xact_lock/);
+  assert.match(migration, /organizer_accepted_at = null, provider_accepted_at = null/);
+  assert.match(migration, /awaiting_testnet_funding/);
+  assert.match(migration, /request_id = v_offer\.request_id and id <> v_offer\.id and status in \('submitted', 'countered'\)/);
+  assert.match(migration, /security definer[\s\S]*has_active_provider_role|has_active_provider_role[\s\S]*security definer/i);
+});
+
+test("public UI has no milestone labels or dead wallet route", async () => {
+  const files = ["src/app/not-found.tsx", "src/app/opengraph-image.tsx", "src/app/demo/page.tsx", "src/components/auth/auth-form.tsx"];
+  const sources = await Promise.all(files.map(read));
+  const source = sources.join("\n");
+  assert.doesNotMatch(source, /Stage 1|Stage 2|docs-not-available/);
+});

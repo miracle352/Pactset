@@ -4,12 +4,34 @@ Last updated: 2026-10-04 (Africa/Lagos)
 
 ## Current stage
 
-Stage 1: foundation, design system, project tracking, GitHub, and working Vercel preview.
+Stage 2A in progress: real accounts, persistent planning, provider requests/offers, and accepted but unfunded agreements. Stage 2B settlement and every later capability remain out of scope for this milestone.
+
+## Stage 2A inspection and architecture record
+
+- The existing repository, routes, Opal/Obsidian tokens, theme persistence, GitHub remote, and Vercel project are being preserved.
+- The current public role pages are fictional generic shells with broken hash navigation, oversized headings, repeated local preferences, and a component-state showcase. These findings are now explicit `REV-*` requirements.
+- Supabase is the selected managed Auth/Postgres service. The existing `pactset-development` project (`lvpsemqalftvcqkrjsyu`) was verified in “miracle352’s projects” through the connection labeled `python`. Fieldwork and `supabase-canary-branch` were not changed.
+- Current official Supabase guidance was checked on 2026-10-04. The implementation uses publishable keys, `@supabase/ssr`, cookie sessions, Next.js 16 `proxy.ts`, `getClaims()` for server identity checks, explicit Data API grants, and RLS on every exposed table.
+- Changelog review found the 2026 Data API auto-exposure change and the move toward publishable keys; migrations therefore include explicit least-privilege grants rather than assuming new tables are exposed.
+- Design read: targeted evolution of the existing premium event brand. Dials are `DESIGN_VARIANCE 5`, `MOTION_INTENSITY 3`, and `VISUAL_DENSITY 6`. The glass system stays; workspace type becomes compact; role layouts become task-specific; animation is limited to feedback.
 
 ## Inspection record
 
 - Workspace root is an existing personal profile repository (`miracle352/miracle352`) with an unrelated untracked nested `fieldwork/` repository. Pactset is being created in a separate sibling folder and repository at `pactset/`.
-- No root `AGENTS.md` applies to the new Pactset folder. The only discovered workspace `AGENTS.md` files belong to Fieldwork and are out of scope.
+- No repository `AGENTS.md` existed at initial inspection. Next.js later generated its version-specific `AGENTS.md` and `CLAUDE.md`; the proxy guidance it requires was read from the installed Next.js 16 documentation before further edits.
+
+## Stage 2A local implementation checkpoint
+
+- Implemented Supabase SSR auth screens/actions, verification and recovery callbacks, session refresh proxy, protected layouts, multiple public roles, and a server-assigned-only support boundary.
+- Added profile/settings persistence contracts, an original CSS avatar, global country/language/IANA timezone controls, independent test-currency preferences, provider services/skills/pricing/availability, and supplier inventory.
+- Added organizer draft events with named event timezones, validated local-to-instant conversion, 24-hour preparation defaults, capacity/budget/quantity validation, explicit save states, request publication, provider offers, versioned counteroffers, rejection/withdrawal, two-party acceptance, and visibly unfunded agreements.
+- The migration enables RLS on every exposed table, revokes anonymous table access, derives identity from `auth.uid()`, serializes provider capacity checks, rejects stale versions, resets expired acceptance, prevents duplicate agreements, audits transitions, and checks overlapping supplier inventory or crew shifts.
+- Public role demos remain fictional and separate from `/workspace/*`. The public component-state showcase and remaining milestone/development copy were removed.
+- Local verification passed: typecheck, Biome lint, 6 Node tests, production build, dependency audit with zero vulnerabilities, and 23 Playwright browser checks with 3 expected device-specific skips. Public/auth routes, themes, mobile widths, focus, touch, reduced motion, navigation, and overflow were exercised.
+- The Stage 2A schema and hardening migration are applied to `pactset-development`. Data API is enabled, automatic table exposure is off, automatic RLS is enabled, all 11 application tables have RLS, anonymous table grants are absent, and authenticated access is explicitly granted.
+- Four dashboard-created, auto-confirmed development-only users are recorded in an ignored local state file. A real separate-account run passed 12/12 checks: organizer login/logout and draft resume, privacy-safe request discovery, idempotent supplier offer retry, stale-version rejection, concurrent same-version acceptance, unfunded supplier and crew agreements, unrelated-account read/update denial, support self-assignment denial, and agreement persistence after signing in again.
+- Normal email confirmation remains enabled globally. Real confirmation-link and password-recovery email flows are still blocked/unverified because the Free-plan email service rate limit was reached; dashboard auto-confirm was used only for the four development test identities.
+- Per the user’s latest instruction, no production deployment was attempted and no commit was pushed, because pushing `main` would trigger the existing production-linked Vercel project.
 - GitHub is authenticated as personal account `miracle352`. Search found no existing personal Pactset repository, so a new private repository was created at `https://github.com/miracle352/Pactset` and the verified `main` history was pushed without force.
 - Vercel's connector remains independently unauthorized for the `miracle352` account scope. The signed-in browser route could access the exact private `miracle352/Pactset` repository without another identity challenge, so it was used to create the single `pactset` project and deploy `https://pactset.vercel.app` without changing repository visibility or security settings.
 - Official framework check on 2026-10-04: Next.js 16.3.8 is Active LTS, React 19.3 is stable, Next.js 16 requires Node.js 20.9+ and TypeScript 5.1+.
@@ -66,8 +88,9 @@ The following are explicit Stage 5 verification requirements and must not be mar
 
 - `npm run typecheck`: passed.
 - `npm run lint`: passed with Biome 2.5.15.
-- `npm test`: 4/4 passed.
-- `npm run build`: passed; all eight application routes statically prerendered. The build required sandbox escalation because Windows blocked generated `.next` route directories inside the managed filesystem; the same command succeeded outside that restriction.
+- `npm test`: 6/6 passed, including Stage 2A migration boundary assertions.
+- `node tests/stage2a-remote.mjs verify`: 12/12 passed against `pactset-development`; email-link verification and recovery are explicitly excluded and remain blocked.
+- `npm run build`: passed; public pages prerender and auth/workspace/settings routes remain dynamic. The build required a shared host session because OneDrive blocked generated `.next` route directories inside the managed sandbox.
 - `npm run test:e2e`: 23 passed, 3 expected project-specific skips across desktop and mobile Chromium projects; required 360/390/430/768/1440 widths, short mobile viewport, both themes, enlarged text, menu/sticky-action conflict, persistence, routes, overflow, whole-card role links, keyboard focus, fine-pointer hover, mobile tap, and reduced motion were exercised.
 - `npm audit --audit-level=high`: 0 vulnerabilities after replacing a vulnerable ESLint glob dependency chain with the Next.js-supported Biome linter.
 - Secret-pattern scan: no credential, private-key, seed, or API-key pattern found outside the preserved product brief.

@@ -103,10 +103,54 @@
 - [x] Create/link the `pactset` Vercel project, deploy the pushed milestone, open `https://pactset.vercel.app`, and repeat the browser smoke checks.
 - [x] Record the pushed commit, repository URL, exact checks, screenshots, connector limitation, and verified deployment URL.
 
-## Stage 2: Persistent booking and real Testnet settlement
+## Stage 2A: Accounts, persistent planning, offers, and unfunded agreements
 
-- [ ] Select and document persistent auth/database/storage architecture and role enforcement.
-- [ ] Implement separate-role accounts and one complete persistent booking flow.
+> Status: implementation in progress. This repository-specific plan was self-reviewed against the product specification and requirements matrix. It has not received independent human or agent review.
+
+### Architecture decision
+
+- Use Supabase Auth plus hosted Postgres, `@supabase/ssr`, cookie-backed sessions, and database Row Level Security. The unrelated existing Fieldwork Supabase project is out of scope.
+- Keep public fictional previews on `/organizer`, `/supplier`, `/crew`, and `/demo`. Put authenticated data under `/workspace/*` so demo fixtures can never be mistaken for account data.
+- Store instants as `timestamptz`, named IANA timezones separately, and money as exact `numeric`, never floating point.
+- Use database functions for versioned offer transitions and two-party acceptance. They lock current rows, reject stale versions, prevent duplicate agreement creation, and enforce overlapping inventory or crew capacity before agreement creation.
+- Agreements created in 2A are always `awaiting_testnet_funding`. Wallet connection and all settlement behavior remain Stage 2B.
+
+### Task 2A.1: Auth and authorization boundary
+
+- [x] Add sign-up, sign-in, sign-out, verification callback, password recovery, and session refresh through Next.js `proxy.ts`.
+- [x] Persist account profiles and multiple organizer/supplier/crew memberships. Support remains server-assigned and has no public enrollment path.
+- [x] Protect authenticated workspaces in server code and enforce ownership/participant access again with RLS.
+
+### Task 2A.2: Profiles and global settings
+
+- [x] Add a persisted profile/settings route with display name, original generated avatar choices, country/city, service radius, language, IANA timezone, and test display currency.
+- [x] Add supplier/crew services, skills, pricing units, availability, and inventory quantities.
+- [x] Keep account identity and booking separate from the future wallet connection boundary.
+
+### Task 2A.3: Events and resumable drafts
+
+- [x] Build an organizer event editor for identity, location/timezone, start/end, attendance/capacity, spaces, food, equipment, crew, category budgets, and contingency.
+- [x] Persist explicit saving, saved, validation-error, and failure states. Default preparation to 24 hours before event start and flag impossible or elapsed deadlines.
+- [x] Keep manual planning editable and do not present AI-generated budgets.
+
+### Task 2A.4: Requests, offers, negotiation, and agreement safety
+
+- [x] Publish privacy-safe requests from an event and expose only deliberate public request fields to eligible providers.
+- [x] Support offers, counteroffers with reasons, rejection, withdrawal, and same-version acceptance by both parties.
+- [x] Add auditable transitions, idempotent agreement creation, expiring first-acceptance reservations, inventory capacity checks, and crew conflict checks.
+- [x] Render accepted agreements as `Awaiting Testnet funding`; never show invented balances, protection, hashes, or funded status.
+
+### Task 2A.5: Distinct workspaces and verification
+
+- [x] Replace generic queues, oversized headings, dead hashes, repeated preferences, and public component-state showcases with role-specific layouts and contextual states.
+- [x] Verify with separate organizer, supplier, crew, and unrelated identities through independent sessions, including sign-in persistence and negative authorization cases. Browser-context screenshots remain pending.
+- [ ] Test stale/concurrent acceptance and duplicate submissions through real Data API paths (done); inventory overbooking and conflicting crew shifts remain pending.
+- [ ] Run database advisors, typecheck, lint, unit/integration tests, production build, local browser QA, deployment, and hosted browser QA before marking verified.
+
+## Stage 2B: Persistent booking and real Testnet settlement
+
+- [ ] Extend the Stage 2A auth/database architecture with wallet-bound authorization and required private storage.
+- [ ] Fund one accepted Stage 2A agreement and prove the complete Testnet settlement flow.
 - [ ] Implement the issued-asset registry, trustlines, controlled Testnet distribution/liquidity, quote/convert flow, and explicit failure recovery.
 - [ ] Implement versioned Soroban escrow with exact-unit arithmetic, idempotency, server-side validation, wallet-bound authorization, and ledger reconciliation.
 - [ ] Prove recipient-confirmed milestone release across separate browser sessions and record real explorer evidence.

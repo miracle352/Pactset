@@ -41,8 +41,24 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 
 | ID | Stage | Requirement | UI / route | Backend responsibility | Verification | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| ROL-001 | 1/2 | Organizer, supplier, and crew onboarding; one account may hold multiple roles | `/onboarding` | Auth + role membership | Stage 1 copy/fixture; Stage 2 authorization tests | Not started |
-| ROL-002 | 1/2 | Support cannot be self-selected; assignment is server-enforced | `/onboarding`, `/support` | Support assignment policy | No public support option; unauthorized access tests | Fixture only |
+| ROL-001 | 1/2 | Organizer, supplier, and crew onboarding; one account may hold multiple roles | `/onboarding`, `/auth/sign-up`, `/settings` | Auth + role membership | Public UI verified; database authorization tests pending | Implemented locally; remote verification blocked |
+| ROL-002 | 1/2 | Support cannot be self-selected; assignment is server-enforced | `/onboarding`, `/support`, `/workspace/support` | Support assignment policy | Public boundary plus unrelated-account self-assignment denial passed | Verified in development |
+| REV-001 | 2A | Repair broken organizer navigation targets; every enabled item opens meaningful content | Public demo and `/workspace/organizer/*` | Route authorization | Public link crawl passed; authenticated data routes pending live session | Implemented locally; remote verification blocked |
+| REV-002 | 2A | Replace repetitive role shells with task-specific organizer, supplier, crew, and support layouts | `/workspace/*` | Role-scoped queries | Source/build verified; separate-account review pending | Implemented locally; remote verification blocked |
+| REV-003 | 2A | Use compact workspace headings instead of oversized marketing headlines | `/workspace/*` | None | Responsive CSS/source review; authenticated screenshots pending | Implemented locally; remote verification blocked |
+| REV-004 | 2A | Remove development copy and component-state showcases from user routes | Public and authenticated routes | Development-only boundary | Copy scan and public browser inspection passed | Verified locally |
+| REV-005 | 2A | Searchable global country, city/service area, language, and IANA timezone controls | `/settings` | Persist independent preferences | Build verified; live persistence test pending | Implemented locally; remote verification blocked |
+| REV-006 | 2A | Original customizable avatars and useful provider profiles | `/settings`, provider views | Profile/avatar persistence and RLS | Original UI present; cross-account visibility pending | Implemented locally; remote verification blocked |
+| REV-007 | 2A | Persistent event drafts survive sign-out and later sign-in | Organizer event editor | Event ownership and durable storage | Separate-account sign-out/sign-in draft resume passed | Verified in development |
+| REV-008 | 2A | Supplier inventory quantities cannot be over-reserved across overlapping bookings | Supplier inventory/offers | Locked capacity check and expiring reservation | Migration assertions pass; live concurrent test pending | Implemented locally; remote verification blocked |
+| REV-009 | 2A | Crew cannot accept conflicting shifts without an explicit supported resolution | Crew schedule/offers | Locked overlap check | Migration assertions pass; live conflicting-shift test pending | Implemented locally; remote verification blocked |
+| REV-010 | 2A | Account authentication and future Stellar wallet connection are separate concepts and gates | Auth, settings, agreements | Independent account and wallet state | Copy, routes, and disabled wallet boundary verified | Verified locally |
+| AUTH-001 | 2A | Sign up, sign in, sign out, restored cookie session, email verification, and password recovery | `/auth/*`, `proxy.ts` | Supabase Auth with safe callbacks | Login/logout/re-login passed; real confirmation and recovery links blocked by email rate limit | Partially verified; email links blocked |
+| AUTH-002 | 2A | Never trust browser-submitted role, owner, or account IDs; enforce server and database authorization | Server actions and `/workspace/*` | Auth identity, RLS, constrained functions | Unrelated read/update and support escalation denied through Data API | Verified in development |
+| EVT-001 | 2A | Persistent event draft captures venue, timezone, dates, capacity, requirements, manual budget, and preparation deadline | `/workspace/organizer/events/*` | Owned event rows with `timestamptz` plus named timezone | Validation/build pass; persistence and DST cases pending | Implemented locally; remote verification blocked |
+| REQ-001 | 2A | Organizer publishes privacy-safe request; eligible supplier or crew submits a decimal-priced offer | Request and offer routes | Deliberate feed RPC plus server-authored identity | Separate supplier and crew accounts discovered requests and submitted offers | Verified in development |
+| NEG-001 | 2A | Versioned counter/reject/withdraw/same-version acceptance; stale/retry/concurrent requests stay safe | Offer detail routes | Locked transactional functions, audit, idempotency | Duplicate retry, stale version, and concurrent acceptance passed | Partially verified; rejection/withdrawal not live-tested |
+| AGR-2A-001 | 2A | Agreement exists only after both parties accept current terms and remains explicitly unfunded | Agreement views | Immutable current offer version and `awaiting_testnet_funding` status | Separate parties created supplier and crew agreements; persisted after re-login | Verified in development |
 | ROL-003 | 1 | Distinct organizer, supplier, crew, and support route shells/nav | `/organizer`, `/supplier`, `/crew`, `/support` | None in Stage 1 | Route/navigation visual QA | Verified |
 | ROL-004 | 1 | Role-specific mobile bottom/focused navigation | Role shells | None | 375px route journey | Verified |
 | ROL-005 | 1 | Organizer, Supplier, and Crew preview cards are whole-card links with hover, focus, touch, and reduced-motion feedback | `/onboarding` | None | Destination, keyboard, touch, theme, and reduced-motion browser tests | Verified |
@@ -53,9 +69,9 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 | DSC-001 | 3 | Radar/list discovery with skill, availability, area, price, currency filters | Discovery | Search/index and access rules | Query and UI filter tests | Not started |
 | DSC-002 | 3 | Approximate opt-in area only; no exact public live location | Discovery/profile | Location privacy policy | Data-shape and privacy tests | Not started |
 | DSC-003 | 1 | Fictional demo people visibly labeled; no invented nearby providers | `/demo` | None | Copy/fixture assertion | Verified |
-| SET-001 | 1/2 | Service area, language, named timezone, and preferred test currency independent | Preferences | Persist per account later | Independence and persistence tests | Fixture only |
+| SET-001 | 1/2 | Service area, language, named timezone, and preferred test currency independent | Preferences and `/settings` | Persist per account | Public independence verified; authenticated persistence pending | Implemented locally; remote verification blocked |
 | SET-002 | 1 | Preferred currency choices are TUSD, TGBP, TAUD | Preferences | Asset registry later | Option-value test | Verified |
-| SET-003 | 1/2 | Preference changes do not alter an existing agreement’s settlement currency | Preferences/agreements | Immutable agreement version | Stage 1 notice; Stage 2 mutation test | Fixture only |
+| SET-003 | 1/2 | Preference changes do not alter an existing agreement’s settlement currency | Preferences/agreements | Agreement currency copied from accepted version | Migration/source review; live mutation test pending | Implemented locally; remote verification blocked |
 | SET-004 | 3 | Event time and user local time labeled; named zones and absolute instants handle DST | Events/tasks | Time model | DST/timezone tests | Not started |
 
 ## Planning, budgets, agreements, readiness, and replacement
@@ -64,8 +80,8 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 | --- | --- | --- | --- | --- | --- | --- |
 | PLN-001 | 3 | AI gathers full event constraints before suggesting budgets | Planning flow | Validated planning schema + AI guardrails | Missing-field and permission tests | Not started |
 | PLN-002 | 3 | Editable allocation; estimates distinct from quotes; approval publishes but does not authorize spend | Budget/requests | Versioned budget and authorization | State-transition tests | Not started |
-| AGR-001 | 2/3 | Provider accept/counter with price, scope, deadline, reasons; affected parties accept final terms | Offers/agreements | Versioned offer workflow | Separate-party tests | Not started |
-| AGR-002 | 2/3 | Enforce reservations against double booking/over-capacity | Offers/availability | Transactional capacity reservation | Concurrency tests | Not started |
+| AGR-001 | 2/3 | Provider accept/counter with price, scope, deadline, reasons; affected parties accept final terms | Offers/agreements | Versioned offer workflow | Local implementation complete; separate-party proof pending | Implemented locally; remote verification blocked |
+| AGR-002 | 2/3 | Enforce reservations against double booking/over-capacity | Offers/availability | Transactional capacity reservation | Static safety assertions pass; database concurrency tests pending | Implemented locally; remote verification blocked |
 | AGR-003 | 3 | Planned, quoted, committed, funded, paid, remaining kept separate; no unlabeled cross-asset sums | Finance surfaces | Exact-unit ledger projection | Arithmetic and display tests | Not started |
 | AGR-004 | 3 | Venue hire, rental, and purchase have distinct terms/milestones/cancellation | Agreements | Typed service contract models | Scenario tests | Not started |
 | AGR-005 | 3 | Evidence/escrow do not guarantee delivery or safety | Agreement/evidence copy | None | Copy review | Not started |
@@ -121,7 +137,7 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 
 | ID | Stage | Requirement | UI / route | Backend responsibility | Verification | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| REL-001 | 2+ | Persistent identity, roles, events, offers, agreements, evidence metadata, chat, cases | Product routes | Hosted database/auth/storage | Persistence and restart tests | Not started |
+| REL-001 | 2+ | Persistent identity, roles, events, offers, agreements, evidence metadata, chat, cases | Product routes | Hosted database/auth/storage | Stage 2A schema/client implemented; correct organization verified; free-project quota blocks provisioning | Partially implemented; quota blocked |
 | REL-002 | 2 | Chain authoritative for movement; DB stores reconciled projection only | Finance/admin | Reconciliation model | Ledger/DB divergence tests | Not started |
 | SEC-001 | 1+ | Private evidence, role-scoped IO, validation, secret isolation, rate limits, audit events | All protected routes | Security controls | Security review and authorization tests | Not started |
 | SEC-002 | 2+ | No chat/evidence/identity docs on public chain; commitments leak no private content | Contract explorer/audit | Privacy-preserving contract fields | On-chain data inspection | Not started |

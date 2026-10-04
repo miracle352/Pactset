@@ -136,6 +136,7 @@ test("desktop role-card hover lifts without affecting layout", async ({ page }, 
 test("role shells stay fixture-only", async ({ page }) => {
   await page.goto("/organizer");
   await expect(page.getByText("Fictional fixtures")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Open live record/ })).toBeDisabled();
-  await expect(page.getByText(/No wallet, escrow, or balance is connected/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Events and drafts" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Create an account" })).toHaveAttribute("href", "/auth/sign-up?role=organizer");
+  await expect(page.getByText("Awaiting Testnet funding")).toBeVisible();
 });

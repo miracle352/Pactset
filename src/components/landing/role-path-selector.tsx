@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 
 const paths = [
-  { id: "organize", label: "Organize", copy: "Shape the brief, align contributors, and approve the next move.", action: "Start as organizer", href: "/onboarding" },
+  { id: "organize", label: "Organize", copy: "Shape the brief, align contributors, and approve the next move.", action: "Start as organizer", href: "/auth/sign-up?role=organizer" },
   { id: "supply", label: "Supply", copy: "Set availability, agree scope, and keep delivery requirements clear.", action: "View supplier demo", href: "/supplier" },
   { id: "crew", label: "Join crew", copy: "See shifts, preparation notes, due work, and evidence expectations.", action: "View crew demo", href: "/crew" },
 ] as const;

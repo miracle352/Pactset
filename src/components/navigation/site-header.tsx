@@ -9,7 +9,7 @@ import { ThemeControl } from "@/components/theme/theme-control";
 
 const links = [
   { href: "/#how-it-works", label: "How it works" },
-  { href: "/onboarding", label: "Plan an event" },
+  { href: "/auth/sign-up?role=organizer", label: "Plan an event" },
   { href: "/demo", label: "Demo" },
 ];
 
@@ -49,6 +49,7 @@ export function SiteHeader() {
         <nav id="mobile-menu" className="mobile-menu glass-panel" aria-label="Mobile navigation">
           {links.map((link) => <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}</Link>)}
           <Link href="/organizer" onClick={() => setOpen(false)}>Role workspaces</Link>
+          <Link href="/auth/sign-in" onClick={() => setOpen(false)}>Sign in</Link>
         </nav>
       )}
     </header>
