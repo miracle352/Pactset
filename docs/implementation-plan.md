@@ -90,6 +90,7 @@
 - [x] Add independent service area, language, named timezone, and preferred test currency controls (TUSD, TGBP, TAUD).
 - [x] Persist non-sensitive preferences locally and state that they do not change an existing agreement’s currency.
 - [x] Provide an explicit demo path using named fictional fixtures and honest unavailable-action states.
+- [x] Make each public role preview card one accessible link with equivalent hover, keyboard-focus, touch-press, and reduced-motion feedback.
 
 ### Task 6: Verify, publish, and verify again
 

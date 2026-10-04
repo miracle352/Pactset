@@ -17,6 +17,9 @@ test("public onboarding excludes support from selectable roles", async () => {
   const selectable = source.slice(source.indexOf("const choices"), source.indexOf("export default"));
   assert.doesNotMatch(selectable, /name: "Support"/);
   assert.match(source, /Support is assigned, not self-selected/);
+  assert.match(source, /Explore each role using sample event data\./);
+  assert.match(source, /Explore \{name\.toLowerCase\(\)\} demo/);
+  assert.doesNotMatch(source, /Preview \{name\.toLowerCase\(\)\} shell/);
 });
 
 test("the three supported test currencies and agreement warning exist", async () => {

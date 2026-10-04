@@ -45,6 +45,7 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 | ROL-002 | 1/2 | Support cannot be self-selected; assignment is server-enforced | `/onboarding`, `/support` | Support assignment policy | No public support option; unauthorized access tests | Fixture only |
 | ROL-003 | 1 | Distinct organizer, supplier, crew, and support route shells/nav | `/organizer`, `/supplier`, `/crew`, `/support` | None in Stage 1 | Route/navigation visual QA | Verified |
 | ROL-004 | 1 | Role-specific mobile bottom/focused navigation | Role shells | None | 375px route journey | Verified |
+| ROL-005 | 1 | Organizer, Supplier, and Crew preview cards are whole-card links with hover, focus, touch, and reduced-motion feedback | `/onboarding` | None | Destination, keyboard, touch, theme, and reduced-motion browser tests | Verified |
 | PRF-001 | 3/4 | Profiles include skills/services, portfolio, area, availability, pricing unit/currency, history, ratings | Profile routes | Persistent profile + authorization | CRUD and visibility tests | Not started |
 | PRF-002 | 4 | Accepted/completed jobs public as appropriate; declines private | Profiles | Scoped query policy | Authorization and privacy tests | Not started |
 | PRF-003 | 4 | Alleged abandonment requires review/appeal; cancellation is not automatic misconduct | Profiles/support | Case workflow/audit | Adversarial workflow tests | Not started |

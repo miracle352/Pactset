@@ -78,6 +78,61 @@ test("support is not a public onboarding choice", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Support" })).toHaveCount(0);
 });
 
+test("onboarding role cards are accessible links with responsive feedback", async ({ page }, testInfo) => {
+  await page.goto("/onboarding");
+  await expect(page.getByText("Explore each role using sample event data.")).toBeVisible();
+  await expect(page.locator(".role-choice-grid > .role-choice")).toHaveCount(3);
+  await expect(page.locator(".role-choice a, .role-choice button")).toHaveCount(0);
+
+  const roles = ["organizer", "supplier", "crew"];
+  for (const role of roles) {
+    const card = page.getByRole("link", { name: new RegExp(`Explore ${role} demo`, "i") });
+    await expect(card).toHaveAttribute("href", `/${role}`);
+  }
+
+  const organizer = page.getByRole("link", { name: /Explore organizer demo/i });
+  await organizer.focus();
+  await expect(organizer).toBeFocused();
+  await expect(organizer).toHaveCSS("outline-style", "solid");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/organizer$/);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const role of roles) {
+    await page.goto("/onboarding");
+    const card = page.getByRole("link", { name: new RegExp(`Explore ${role} demo`, "i") });
+    if (testInfo.project.name === "mobile-chromium") await card.tap();
+    else await card.click();
+    await expect(page).toHaveURL(new RegExp(`/${role}$`));
+  }
+});
+
+test("role-card reduced motion keeps highlight feedback without movement", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/onboarding");
+  const card = page.getByRole("link", { name: /Explore organizer demo/i });
+  const borderBefore = await card.evaluate((element) => getComputedStyle(element).borderColor);
+  await card.focus();
+  await expect(card).toHaveCSS("outline-style", "solid");
+  await expect(card).toHaveCSS("transform", "none");
+  await expect(card.locator(".role-choice-arrow")).toHaveCSS("transform", "none");
+  const borderAfter = await card.evaluate((element) => getComputedStyle(element).borderColor);
+  expect(borderAfter).not.toBe(borderBefore);
+});
+
+test("desktop role-card hover lifts without affecting layout", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "fine-pointer hover check");
+  await page.goto("/onboarding");
+  const card = page.getByRole("link", { name: /Explore organizer demo/i });
+  const boxBefore = await card.boundingBox();
+  await card.hover();
+  await expect(card).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -4)");
+  await expect(card.locator(".role-choice-arrow")).toHaveCSS("transform", "matrix(1, 0, 0, 1, 4, 0)");
+  const boxAfter = await card.boundingBox();
+  expect(boxAfter?.height).toBe(boxBefore?.height);
+  expect(boxAfter?.width).toBe(boxBefore?.width);
+});
+
 test("role shells stay fixture-only", async ({ page }) => {
   await page.goto("/organizer");
   await expect(page.getByText("Fictional fixtures")).toBeVisible();

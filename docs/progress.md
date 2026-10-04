@@ -68,7 +68,7 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - `npm run lint`: passed with Biome 2.5.15.
 - `npm test`: 4/4 passed.
 - `npm run build`: passed; all eight application routes statically prerendered. The build required sandbox escalation because Windows blocked generated `.next` route directories inside the managed filesystem; the same command succeeded outside that restriction.
-- `npm run test:e2e`: 18 passed, 2 expected project-specific skips across desktop and mobile Chromium projects; required 360/390/430/768/1440 widths, short mobile viewport, both themes, enlarged text, menu/sticky-action conflict, persistence, routes, and overflow were exercised.
+- `npm run test:e2e`: 23 passed, 3 expected project-specific skips across desktop and mobile Chromium projects; required 360/390/430/768/1440 widths, short mobile viewport, both themes, enlarged text, menu/sticky-action conflict, persistence, routes, overflow, whole-card role links, keyboard focus, fine-pointer hover, mobile tap, and reduced motion were exercised.
 - `npm audit --audit-level=high`: 0 vulnerabilities after replacing a vulnerable ESLint glob dependency chain with the Next.js-supported Biome linter.
 - Secret-pattern scan: no credential, private-key, seed, or API-key pattern found outside the preserved product brief.
 - Visual review: light/dark desktop and mobile screenshots inspected; corrected the initial font mismatch before accepting evidence.
