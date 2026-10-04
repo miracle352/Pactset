@@ -143,15 +143,16 @@
 ### Task 2A.5: Distinct workspaces and verification
 
 - [x] Replace generic queues, oversized headings, dead hashes, repeated preferences, and public component-state showcases with role-specific layouts and contextual states.
-- [x] Verify with separate organizer, supplier, crew, and unrelated identities through independent sessions, including sign-in persistence and negative authorization cases. Browser-context screenshots remain pending.
-- [ ] Test stale/concurrent acceptance and duplicate submissions through real Data API paths (done); inventory overbooking and conflicting crew shifts remain pending.
-- [ ] Run database advisors, typecheck, lint, unit/integration tests, production build, local browser QA, deployment, and hosted browser QA before marking verified.
+- [x] Verify with separate organizer, supplier, crew, and unrelated identities through independent sessions, including sign-in persistence, negative authorization, and authenticated desktop/mobile browser journeys.
+- [x] Test stale/concurrent acceptance, duplicate submissions, inventory overbooking, crew conflicts, rejection, withdrawal, and reservation expiry through real development Data API paths.
+- [x] Run typecheck, lint, unit/integration tests, production build, and local authenticated browser QA. Deployment and hosted browser QA are intentionally deferred by user instruction.
 
 ## Stage 2B: Persistent booking and real Testnet settlement
 
 - [ ] Extend the Stage 2A auth/database architecture with wallet-bound authorization and required private storage.
 - [ ] Fund one accepted Stage 2A agreement and prove the complete Testnet settlement flow.
 - [ ] Implement the issued-asset registry, trustlines, controlled Testnet distribution/liquidity, quote/convert flow, and explicit failure recovery.
+- [ ] Offer every supported local currency as a clearly labeled test choice while keeping that catalog separate from the smaller allowlist of Stellar assets actually provisioned for Testnet settlement. Never imply that choosing a display/test currency provisions an issuer, trustline, balance, or settlement path.
 - [ ] Implement versioned Soroban escrow with exact-unit arithmetic, idempotency, server-side validation, wallet-bound authorization, and ledger reconciliation.
 - [ ] Prove recipient-confirmed milestone release across separate browser sessions and record real explorer evidence.
 

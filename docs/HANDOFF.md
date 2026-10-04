@@ -32,18 +32,25 @@ Latest result: 12 passed, 0 failed.
 - Crew request, offer, and unfunded agreement.
 - Unrelated account could not read or update the private draft and could not self-assign support.
 
-## Known blockers and untested items
+## Completed continuation checks
+
+- Final `npm run build` passed on Next.js 16.3.8 after the browser-discovered navigation and mobile account-menu fixes.
+- Focused database edge cases passed 7/7: inventory overbooking, crew conflict, rejection, withdrawal, reservation creation, forced expiry cleanup, and reacceptance after expiry.
+- Authenticated Playwright journeys passed in desktop and mobile Chromium for organizer, supplier, and crew with no captured browser console errors.
+- Light/dark desktop/mobile screenshots were captured in `docs/screenshots/stage-2a-*.png` and visually inspected.
+- Organizer offer links now use the shared `/workspace/offers/[id]` route. A single responsive account menu makes settings and sign-out available on desktop and mobile.
+
+## Remaining blockers and untested items
 
 - Real email confirmation-link flow: blocked/unverified by the Free-plan email service rate limit.
 - Real password-recovery email-link flow: blocked/unverified by the same limit.
-- Inventory overbooking and conflicting crew-shift rejection: implemented but not exercised remotely in this checkpoint.
-- Rejection and withdrawal transitions, reservation expiry, authenticated browser screenshots, and full UI journeys remain untested remotely.
+- Email confirmation and recovery callbacks exist, but their real email links have not been received or opened end to end.
+- The payment-phase local-currency catalog and provisioned Stellar asset registry are requirements only; no payment work has begun.
 - No hosted/deployed verification was attempted by instruction.
 
 ## Exact next steps
 
-1. Wait for the Supabase email quota window to reset or configure an authorized custom SMTP provider without exposing credentials; then create a fresh unconfirmed account and prove the real confirmation link and recovery link end to end.
-2. Add focused integration cases for supplier quantity overbooking, crew overlap, rejection, withdrawal, and reservation expiry. Reuse the four ignored development identities; do not create more users unless isolation requires it.
-3. Start the local app, exercise the organizer/supplier/crew journeys in separate browser profiles, inspect console/network errors, and capture authenticated responsive/theme evidence.
-4. Re-run typecheck, lint, unit tests, production build, the remote verification script, and a secret/staged-diff review.
-5. Do not push or deploy until the user explicitly authorizes it; pushing the linked branch may trigger Vercel.
+1. Wait for the Supabase email quota window to reset or configure an authorized custom SMTP provider without exposing credentials; then create a fresh unconfirmed account and prove the real confirmation and recovery links end to end. Keep verification enabled.
+2. When Stage 2B is explicitly authorized, implement `PAY-015`: expose supported local currencies as clearly labeled test choices, but allow settlement only through a separate issuer/network allowlist of Stellar Testnet assets that are actually provisioned.
+3. Before any future publication, rerun the core remote verification, typecheck, lint, unit tests, production build, and authenticated browser spec, then review staged changes and secrets.
+4. Do not push, deploy, or begin payment work until the user explicitly authorizes it; pushing the linked branch may trigger Vercel.
