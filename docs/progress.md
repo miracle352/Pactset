@@ -11,7 +11,7 @@ Stage 1: foundation, design system, project tracking, GitHub, and working Vercel
 - Workspace root is an existing personal profile repository (`miracle352/miracle352`) with an unrelated untracked nested `fieldwork/` repository. Pactset is being created in a separate sibling folder and repository at `pactset/`.
 - No root `AGENTS.md` applies to the new Pactset folder. The only discovered workspace `AGENTS.md` files belong to Fieldwork and are out of scope.
 - GitHub is authenticated as personal account `miracle352`. Search found no existing personal Pactset repository, so a new private repository was created at `https://github.com/miracle352/Pactset` and the verified `main` history was pushed without force.
-- Vercel's connector remains independently unauthorized for the `miracle352` account scope. The signed-in browser route now lists the exact private `miracle352/Pactset` repository and no longer presents an identity-verification challenge; import is intentionally waiting for the final verified commit so Vercel deploys the current revision.
+- Vercel's connector remains independently unauthorized for the `miracle352` account scope. The signed-in browser route could access the exact private `miracle352/Pactset` repository without another identity challenge, so it was used to create the single `pactset` project and deploy `https://pactset.vercel.app` without changing repository visibility or security settings.
 - Official framework check on 2026-10-04: Next.js 16.3.8 is Active LTS, React 19.3 is stable, Next.js 16 requires Node.js 20.9+ and TypeScript 5.1+.
 
 ## Skill audit
@@ -58,9 +58,9 @@ The following are explicit Stage 5 verification requirements and must not be mar
 | Role shells and navigation | Verified | Organizer, supplier, crew, support routes; desktop/sidebar and mobile bottom navigation exercised |
 | Regional preferences | Verified | Independent controls persist locally; browser reload test passes |
 | Fictional demo path | Verified | Explicit fixture and unavailable-capability labels; browser journey passes |
-| GitHub private repository | Verified | Private `miracle352/Pactset`; initial verified application milestone `9fd9155d832a4c1d2fb47ab9df96cc7155b6197d` pushed to `main` without force |
-| Vercel preview | In progress | Browser access to the private repository is confirmed; connector scope remains unauthorized; import follows the final push |
-| Hosted browser verification | In progress | Must run against the actual URL after browser import and deployment complete |
+| GitHub private repository | Verified | Private `miracle352/Pactset`; verified design repair `431a6e37e821ff0b59d984dc3cf9efeb5372058b` pushed to `main` without force; the metadata follow-up is recorded in the final delivery report |
+| Vercel preview | Verified | Single browser-imported `pactset` project at `https://pactset.vercel.app`; exact private repository and `main` branch linked |
+| Hosted browser verification | Verified | Actual production URL opened and repeated desktop/mobile, theme, navigation, and route checks passed |
 
 ## Verification evidence
 
@@ -74,7 +74,7 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - Visual review: light/dark desktop and mobile screenshots inspected; corrected the initial font mismatch before accepting evidence.
 - Browser smoke: all public/role routes returned HTTP 200; no captured page errors or failed requests in the evidence runs.
 - Git publication: staged changes were reviewed, the secret scan passed, the private repository was created empty, and `main` was pushed successfully without force.
-- Hosted verification: not run. A local build is not treated as deployment proof.
+- Hosted verification: `https://pactset.vercel.app` was opened directly after deployment; the core visual, theme, navigation, route, and overflow checks were repeated against the hosted application.
 
 ## Stage 1 design review
 

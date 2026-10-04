@@ -4,6 +4,7 @@ import "@fontsource-variable/manrope";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pactset.vercel.app"),
   title: { default: "Pactset · Every detail. One shared plan.", template: "%s · Pactset" },
   description: "A staged event operations platform for organizers, suppliers, crew, and assigned support, built around Stellar Testnet.",
   applicationName: "Pactset",

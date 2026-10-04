@@ -99,8 +99,8 @@
 - [x] Browser-check 360, 390, 430, 768, and 1440 CSS-pixel widths (including a short mobile viewport) in light and dark themes, enlarged text, navigation, preference persistence, dropdown contrast, keyboard focus, demo separation, and horizontal overflow.
 - [x] Capture four evidence screenshots: light desktop, dark desktop, light mobile, dark mobile.
 - [x] Create a new private `miracle352/Pactset` repository only after confirming it does not exist; commit and push without force.
-- [ ] Create/link a new Vercel project, deploy the pushed milestone, open the actual deployment URL, and repeat the browser smoke checks.
-- [x] Record the pushed commit, repository URL, exact checks, screenshots, and deployment blocker without inventing a URL.
+- [x] Create/link the `pactset` Vercel project, deploy the pushed milestone, open `https://pactset.vercel.app`, and repeat the browser smoke checks.
+- [x] Record the pushed commit, repository URL, exact checks, screenshots, connector limitation, and verified deployment URL.
 
 ## Stage 2: Persistent booking and real Testnet settlement
 
