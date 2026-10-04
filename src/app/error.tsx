@@ -1,0 +1,2 @@
+"use client";
+export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) { return <main className="page-width" style={{ paddingTop: "20vh" }}><section className="glass-panel" style={{ padding: 32, borderRadius: 18 }}><p className="kicker">Something went wrong</p><h1>The view could not be prepared.</h1><p style={{ color: "var(--muted)" }}>No action was completed. Try loading the view again.</p><button type="button" className="button button-primary" onClick={reset}>Try again</button></section></main>; }

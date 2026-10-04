@@ -1,0 +1,26 @@
+# Dependencies and framework output
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.seed
+
+# Hosting metadata
+.vercel/
+
+# Local tooling and OS files
+.DS_Store
+Thumbs.db
+*.log
+*.tsbuildinfo
+.idea/
+.vscode/

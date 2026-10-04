@@ -1,0 +1,1 @@
+export default function Loading() { return <main className="page-width" style={{ paddingTop: "20vh" }}><div className="glass-panel" style={{ padding: 28, borderRadius: 18 }} role="status"><p className="kicker">Pactset</p><h1 style={{ margin: 0 }}>Preparing your workspace</h1><div className="skeleton-lines" style={{ marginTop: 30 }}><span /><span /><span /></div></div></main>; }

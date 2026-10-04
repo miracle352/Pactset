@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound() { return <main className="page-width" style={{ paddingTop: "20vh" }}><section className="glass-panel" style={{ padding: 32, borderRadius: 18 }}><p className="kicker">Route unavailable</p><h1>This part of the plan is not here yet.</h1><p style={{ color: "var(--muted)" }}>Return to the Stage 1 foundation or explore the fictional demo.</p><Link className="button button-primary" href="/">Return home</Link></section></main>; }
