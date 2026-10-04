@@ -128,8 +128,8 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 | ACC-001 | 2 | Core end-to-end acceptance from event creation through confirmed recipient balance/transaction | Full app | All Stage 2 services | Separate-session browser + ledger evidence | Not started |
 | ACC-002 | 2-5 | Adversarial matrix covers role/wallet/issuer/network, liquidity, duplicates, failures, disputes, time, replacement, upload/translation | Test suites | All services | Automated/manual adversarial report | Not started |
 | ACC-003 | 1-5 | Functional paths checked on phone/desktop and both themes; no dead primaries or mock success | All | N/A | Browser QA every stage | Verified |
-| OPS-001 | 1 | Create private personal GitHub repository, inspect staged diff, commit and push | Repository | Git provider | Repo URL and remote commit hash | Not started |
-| OPS-002 | 1 | Create/link Vercel project and working preview; local build is insufficient | Hosted app | Vercel | Open actual URL; hosted smoke/visual checks | Not started |
+| OPS-001 | 1 | Create private personal GitHub repository, inspect staged diff, commit and push | Repository | Git provider | Repo URL and remote commit hash | Verified |
+| OPS-002 | 1 | Create/link Vercel project and working preview; local build is insufficient | Hosted app | Vercel | Open actual URL; hosted smoke/visual checks | Blocked: user-only Vercel 2FA/passkey is required to authorize private GitHub import |
 | OPS-003 | 1+ | No credential/private-key commits or public client secrets | Repository/hosting | Secret store | Git history/staged secret scan | Verified |
 | OPS-004 | 1+ | Report exact implementation, URLs, hashes, screenshots, checks, blockers, and remaining scope | `docs/progress.md` / handoff | None | Evidence review | Implemented |
 

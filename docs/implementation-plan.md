@@ -6,7 +6,7 @@
 
 **Architecture:** A Next.js App Router application with TypeScript, React Server Components by default, narrow client islands for preferences and navigation, and a token-driven CSS design system. Stage 1 contains no live identity, wallet, payment, provider, or ledger functionality. Those integrations arrive behind server-enforced boundaries in later stages.
 
-**Tech stack:** Next.js 16.3.8 Active LTS, React 19.3, TypeScript 5+, ESLint, native CSS design tokens, Vitest, Playwright, GitHub, and Vercel. Later stages add persistent hosted data/auth/storage and Rust/Soroban after explicit architecture selection.
+**Tech stack:** Next.js 16.3.8 Active LTS, React 19.3, TypeScript 5+, Biome, native CSS design tokens, Vitest, Playwright, GitHub, and Vercel. Later stages add persistent hosted data/auth/storage and Rust/Soroban after explicit architecture selection.
 
 **Spec:** `docs/product-spec.md`
 
@@ -49,57 +49,57 @@
 - [x] Copy the supplied brief byte-for-byte into `docs/product-spec.md`.
 - [x] Record every requirement with an owner, verification method, stage, and honest status.
 - [x] Document that this is a new sibling repository and that the unrelated root and Fieldwork repositories are untouched.
-- [ ] Verify the staged diff contains no secrets, unrelated files, or downloaded working artifacts.
+- [x] Verify the staged diff contains no secrets, unrelated files, or downloaded working artifacts.
 
 ### Task 2: Scaffold the maintained framework
 
-**Files:** `package.json`, `package-lock.json`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `src/app/layout.tsx`
+**Files:** `package.json`, `package-lock.json`, `next.config.ts`, `tsconfig.json`, `biome.json`, `src/app/layout.tsx`
 
-- [ ] Create a Next.js App Router TypeScript application using maintained versions verified against official Next.js and React sources.
-- [ ] Add explicit `typecheck`, `lint`, `test`, `test:e2e`, and `build` scripts.
-- [ ] Configure conservative security headers that remain compatible with the static Stage 1 surface.
-- [ ] Confirm `npm ci`, typecheck, lint, unit tests, and a production build pass.
+- [x] Create a Next.js App Router TypeScript application using maintained versions verified against official Next.js and React sources.
+- [x] Add explicit `typecheck`, `lint`, `test`, `test:e2e`, and `build` scripts.
+- [x] Configure conservative security headers that remain compatible with the static Stage 1 surface.
+- [x] Confirm `npm ci`, typecheck, lint, unit tests, and a production build pass.
 
 ### Task 3: Build the Pactset design foundation
 
 **Files:** `src/app/globals.css`, `src/components/brand/*`, `src/components/theme/*`, `public/favicon.svg`, `public/pactset-mark.svg`
 
-- [ ] Define Opal and Obsidian semantic tokens for atmosphere, ink, text, glass, edges, shadows, indigo/periwinkle actions, focus, error, warning, and success.
-- [ ] Implement Light, Dark, and System preferences with an early theme script, persistent local preference, and system-change handling.
-- [ ] Add original Pactset mark/wordmark/favicons and wide editorial sans typography through `next/font` or local system-safe fonts.
-- [ ] Implement focus-visible, hover, active, disabled, loading, empty, error, and reduced-motion/reduced-transparency states.
-- [ ] Run the design/taste pre-flight and record any exceptions.
+- [x] Define Opal and Obsidian semantic tokens for atmosphere, ink, text, glass, edges, shadows, indigo/periwinkle actions, focus, error, warning, and success.
+- [x] Implement Light, Dark, and System preferences with an early theme script, persistent local preference, and system-change handling.
+- [x] Add original Pactset mark/wordmark/favicons and wide editorial sans typography through a self-hosted variable font package.
+- [x] Implement focus-visible, hover, active, disabled, loading, empty, error, and reduced-motion/reduced-transparency states.
+- [x] Run the design/taste pre-flight and record exceptions in `docs/progress.md`.
 
 ### Task 4: Build the public landing and pavilion boundary
 
 **Files:** `src/app/page.tsx`, `src/components/landing/*`, `src/components/pavilion/pavilion-scene.tsx`, `public/images/pavilion-temporary.webp`
 
-- [ ] Render “Every detail. One shared plan.” with “Plan an event” and “Explore the demo” immediately usable.
-- [ ] Use the approved pavilion artwork as a visibly labeled temporary fallback.
-- [ ] Reserve a stable `PavilionScene` boundary for Stage 5 without loading a 3D dependency in Stage 1.
-- [ ] Explain Pactset and Stellar Testnet honestly, without testimonials, vendor logos, counters, or security guarantees.
-- [ ] Link every primary action to a real route or an explicit unavailable explanation.
+- [x] Render “Every detail. One shared plan.” with “Plan an event” and “Explore the demo” immediately usable.
+- [x] Use the approved pavilion artwork as a visibly labeled temporary fallback.
+- [x] Reserve a stable `PavilionScene` boundary for Stage 5 without loading a 3D dependency in Stage 1.
+- [x] Explain Pactset and Stellar Testnet honestly, without testimonials, vendor logos, counters, or security guarantees.
+- [x] Link every primary action to a real route or an explicit unavailable explanation.
 
 ### Task 5: Build onboarding, role shells, preferences, and demo
 
 **Files:** `src/app/onboarding/page.tsx`, `src/app/demo/page.tsx`, `src/app/(roles)/**`, `src/components/shell/*`, `src/components/preferences/*`, `src/lib/fixtures.ts`
 
-- [ ] Offer Organizer, Supplier, and Crew during public onboarding; explain that Support access is assigned.
-- [ ] Build distinct organizer, supplier, crew, and support shells with role-specific navigation and mobile-safe navigation.
-- [ ] Add independent service area, language, named timezone, and preferred test currency controls (TUSD, TGBP, TAUD).
-- [ ] Persist non-sensitive preferences locally and state that they do not change an existing agreement’s currency.
-- [ ] Provide an explicit demo path using named fictional fixtures and honest unavailable-action states.
+- [x] Offer Organizer, Supplier, and Crew during public onboarding; explain that Support access is assigned.
+- [x] Build distinct organizer, supplier, crew, and support shells with role-specific navigation and mobile-safe navigation.
+- [x] Add independent service area, language, named timezone, and preferred test currency controls (TUSD, TGBP, TAUD).
+- [x] Persist non-sensitive preferences locally and state that they do not change an existing agreement’s currency.
+- [x] Provide an explicit demo path using named fictional fixtures and honest unavailable-action states.
 
 ### Task 6: Verify, publish, and verify again
 
 **Files:** `tests/**/*.test.ts`, `tests/e2e/**/*.spec.ts`, `docs/progress.md`
 
-- [ ] Run build, typecheck, lint, tests, dependency audit, secret scan, and diff review.
-- [ ] Browser-check desktop and 375px mobile in light and dark themes, navigation, preference persistence, dropdown contrast, keyboard focus, and demo separation.
-- [ ] Capture four evidence screenshots: light desktop, dark desktop, light mobile, dark mobile.
-- [ ] Create a new private `miracle352/Pactset` repository only after confirming it does not exist; commit and push without force.
+- [x] Run build, typecheck, lint, tests, dependency audit, secret scan, and diff review.
+- [x] Browser-check desktop and 375px mobile in light and dark themes, navigation, preference persistence, dropdown contrast, keyboard focus, and demo separation.
+- [x] Capture four evidence screenshots: light desktop, dark desktop, light mobile, dark mobile.
+- [x] Create a new private `miracle352/Pactset` repository only after confirming it does not exist; commit and push without force.
 - [ ] Create/link a new Vercel project, deploy the pushed milestone, open the actual deployment URL, and repeat the browser smoke checks.
-- [ ] Record the pushed commit, repository URL, deployment URL, exact checks, screenshots, and blockers.
+- [x] Record the pushed commit, repository URL, exact checks, screenshots, and deployment blocker without inventing a URL.
 
 ## Stage 2: Persistent booking and real Testnet settlement
 

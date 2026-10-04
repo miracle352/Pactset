@@ -10,8 +10,8 @@ Stage 1: foundation, design system, project tracking, GitHub, and working Vercel
 
 - Workspace root is an existing personal profile repository (`miracle352/miracle352`) with an unrelated untracked nested `fieldwork/` repository. Pactset is being created in a separate sibling folder and repository at `pactset/`.
 - No root `AGENTS.md` applies to the new Pactset folder. The only discovered workspace `AGENTS.md` files belong to Fieldwork and are out of scope.
-- GitHub connector is authenticated as personal account `miracle352`. Search found no repository owned by `miracle352` named Pactset.
-- Vercel connector is authenticated as `miracle352`. Search found no Pactset project.
+- GitHub is authenticated as personal account `miracle352`. Search found no existing personal Pactset repository, so a new private repository was created at `https://github.com/miracle352/Pactset` and the verified `main` history was pushed without force.
+- Vercel is authenticated as `miracle352` and no existing Pactset project was found. API import failed with an account-scope authorization mismatch; the browser fallback reached Vercel's required 2FA/passkey verification for private GitHub access. No project or deployment URL is claimed until that user-only identity check is completed.
 - Official framework check on 2026-10-04: Next.js 16.3.8 is Active LTS, React 19.3 is stable, Next.js 16 requires Node.js 20.9+ and TypeScript 5.1+.
 
 ## Skill audit
@@ -58,9 +58,9 @@ The following are explicit Stage 5 verification requirements and must not be mar
 | Role shells and navigation | Verified | Organizer, supplier, crew, support routes; desktop/sidebar and mobile bottom navigation exercised |
 | Regional preferences | Verified | Independent controls persist locally; browser reload test passes |
 | Fictional demo path | Verified | Explicit fixture and unavailable-capability labels; browser journey passes |
-| GitHub private repository | Not started | Authenticated connector available; no existing personal Pactset repo found |
-| Vercel preview | Not started | Authenticated connector available; no existing Pactset project found |
-| Hosted browser verification | Not started | Must verify actual URL after deployment |
+| GitHub private repository | Verified | Private `miracle352/Pactset`; initial verified application milestone `9fd9155d832a4c1d2fb47ab9df96cc7155b6197d` pushed to `main` without force |
+| Vercel preview | Blocked | Private-repository import requires the account owner to complete Vercel 2FA/passkey verification in the open browser tab |
+| Hosted browser verification | Blocked | No deployment exists yet; must run only after Vercel private GitHub authorization succeeds |
 
 ## Verification evidence
 
@@ -73,6 +73,8 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - Secret-pattern scan: no credential, private-key, seed, or API-key pattern found outside the preserved product brief.
 - Visual review: light/dark desktop and mobile screenshots inspected; corrected the initial font mismatch before accepting evidence.
 - Browser smoke: all public/role routes returned HTTP 200; no captured page errors or failed requests in the evidence runs.
+- Git publication: staged changes were reviewed, the secret scan passed, the private repository was created empty, and `main` was pushed successfully without force.
+- Hosted verification: not run. A local build is not treated as deployment proof.
 
 ## Stage 1 design review
 
@@ -95,3 +97,4 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - Native CSS tokens selected for the branded glass aesthetic; no third-party design system will be misrepresented as Opal/Obsidian.
 - Stage 1 preferences may use versioned local storage because they are non-sensitive UI preferences; authoritative account/agreement settings wait for persistent backend work.
 - The approved pavilion artwork is a temporary visual fallback, not a 3D implementation.
+- Exact Vercel unblock step: in the open Vercel verification tab, complete the six-digit authenticator or passkey challenge for account `miracle352`; then resume the private GitHub import, deploy, and run the hosted smoke/visual checks before marking `OPS-002` verified.
