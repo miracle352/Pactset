@@ -11,7 +11,7 @@ Stage 1: foundation, design system, project tracking, GitHub, and working Vercel
 - Workspace root is an existing personal profile repository (`miracle352/miracle352`) with an unrelated untracked nested `fieldwork/` repository. Pactset is being created in a separate sibling folder and repository at `pactset/`.
 - No root `AGENTS.md` applies to the new Pactset folder. The only discovered workspace `AGENTS.md` files belong to Fieldwork and are out of scope.
 - GitHub is authenticated as personal account `miracle352`. Search found no existing personal Pactset repository, so a new private repository was created at `https://github.com/miracle352/Pactset` and the verified `main` history was pushed without force.
-- Vercel is authenticated as `miracle352` and no existing Pactset project was found. API import failed with an account-scope authorization mismatch; the browser fallback reached Vercel's required 2FA/passkey verification for private GitHub access. No project or deployment URL is claimed until that user-only identity check is completed.
+- Vercel's connector remains independently unauthorized for the `miracle352` account scope. The signed-in browser route now lists the exact private `miracle352/Pactset` repository and no longer presents an identity-verification challenge; import is intentionally waiting for the final verified commit so Vercel deploys the current revision.
 - Official framework check on 2026-10-04: Next.js 16.3.8 is Active LTS, React 19.3 is stable, Next.js 16 requires Node.js 20.9+ and TypeScript 5.1+.
 
 ## Skill audit
@@ -36,7 +36,7 @@ Stage 1: foundation, design system, project tracking, GitHub, and working Vercel
 
 ## Interactive 3D status
 
-**Status: not started.** Stage 1 may ship only a clearly labeled temporary pavilion artwork behind a reserved component boundary.
+**Status: not started.** Stage 1 ships only scenery-only temporary pavilion artwork behind a reserved component boundary. Its temporary status is explicit in these project records, not as public implementation copy.
 
 The following are explicit Stage 5 verification requirements and must not be marked complete until demonstrated in a browser:
 
@@ -54,13 +54,13 @@ The following are explicit Stage 5 verification requirements and must not be mar
 | Requirements matrix | Implemented | `docs/requirements-matrix.md`; status updates continue during build |
 | Five-stage implementation plan | Implemented | `docs/implementation-plan.md`; self-reviewed, not independently reviewed |
 | Next.js application | Verified | Next.js 16.3.8 / React 19.3; typecheck, lint, unit tests, browser tests, and production build pass |
-| Opal/Obsidian design system | Verified | Light/dark desktop and 375px mobile evidence in `docs/screenshots/` |
+| Opal/Obsidian design system | Verified | Light/dark desktop and 390px mobile evidence in `docs/screenshots/` |
 | Role shells and navigation | Verified | Organizer, supplier, crew, support routes; desktop/sidebar and mobile bottom navigation exercised |
 | Regional preferences | Verified | Independent controls persist locally; browser reload test passes |
 | Fictional demo path | Verified | Explicit fixture and unavailable-capability labels; browser journey passes |
 | GitHub private repository | Verified | Private `miracle352/Pactset`; initial verified application milestone `9fd9155d832a4c1d2fb47ab9df96cc7155b6197d` pushed to `main` without force |
-| Vercel preview | Blocked | Private-repository import requires the account owner to complete Vercel 2FA/passkey verification in the open browser tab |
-| Hosted browser verification | Blocked | No deployment exists yet; must run only after Vercel private GitHub authorization succeeds |
+| Vercel preview | In progress | Browser access to the private repository is confirmed; connector scope remains unauthorized; import follows the final push |
+| Hosted browser verification | In progress | Must run against the actual URL after browser import and deployment complete |
 
 ## Verification evidence
 
@@ -68,7 +68,7 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - `npm run lint`: passed with Biome 2.5.15.
 - `npm test`: 4/4 passed.
 - `npm run build`: passed; all eight application routes statically prerendered. The build required sandbox escalation because Windows blocked generated `.next` route directories inside the managed filesystem; the same command succeeded outside that restriction.
-- `npm run test:e2e`: 12 passed, 2 expected project-specific skips across desktop Chromium and a 375×812 mobile Chromium viewport.
+- `npm run test:e2e`: 18 passed, 2 expected project-specific skips across desktop and mobile Chromium projects; required 360/390/430/768/1440 widths, short mobile viewport, both themes, enlarged text, menu/sticky-action conflict, persistence, routes, and overflow were exercised.
 - `npm audit --audit-level=high`: 0 vulnerabilities after replacing a vulnerable ESLint glob dependency chain with the Next.js-supported Biome linter.
 - Secret-pattern scan: no credential, private-key, seed, or API-key pattern found outside the preserved product brief.
 - Visual review: light/dark desktop and mobile screenshots inspected; corrected the initial font mismatch before accepting evidence.
@@ -82,7 +82,9 @@ The following are explicit Stage 5 verification requirements and must not be mar
 | --- | --- | --- |
 | Copied local font files rendered as a serif | Self-hosted Manrope variable font package | Matches the approved wide sans composition and keeps builds independent of Google Fonts |
 | Generic missing-state risk | Explicit loading, empty, error, disabled, and unavailable presentations | Users can distinguish missing integrations from successful actions |
-| Static pavilion could be mistaken for 3D | Persistent “Temporary pavilion artwork · Interactive 3D arrives in Stage 5” label | Keeps the Stage 5 boundary truthful |
+| Approved website reference was embedded as hero content, duplicating navigation and actions | Rebuilt one semantic HTML hero over standalone scenery-only pavilion artwork | The reference informs visual direction but is no longer page content |
+| Mobile inherited the desktop composition | Dedicated portrait hero, compact header, role-path selector, vertical four-step sequence, and deferred safe-area action | Preserves hierarchy and reachability on narrow and short screens |
+| Public implementation notes interrupted product copy | Honest concise Testnet/demo boundary; temporary/3D status remains in project records | Keeps the public story clear without overstating payments or 3D |
 | Public roles could imply privilege | Support separated from Organizer/Supplier/Crew onboarding | Preserves assigned-only support access |
 
 ## Fixture-only and unavailable boundaries
@@ -97,4 +99,4 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - Native CSS tokens selected for the branded glass aesthetic; no third-party design system will be misrepresented as Opal/Obsidian.
 - Stage 1 preferences may use versioned local storage because they are non-sensitive UI preferences; authoritative account/agreement settings wait for persistent backend work.
 - The approved pavilion artwork is a temporary visual fallback, not a 3D implementation.
-- Exact Vercel unblock step: in the open Vercel verification tab, complete the six-digit authenticator or passkey challenge for account `miracle352`; then resume the private GitHub import, deploy, and run the hosted smoke/visual checks before marking `OPS-002` verified.
+- Vercel access note: the browser session can read the specific private repository, while the API connector still returns a separate account-scope authorization error. The browser import route is the authorized fallback; no security setting or repository visibility change is required.

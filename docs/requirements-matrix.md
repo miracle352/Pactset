@@ -22,8 +22,13 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 | LND-001 | 1 | Landing headline “Every detail. One shared plan.” | `/` | None | Exact-copy assertion | Verified |
 | LND-002 | 1 | Actions “Plan an event” and “Explore the demo” lead somewhere honest | `/` | None in Stage 1 | Click-path test; no dead primary actions | Verified |
 | LND-003 | 1 | Explain product and Stellar’s actual Testnet role without fake proof | `/` | None | Copy review: no logos/testimonials/counters/guarantees | Verified |
-| LND-004 | 1 | Approved pavilion artwork used as clearly temporary fallback | `/` | None | Label and alt-text check | Verified |
+| LND-004 | 1 | Standalone scenery-only pavilion artwork used as a documented temporary fallback; no baked-in UI, text, browser frame, or reference labels | `/` | None | Asset and rendered-page visual inspection | Verified |
 | LND-005 | 1 | Stable component boundary reserved for interactive pavilion | `/` | 3D asset delivery later | Component test; no WebGL claim | Verified |
+| LND-012 | 1 | Hero navigation, headline, supporting copy, actions, and feature labels are real accessible HTML, with exactly one of each primary element | `/` | None | DOM assertions and rendered-page inspection | Verified |
+| LND-013 | 1 | Mobile has a compact header, portrait pavilion composition, primary/quiet actions, role selector, concise four-step sequence, and no desktop-column crop | `/` | None | Visual QA at 360/390/430 and a short viewport | Verified |
+| LND-014 | 1 | Organize/Supply/Join crew selector changes plain-language explanation and destination | `/` | None in Stage 1 | Keyboard and click-path tests | Verified |
+| LND-015 | 1 | Safe-area planning action appears only after the original hero action leaves view and yields to menus/dialogs/keyboard | `/` | None | Intersection, menu-conflict, and visual-viewport tests | Verified |
+| LND-016 | 1 | Public copy omits implementation notes and clearly distinguishes unavailable payments from fictional Testnet presentation | `/` | None | Copy assertions and manual review | Verified |
 | LND-006 | 5 | Realistic interactive pavilion geometry, contact shadows, and lighting | `/` | Asset/runtime delivery | Browser demonstration and visual QA | Not started |
 | LND-007 | 5 | Gentle pavilion entrance; headline/buttons immediately usable and stable | `/` | None | Timed browser interaction during entrance | Not started |
 | LND-008 | 5 | Real 3D depth with subtle cursor-responsive camera movement | `/` | None | Pointer movement/browser frame evidence | Not started |

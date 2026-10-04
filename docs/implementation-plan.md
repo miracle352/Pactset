@@ -36,7 +36,7 @@
 - `src/components/`: brand, navigation, theme, preferences, demo disclosure, state previews, and the pavilion-scene boundary.
 - `src/lib/`: typed role/navigation/fixture/preference models and pure helpers.
 - `src/styles/`: design tokens, materials, layout, components, and reduced-motion/transparency fallbacks.
-- `public/`: approved temporary pavilion artwork, original Pactset marks, favicon, and social image.
+- `public/`: scenery-only temporary pavilion artwork, original Pactset marks, favicon, and social image.
 - `tests/`: unit and browser verification.
 - `docs/`: source brief, requirements matrix, this plan, and progress evidence.
 
@@ -72,13 +72,14 @@
 
 ### Task 4: Build the public landing and pavilion boundary
 
-**Files:** `src/app/page.tsx`, `src/components/landing/*`, `src/components/pavilion/pavilion-scene.tsx`, `public/images/pavilion-temporary.webp`
+**Files:** `src/app/page.tsx`, `src/components/landing/*`, `src/components/pavilion/pavilion-scene.tsx`, `public/images/pavilion-{light,dark}.webp`
 
 - [x] Render “Every detail. One shared plan.” with “Plan an event” and “Explore the demo” immediately usable.
-- [x] Use the approved pavilion artwork as a visibly labeled temporary fallback.
+- [x] Use standalone scenery-only pavilion artwork as a temporary fallback documented in project records, without rendering implementation labels or baked-in website UI.
 - [x] Reserve a stable `PavilionScene` boundary for Stage 5 without loading a 3D dependency in Stage 1.
 - [x] Explain Pactset and Stellar Testnet honestly, without testimonials, vendor logos, counters, or security guarantees.
 - [x] Link every primary action to a real route or an explicit unavailable explanation.
+- [x] Build a dedicated mobile composition with a compact header, portrait pavilion, role-path selector, four-step sequence, and deferred safe-area planning action.
 
 ### Task 5: Build onboarding, role shells, preferences, and demo
 
@@ -95,7 +96,7 @@
 **Files:** `tests/**/*.test.ts`, `tests/e2e/**/*.spec.ts`, `docs/progress.md`
 
 - [x] Run build, typecheck, lint, tests, dependency audit, secret scan, and diff review.
-- [x] Browser-check desktop and 375px mobile in light and dark themes, navigation, preference persistence, dropdown contrast, keyboard focus, and demo separation.
+- [x] Browser-check 360, 390, 430, 768, and 1440 CSS-pixel widths (including a short mobile viewport) in light and dark themes, enlarged text, navigation, preference persistence, dropdown contrast, keyboard focus, demo separation, and horizontal overflow.
 - [x] Capture four evidence screenshots: light desktop, dark desktop, light mobile, dark mobile.
 - [x] Create a new private `miracle352/Pactset` repository only after confirming it does not exist; commit and push without force.
 - [ ] Create/link a new Vercel project, deploy the pushed milestone, open the actual deployment URL, and repeat the browser smoke checks.

@@ -9,7 +9,7 @@ test("landing preserves approved headline and actions", async () => {
   assert.match(source, /Every detail\./);
   assert.match(source, /One shared plan\./);
   assert.match(source, /Plan an event/);
-  assert.match(source, /Explore the demo/);
+  assert.match(source, /Explore demo/);
 });
 
 test("public onboarding excludes support from selectable roles", async () => {
@@ -26,8 +26,9 @@ test("the three supported test currencies and agreement warning exist", async ()
   assert.match(preferences, /never changes the settlement currency of an existing agreement/);
 });
 
-test("temporary artwork is not represented as interactive 3D", async () => {
+test("pavilion fallback is scenery-only and not represented as interactive 3D", async () => {
   const source = await read("src/components/pavilion/pavilion-scene.tsx");
-  assert.match(source, /Temporary pavilion artwork/);
-  assert.match(source, /Interactive 3D arrives in Stage 5/);
+  assert.match(source, /pavilion-light\.webp/);
+  assert.match(source, /pavilion-dark\.webp/);
+  assert.doesNotMatch(source, /interactive 3D|temporary label|browser frame/i);
 });

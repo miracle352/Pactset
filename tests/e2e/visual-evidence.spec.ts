@@ -22,6 +22,7 @@ test("capture mobile light and dark evidence", async ({ page }, testInfo) => {
   const failed: string[] = [];
   page.on("requestfailed", (request) => failed.push(`${request.method()} ${request.url()}`));
 
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Every detail/ })).toBeVisible();
   await page.screenshot({ path: `${evidenceDir}/stage-1-light-mobile.png`, fullPage: true });

@@ -3,7 +3,7 @@
 import { List, X } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrandMark } from "@/components/brand/brand-mark";
 import { ThemeControl } from "@/components/theme/theme-control";
 
@@ -16,6 +16,18 @@ const links = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    document.documentElement.dataset.menuOpen = String(open);
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      delete document.documentElement.dataset.menuOpen;
+    };
+  }, [open]);
 
   return (
     <header className="site-header glass-panel">
