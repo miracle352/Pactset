@@ -13,6 +13,7 @@ test-results/
 .stage2a-test-state.local.json
 .stellar-testnet.local.json
 .stellar-testnet-state.local.json
+.stellar-failure-fixtures.local.json
 contracts/target/
 supabase/.temp/
 *.pem

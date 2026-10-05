@@ -144,3 +144,12 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - Added caller-scoped local reconciliation, durable idempotency/pending state and conversion-success/funding-retry UI.
 - Desktop/mobile browser checks pass in both themes and screenshots were visually reviewed. Production build passes with webpack; Turbopack is blocked only by OneDrive generated-directory `EPERM`.
 - No push or website deployment. Restricted staging and manual Freighter/two-crew/support rehearsal remain gated by explicit authorization and private user interaction.
+
+## Stage 2B isolated-failure and staging checkpoint — 2026-10-05
+
+- Added an idempotent, ignored-state Testnet verifier that creates disposable accounts only. The registered TUSD path failed with `op_no_trust` for a destination lacking a trustline; a deliberately drained disposable account failed trustline creation with `op_low_reserve`; a fresh unissued `TNOQ` asset had zero offers and zero strict-receive paths. No successful demo agreement or escrow was touched.
+- Read-only Vercel dashboard inspection confirmed project `pactset` (`prj_YFD3oimOHAfrcRMcAyjIS2J1zNjT`) under the `miracle352` Hobby scope, Standard Vercel Authentication enabled, password protection unavailable without upgrade, protected sourcemaps enabled, and no project environment variables configured. The connector itself still lacks authorization for this scope.
+- Read-only Supabase inspection confirmed staging callbacks have not been added: Site URL is localhost and the only redirect allow-list entry is `http://localhost:3000/**`.
+- The restricted-staging plan now documents Preview-only variables, exact callbacks, layered Vercel/Supabase protection, caller-scoped reconciliation, a real Freighter sequence, and organizer/supplier/two-crew/support rehearsal.
+- Second-crew and support credentials are prepared in the ignored local fixture file, but the external Auth account creation submit remains pending the required action-time confirmation. No role is stored in editable user metadata; support will be inserted through database administration and audited only after its Auth UUID exists.
+- Email confirmation and password recovery remain unverified. No email verification setting was disabled and no rate-limited retry was attempted.
