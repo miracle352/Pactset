@@ -105,7 +105,7 @@ async function context(admin: ReturnType<typeof createClient>, userId: string, a
   if (agreement.organizer_id !== userId && agreement.provider_id !== userId && !assignedSupport) fail("Agreement not found", 404, "not_found");
   const [{ data: escrow }, { data: wallet }] = await Promise.all([
     admin.from("agreement_escrows").select("*").eq("agreement_id", agreementId).maybeSingle(),
-    admin.from("wallet_connections").select("public_key,network").eq("user_id", userId).eq("network", "TESTNET").maybeSingle(),
+    admin.from("wallet_connections").select("public_key,network").eq("user_id", userId).eq("network", "TESTNET").eq("active", true).maybeSingle(),
   ]);
   if (!escrow) fail("Escrow has not been prepared for this agreement", 409, "escrow_unavailable");
   if (walletRequired && !wallet) fail("Verify a Stellar Testnet wallet first", 409, "wallet_required");
@@ -261,8 +261,8 @@ Deno.serve(async (request: Request) => {
       const { data: currentEscrow } = await admin.from("agreement_escrows").select("id,contract_address").eq("agreement_id", agreementId).maybeSingle();
       if (currentEscrow) return reply({ alreadyCreated: true, escrow: currentEscrow });
       const [{ data: payerWallet }, { data: payeeWallet }, { data: runtime }, { data: asset }] = await Promise.all([
-        admin.from("wallet_connections").select("public_key").eq("user_id", agreement.organizer_id).eq("network", "TESTNET").maybeSingle(),
-        admin.from("wallet_connections").select("public_key").eq("user_id", agreement.provider_id).eq("network", "TESTNET").maybeSingle(),
+        admin.from("wallet_connections").select("public_key").eq("user_id", agreement.organizer_id).eq("network", "TESTNET").eq("active", true).maybeSingle(),
+        admin.from("wallet_connections").select("public_key").eq("user_id", agreement.provider_id).eq("network", "TESTNET").eq("active", true).maybeSingle(),
         admin.from("escrow_runtime_registry").select("*").eq("network", "TESTNET").eq("active", true).maybeSingle(),
         admin.from("test_asset_registry").select("*").eq("asset_code", agreement.currency).maybeSingle(),
       ]);
@@ -271,7 +271,7 @@ Deno.serve(async (request: Request) => {
       if (payerWallet.public_key === payeeWallet.public_key) fail("Organizer and provider must use distinct wallets", 409, "wallet_reuse");
       if (!runtime?.active || !runtime.wasm_hash) fail("The Testnet escrow runtime is not ready", 409, "runtime_unavailable");
       const [{ data: resolverWallet }, { data: resolverRole }] = await Promise.all([
-        admin.from("wallet_connections").select("public_key").eq("user_id", runtime.resolver_user_id).eq("network", "TESTNET").eq("public_key", runtime.resolver_public_key).maybeSingle(),
+        admin.from("wallet_connections").select("public_key").eq("user_id", runtime.resolver_user_id).eq("network", "TESTNET").eq("public_key", runtime.resolver_public_key).eq("active", true).maybeSingle(),
         admin.from("account_roles").select("role").eq("user_id", runtime.resolver_user_id).eq("role", "support").eq("status", "active").maybeSingle(),
       ]);
       if (!resolverWallet || !resolverRole) fail("The disclosed Testnet resolver is not available", 409, "resolver_unavailable");

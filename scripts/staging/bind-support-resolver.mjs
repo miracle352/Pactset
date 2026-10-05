@@ -16,7 +16,7 @@ if (!resolver?.publicKey || !resolver?.secret) throw new Error("The ignored deve
 const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 const signedIn = await client.auth.signInWithPassword({ email: support.email, password: support.password });
 if (signedIn.error) throw signedIn.error;
-const existing = await client.from("wallet_connections").select("public_key,network").eq("user_id", support.userId).eq("network", "TESTNET").maybeSingle();
+const existing = await client.from("wallet_connections").select("public_key,network").eq("user_id", support.userId).eq("network", "TESTNET").eq("active", true).maybeSingle();
 if (existing.error) throw existing.error;
 if (existing.data && existing.data.public_key !== resolver.publicKey) throw new Error("Support already owns a different Testnet wallet; refusing to replace it");
 if (!existing.data) {

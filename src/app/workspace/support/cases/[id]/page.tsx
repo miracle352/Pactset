@@ -19,7 +19,7 @@ export default async function SupportCasePage({ params }: { params: Promise<{ id
     supabase.from("agreement_escrows").select("*").eq("agreement_id", supportCase.agreement_id).maybeSingle(),
     supabase.from("support_case_messages").select("*").eq("case_id", id).order("created_at"),
     supabase.from("support_case_events").select("*").eq("case_id", id).order("created_at"),
-    supabase.from("wallet_connections").select("public_key,network,wallet_provider,verified_at").eq("user_id", account.userId).eq("network", "TESTNET").maybeSingle(),
+    supabase.from("wallet_connections").select("public_key,network,wallet_provider,verified_at").eq("user_id", account.userId).eq("network", "TESTNET").eq("active", true).maybeSingle(),
   ]);
   if (!agreement) notFound();
   const { data: milestones } = escrow ? await supabase.from("escrow_milestones").select("*").eq("escrow_id", escrow.id).order("milestone_index") : { data: null };

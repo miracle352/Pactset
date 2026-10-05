@@ -135,28 +135,25 @@ Deno.serve(async (request: Request) => {
     if (consumeError || !consumed) return response({ error: "Wallet challenge has already been used" }, 409);
 
     const provider = typeof body.walletProvider === "string" ? body.walletProvider.slice(0, 48) : "Freighter";
-    const { data: connection, error: connectionError } = await admin
-      .from("wallet_connections")
-      .upsert(
-        {
-          user_id: authData.user.id,
-          public_key: publicKey,
-          network: "TESTNET",
-          wallet_provider: provider,
-          verified_at: usedAt,
-          updated_at: usedAt,
-        },
-        { onConflict: "user_id,network" },
-      )
-      .select("public_key,network,wallet_provider,verified_at")
-      .single();
+    const { data: connection, error: connectionError } = await admin.rpc("activate_wallet_connection", {
+      p_user_id: authData.user.id,
+      p_public_key: publicKey,
+      p_network: "TESTNET",
+      p_wallet_provider: provider,
+      p_verified_at: usedAt,
+    });
     if (connectionError || !connection) {
       const message = connectionError?.code === "23505"
         ? "This Testnet wallet is already connected to another Pactset account"
         : "Could not save the verified wallet";
       return response({ error: message }, connectionError?.code === "23505" ? 409 : 500);
     }
-    return response({ connection });
+    return response({ connection: {
+      public_key: connection.public_key,
+      network: connection.network,
+      wallet_provider: connection.wallet_provider,
+      verified_at: connection.verified_at,
+    } });
   }
 
   return response({ error: "Unsupported action" }, 400);

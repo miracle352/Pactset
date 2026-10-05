@@ -30,7 +30,8 @@ test.describe("Stage 2B payment projection", () => {
     await expect(page.getByText("750 TUSD", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("Testnet payment is confirmed", { exact: false })).toBeVisible();
     await expect(page.getByText("returned this unreleased amount", { exact: false })).toBeVisible();
-    await expect(page.getByText("Testnet ownership verified", { exact: false })).toBeVisible();
+    await expect(page.getByText("active Testnet wallet", { exact: false })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Verify a different wallet" })).toBeEnabled();
     expect(await page.getByRole("link", { name: /Explorer/ }).count()).toBeGreaterThanOrEqual(4);
     await expect(page.getByText("Automated Testnet fixture", { exact: false })).toBeVisible();
     await expect(page.locator("body")).not.toHaveCSS("overflow-x", "scroll");

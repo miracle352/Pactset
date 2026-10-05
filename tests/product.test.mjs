@@ -99,3 +99,14 @@ test("wallet-created escrows and assigned support keep separate authorization bo
   assert.match(payments, /transactionAction="create_escrow"/);
   assert.match(payments, /quoteId=\{quote\.id\}/);
 });
+
+test("verified wallet switching cannot rewrite existing escrow participants", async () => {
+  const migration = await read("supabase/migrations/20261005153000_active_verified_wallets.sql");
+  const walletAuth = await read("supabase/functions/wallet-auth/index.ts");
+  const payment = await read("src/components/payments/wallet-connection.tsx");
+  assert.match(migration, /unique index wallet_connections_one_active_user_network_idx[\s\S]*where active/i);
+  assert.match(migration, /current_user not in \('service_role','postgres'\)/i);
+  assert.match(migration, /revoke all on function public\.activate_wallet_connection[\s\S]*authenticated/i);
+  assert.match(walletAuth, /rpc\("activate_wallet_connection"/);
+  assert.match(payment, /existing escrows remain bound/i);
+});

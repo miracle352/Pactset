@@ -26,7 +26,7 @@ export default async function AgreementPaymentPage({ params }: { params: Promise
   const supabase = await createClient();
   const [{ data: agreement }, { data: wallet }, { data: escrow }] = await Promise.all([
     supabase.from("agreements").select("*").eq("id", id).maybeSingle(),
-    supabase.from("wallet_connections").select("public_key,network,wallet_provider,verified_at").eq("user_id", account.userId).eq("network", "TESTNET").maybeSingle(),
+    supabase.from("wallet_connections").select("public_key,network,wallet_provider,verified_at").eq("user_id", account.userId).eq("network", "TESTNET").eq("active", true).maybeSingle(),
     supabase.from("agreement_escrows").select("*,test_asset_registry(*)").eq("agreement_id", id).maybeSingle(),
   ]);
   if (!agreement) notFound();
