@@ -78,3 +78,24 @@ test("Stage 2B schema and contract preserve wallet, asset, evidence, and escrow 
   assert.match(contract, /cfg\.resolver\.require_auth\(\)/);
   assert.match(contract, /MilestoneState::Disputed/);
 });
+
+test("wallet-created escrows and assigned support keep separate authorization boundaries", async () => {
+  const migration = await read("supabase/migrations/20261005150000_stage_2b_user_escrow_and_assigned_support.sql");
+  const membershipHardening = await read("supabase/migrations/20261005152000_support_case_active_membership.sql");
+  const edge = await read("supabase/functions/stellar-payments/index.ts");
+  const payments = await read("src/components/payments/payment-actions.tsx");
+  for (const table of ["escrow_runtime_registry", "support_cases", "support_case_messages", "support_case_events"]) {
+    assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  }
+  assert.match(migration, /assigned_support_id = \(select auth\.uid\(\)\)/);
+  assert.match(migration, /current_user not in \('service_role','postgres'\)/);
+  assert.match(migration, /grant execute on function public\.finalize_escrow_deployment[\s\S]*to service_role/i);
+  assert.match(membershipHardening, /can_access_support_case[\s\S]*account_roles[\s\S]*role = 'support'[\s\S]*status = 'active'/i);
+  assert.doesNotMatch(migration, /grant execute on function public\.finalize_escrow_deployment[\s\S]{0,100}to authenticated/i);
+  assert.match(edge, /Operation\.createCustomContract/);
+  assert.match(edge, /payerWallet\.public_key === payeeWallet\.public_key/);
+  assert.match(edge, /isAssignedSupport/);
+  assert.match(edge, /kind === "contract_deploy"/);
+  assert.match(payments, /transactionAction="create_escrow"/);
+  assert.match(payments, /quoteId=\{quote\.id\}/);
+});

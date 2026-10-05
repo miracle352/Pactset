@@ -74,7 +74,7 @@ export default function Home() {
 
       <section className="testnet-section page-width glass-panel">
         <div className="testnet-map"><MapPin size={22} /><span className="orbit orbit-one" /><span className="orbit orbit-two" /></div>
-        <div><h2>A clear Testnet boundary.</h2><p>Payments are not live. The demo uses TUSD, TGBP, and TAUD as fictional test assets with no real-world value, and it never invents balances or transactions.</p><Link className="text-link" href="/demo">See the fictional demo boundary <ArrowRight size={15} /></Link></div>
+        <div><h2>A clear Testnet boundary.</h2><p>Public demos use fictional sample data. Authenticated payment rehearsals use Pactset-issued Testnet assets with no real-world value and show real Testnet transaction evidence when confirmed.</p><Link className="text-link" href="/demo">See the fictional demo boundary <ArrowRight size={15} /></Link></div>
       </section>
       <footer className="site-footer page-width"><span>PACTSET</span><p>Global event operations on Stellar Testnet.</p><Link href="/demo">Explore demo</Link></footer>
       <MobilePlanAction />

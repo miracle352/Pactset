@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {
+  Address,
   Asset,
   BASE_FEE,
   Contract,
@@ -7,7 +8,9 @@ import {
   Memo,
   Networks,
   Operation,
+  StrKey,
   TransactionBuilder,
+  hash,
   nativeToScVal,
   rpc,
   xdr,
@@ -51,6 +54,37 @@ function unitsToDecimal(value: bigint) {
   return `${whole}.${fraction}`;
 }
 
+async function sha256(value: string) {
+  return new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)));
+}
+
+function hex(bytes: Uint8Array) {
+  return Array.from(bytes).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function contractIdFromAddressAndSalt(address: string, salt: Uint8Array) {
+  const networkId = hash(new TextEncoder().encode(Networks.TESTNET));
+  const preimage = xdr.HashIdPreimage.envelopeTypeContractId(new xdr.HashIdPreimageContractId({
+    networkId,
+    contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAddress(new xdr.ContractIdPreimageFromAddress({
+      address: new Address(address).toScAddress(),
+      salt,
+    })),
+  }));
+  return StrKey.encodeContract(hash(preimage.toXDR()));
+}
+
+function milestonePlan(agreement: Record<string, unknown>) {
+  const total = decimalToUnits(String(agreement.amount));
+  const source = Array.isArray(agreement.milestones) && agreement.milestones.length ? agreement.milestones : ["Complete agreed work"];
+  const labels = source.map((item, index) => typeof item === "string" ? item.slice(0, 160) : String((item as Record<string, unknown>).label ?? (item as Record<string, unknown>).title ?? `Milestone ${index + 1}`).slice(0, 160));
+  const specified = source.map((item) => typeof item === "object" && item && "amount" in item ? decimalToUnits(String((item as Record<string, unknown>).amount)) : null);
+  if (specified.every((item) => item !== null) && specified.reduce((sum, item) => sum + (item ?? 0n), 0n) === total) return { labels, amounts: specified as bigint[], total };
+  const each = total / BigInt(labels.length);
+  const amounts = labels.map((_, index) => index === 0 ? each + (total % BigInt(labels.length)) : each);
+  return { labels, amounts, total };
+}
+
 function assetFromPath(value: Record<string, string>) {
   return value.asset_type === "native" ? Asset.native() : new Asset(value.asset_code, value.asset_issuer);
 }
@@ -67,14 +101,15 @@ async function context(admin: ReturnType<typeof createClient>, userId: string, a
   const { data: agreement } = await admin.from("agreements").select("*").eq("id", agreementId).maybeSingle();
   const support = await isSupport(admin, userId);
   if (!agreement) fail("Agreement not found", 404, "not_found");
-  if (agreement.organizer_id !== userId && agreement.provider_id !== userId && !support) fail("Agreement not found", 404, "not_found");
+  const assignedSupport = support && await isAssignedSupport(admin, userId, agreementId);
+  if (agreement.organizer_id !== userId && agreement.provider_id !== userId && !assignedSupport) fail("Agreement not found", 404, "not_found");
   const [{ data: escrow }, { data: wallet }] = await Promise.all([
     admin.from("agreement_escrows").select("*").eq("agreement_id", agreementId).maybeSingle(),
     admin.from("wallet_connections").select("public_key,network").eq("user_id", userId).eq("network", "TESTNET").maybeSingle(),
   ]);
   if (!escrow) fail("Escrow has not been prepared for this agreement", 409, "escrow_unavailable");
   if (walletRequired && !wallet) fail("Verify a Stellar Testnet wallet first", 409, "wallet_required");
-  if (agreement.organizer_id !== userId && agreement.provider_id !== userId && !(support && wallet?.public_key === escrow.resolver_public_key)) fail("Agreement not found", 404, "not_found");
+  if (agreement.organizer_id !== userId && agreement.provider_id !== userId && !(assignedSupport && (!walletRequired || wallet?.public_key === escrow.resolver_public_key))) fail("Agreement not found", 404, "not_found");
   const { data: asset } = await admin.from("test_asset_registry").select("*").eq("id", escrow.asset_id).single();
   if (!asset) fail("Agreement asset is not registered", 409, "asset_unavailable");
   return { agreement, escrow, wallet, asset };
@@ -89,6 +124,11 @@ async function isSupport(admin: ReturnType<typeof createClient>, userId: string)
   return Boolean(data);
 }
 
+async function isAssignedSupport(admin: ReturnType<typeof createClient>, userId: string, agreementId: string) {
+  const { data } = await admin.from("support_cases").select("id").eq("agreement_id", agreementId).eq("assigned_support_id", userId).in("status", ["assigned", "under_review"]).limit(1).maybeSingle();
+  return Boolean(data);
+}
+
 async function applyConfirmation(admin: ReturnType<typeof createClient>, transaction: Record<string, unknown>, ledger: number | null) {
   const now = new Date().toISOString();
   const transactionId = String(transaction.id);
@@ -96,9 +136,29 @@ async function applyConfirmation(admin: ReturnType<typeof createClient>, transac
   const escrowId = transaction.escrow_id ? String(transaction.escrow_id) : null;
   const milestoneId = transaction.milestone_id ? String(transaction.milestone_id) : null;
   const metadata = (transaction.action_metadata ?? {}) as Record<string, unknown>;
+  if (kind === "contract_deploy") {
+    const contractAddress = String(metadata.contractAddress ?? "");
+    if (!/^C[A-Z2-7]{55}$/.test(contractAddress)) fail("Confirmed deployment did not return a valid contract address", 502, "deployment_result_invalid");
+    const { data: deployed, error } = await admin.rpc("finalize_escrow_deployment", {
+      p_agreement_id: transaction.agreement_id,
+      p_contract_address: contractAddress,
+      p_deployment_tx_hash: transaction.tx_hash,
+      p_payer_public_key: metadata.payerPublicKey,
+      p_payee_public_key: metadata.payeePublicKey,
+      p_resolver_public_key: metadata.resolverPublicKey,
+      p_agreement_hash: metadata.agreementHash,
+      p_terms_hash: metadata.termsHash,
+      p_asset_id: metadata.assetId,
+      p_total_amount: metadata.totalAmount,
+      p_milestone_labels: metadata.milestoneLabels,
+      p_milestone_amounts: metadata.milestoneAmounts,
+    });
+    if (error || !deployed) fail("The confirmed escrow could not be reconciled", 502, "deployment_reconciliation_failed");
+    await admin.from("payment_transactions").update({ escrow_id: deployed.id }).eq("id", transactionId);
+  }
   await admin.from("payment_transactions").update({ status: "confirmed", ledger, confirmed_at: now, updated_at: now, error_code: null }).eq("id", transactionId).eq("status", "pending");
   if (kind === "conversion" && transaction.quote_id) await admin.from("payment_quotes").update({ consumed_at: now }).eq("id", transaction.quote_id);
-  if (kind === "conversion" || kind === "trustline") return;
+  if (kind === "conversion" || kind === "trustline" || kind === "contract_deploy") return;
   if (!escrowId) return;
   if (kind === "funding") await admin.from("agreement_escrows").update({ status: "funded", funding_tx_hash: transaction.tx_hash, funded_at: now, last_reconciled_at: now, updated_at: now }).eq("id", escrowId);
   if (kind === "submission" && milestoneId) await admin.from("escrow_milestones").update({ status: "submitted", submitted_at: now, updated_at: now }).eq("id", milestoneId);
@@ -112,6 +172,15 @@ async function applyConfirmation(admin: ReturnType<typeof createClient>, transac
   }
   if (kind === "dispute" && milestoneId) await admin.from("escrow_milestones").update({ status: "disputed", updated_at: now }).eq("id", milestoneId);
   if ((kind === "refund" || (kind === "resolution" && transaction.resolution === "refund")) && milestoneId) await admin.from("escrow_milestones").update({ status: "refunded", refund_tx_hash: transaction.tx_hash, updated_at: now }).eq("id", milestoneId);
+  if (kind === "resolution") {
+    const decision = transaction.resolution === "release" ? "release" : "refund";
+    const { data: supportCase } = await admin.from("support_cases").select("id").eq("agreement_id", transaction.agreement_id).eq("assigned_support_id", transaction.initiated_by).in("status", ["assigned", "under_review"]).order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (supportCase) {
+      const reason = String(metadata.decisionReason ?? "").slice(0, 4000);
+      await admin.from("support_cases").update({ status: "resolved", decision, decision_reason: reason, resolved_at: now, updated_at: now }).eq("id", supportCase.id);
+      await admin.from("support_case_events").insert({ case_id: supportCase.id, actor_id: transaction.initiated_by, action: `resolved_${decision}`, reason, details: { transaction_hash: transaction.tx_hash, milestone_id: milestoneId } });
+    }
+  }
   const { data: milestones } = await admin.from("escrow_milestones").select("status").eq("escrow_id", escrowId);
   const states = (milestones ?? []).map((item) => item.status);
   let escrowStatus = states.includes("disputed") ? "disputed" : states.every((item) => item === "released") ? "completed" : states.every((item) => item === "refunded") ? "refunded" : states.includes("released") ? "partially_released" : states.includes("refunded") ? "partially_refunded" : "funded";
@@ -127,7 +196,21 @@ async function reconcileOne(admin: ReturnType<typeof createClient>, transaction:
       else await admin.from("payment_transactions").update({ status: "failed", error_code: "ledger_failed", updated_at: new Date().toISOString() }).eq("id", transaction.id);
     } else {
       const record = await soroban.getTransaction(String(transaction.tx_hash));
-      if (record.status === "SUCCESS") await applyConfirmation(admin, transaction, "ledger" in record ? Number(record.ledger) : null);
+      if (record.status === "SUCCESS") {
+        if (transaction.kind === "contract_deploy") {
+          const deploymentMetadata = (transaction.action_metadata ?? {}) as Record<string, unknown>;
+          let address = String(deploymentMetadata.contractAddress ?? "");
+          if (!address && deploymentMetadata.payerPublicKey && deploymentMetadata.agreementVersion) {
+            const salt = await sha256(`pactset:${transaction.agreement_id}:${deploymentMetadata.agreementVersion}`);
+            address = contractIdFromAddressAndSalt(String(deploymentMetadata.payerPublicKey), salt);
+            transaction.action_metadata = { ...deploymentMetadata, contractAddress: address };
+            await admin.from("payment_transactions").update({ action_metadata: transaction.action_metadata }).eq("id", transaction.id);
+          }
+          if (!/^C[A-Z2-7]{55}$/.test(address)) fail("Prepared deployment is missing its deterministic contract address", 502, "deployment_result_invalid");
+          await soroban.getContractInstance(address);
+        }
+        await applyConfirmation(admin, transaction, "ledger" in record ? Number(record.ledger) : null);
+      }
       if (record.status === "FAILED") await admin.from("payment_transactions").update({ status: "failed", error_code: "ledger_failed", updated_at: new Date().toISOString() }).eq("id", transaction.id);
     }
   } catch (error) {
@@ -165,6 +248,114 @@ Deno.serve(async (request: Request) => {
     }
 
     const agreementId = String(body.agreementId ?? "");
+    if (action === "prepare" && String(body.transactionAction ?? "") === "create_escrow") {
+      const idempotencyKey = String(body.idempotencyKey ?? "");
+      if (!/^[a-z0-9_-]{16,160}$/i.test(idempotencyKey)) fail("A valid idempotency key is required");
+      const { data: existing } = await admin.from("payment_transactions").select("*").eq("idempotency_key", idempotencyKey).maybeSingle();
+      if (existing) {
+        if (existing.initiated_by !== userId || existing.agreement_id !== agreementId) fail("Idempotency key conflict", 409);
+        return reply({ transaction: existing, xdr: existing.submitted_xdr, details: existing.action_metadata });
+      }
+      const { data: agreement } = await admin.from("agreements").select("*").eq("id", agreementId).maybeSingle();
+      if (!agreement || agreement.organizer_id !== userId) fail("Agreement not found", 404, "not_found");
+      const { data: currentEscrow } = await admin.from("agreement_escrows").select("id,contract_address").eq("agreement_id", agreementId).maybeSingle();
+      if (currentEscrow) return reply({ alreadyCreated: true, escrow: currentEscrow });
+      const [{ data: payerWallet }, { data: payeeWallet }, { data: runtime }, { data: asset }] = await Promise.all([
+        admin.from("wallet_connections").select("public_key").eq("user_id", agreement.organizer_id).eq("network", "TESTNET").maybeSingle(),
+        admin.from("wallet_connections").select("public_key").eq("user_id", agreement.provider_id).eq("network", "TESTNET").maybeSingle(),
+        admin.from("escrow_runtime_registry").select("*").eq("network", "TESTNET").eq("active", true).maybeSingle(),
+        admin.from("test_asset_registry").select("*").eq("asset_code", agreement.currency).maybeSingle(),
+      ]);
+      if (!payerWallet) fail("Verify the organizer Testnet wallet first", 409, "payer_wallet_required");
+      if (!payeeWallet) fail("The provider must verify a distinct Testnet wallet before escrow creation", 409, "payee_wallet_required");
+      if (payerWallet.public_key === payeeWallet.public_key) fail("Organizer and provider must use distinct wallets", 409, "wallet_reuse");
+      if (!runtime?.active || !runtime.wasm_hash) fail("The Testnet escrow runtime is not ready", 409, "runtime_unavailable");
+      const [{ data: resolverWallet }, { data: resolverRole }] = await Promise.all([
+        admin.from("wallet_connections").select("public_key").eq("user_id", runtime.resolver_user_id).eq("network", "TESTNET").eq("public_key", runtime.resolver_public_key).maybeSingle(),
+        admin.from("account_roles").select("role").eq("user_id", runtime.resolver_user_id).eq("role", "support").eq("status", "active").maybeSingle(),
+      ]);
+      if (!resolverWallet || !resolverRole) fail("The disclosed Testnet resolver is not available", 409, "resolver_unavailable");
+      if (!asset || asset.provisioning_status !== "ready" || !asset.stellar_asset_contract) fail("This exact agreement asset requires Testnet setup", 409, "asset_unavailable");
+      const plan = milestonePlan(agreement);
+      const agreementHashBytes = await sha256(agreementId);
+      const termsRecord = {
+        agreementId,
+        version: agreement.offer_version,
+        scope: agreement.scope,
+        currency: agreement.currency,
+        totalAmount: plan.total.toString(),
+        milestoneLabels: plan.labels,
+        milestoneAmounts: plan.amounts.map(String),
+        cancellationTerms: agreement.cancellation_terms,
+        payer: payerWallet.public_key,
+        payee: payeeWallet.public_key,
+        resolver: runtime.resolver_public_key,
+        asset: asset.stellar_asset_contract,
+      };
+      const termsHashBytes = await sha256(JSON.stringify(termsRecord));
+      const salt = await sha256(`pactset:${agreementId}:${agreement.offer_version}`);
+      const contractAddress = contractIdFromAddressAndSalt(payerWallet.public_key, salt);
+      const constructorArgs = [
+        xdr.ScVal.scvBytes(agreementHashBytes),
+        nativeToScVal(agreement.offer_version, { type: "u32" }),
+        nativeToScVal(payerWallet.public_key, { type: "address" }),
+        nativeToScVal(payeeWallet.public_key, { type: "address" }),
+        nativeToScVal(runtime.resolver_public_key, { type: "address" }),
+        nativeToScVal(asset.stellar_asset_contract, { type: "address" }),
+        xdr.ScVal.scvVec(plan.amounts.map((amount) => nativeToScVal(amount, { type: "i128" }))),
+        xdr.ScVal.scvBytes(termsHashBytes),
+      ];
+      const account = await soroban.getAccount(payerWallet.public_key);
+      const raw = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: Networks.TESTNET })
+        .addOperation(Operation.createCustomContract({ address: new Address(payerWallet.public_key), wasmHash: Buffer.from(runtime.wasm_hash, "hex"), salt, constructorArgs }))
+        .setTimeout(180).build();
+      const prepared = await soroban.prepareTransaction(raw);
+      const metadata = {
+        network: "Stellar Testnet", action: "create_escrow", agreementId,
+        agreementVersion: agreement.offer_version, agreementHash: hex(agreementHashBytes), termsHash: hex(termsHashBytes),
+        payerPublicKey: payerWallet.public_key, payeePublicKey: payeeWallet.public_key,
+        resolverPublicKey: runtime.resolver_public_key, assetId: asset.id, assetCode: asset.asset_code,
+        assetContract: asset.stellar_asset_contract, contractAddress, totalAmount: plan.total.toString(),
+        milestoneLabels: plan.labels, milestoneAmounts: plan.amounts.map(String),
+        resolverRule: "Only the assigned support account owning this disclosed resolver wallet may resolve a disputed, unreleased milestone.",
+      };
+      const xdrText = prepared.toXDR();
+      const { data: transaction, error } = await admin.from("payment_transactions").insert({
+        agreement_id: agreementId, initiated_by: userId, actor_public_key: payerWallet.public_key,
+        kind: "contract_deploy", idempotency_key: idempotencyKey, submitted_xdr: xdrText,
+        status: "prepared", action_name: "create_escrow", action_metadata: metadata, prepared_at: new Date().toISOString(),
+      }).select("*").single();
+      if (error || !transaction) fail("Could not save the prepared escrow deployment", 500);
+      return reply({ transaction, xdr: xdrText, details: metadata });
+    }
+    if (action === "submit") {
+      const transactionId = String(body.transactionId ?? "");
+      const { data: deployment } = await admin.from("payment_transactions").select("*").eq("id", transactionId).eq("agreement_id", agreementId).eq("initiated_by", userId).eq("kind", "contract_deploy").maybeSingle();
+      if (deployment) {
+        if (deployment.status === "confirmed" || deployment.status === "pending") return reply({ transaction: await reconcileOne(admin, deployment) });
+        if (deployment.status !== "prepared" || !deployment.submitted_xdr) fail("This deployment cannot be submitted again", 409, "duplicate_submission");
+        const signedXdr = String(body.signedXdr ?? "");
+        const unsigned = TransactionBuilder.fromXDR(deployment.submitted_xdr, Networks.TESTNET);
+        const signed = TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET);
+        if (!("signatureBase" in unsigned) || !("signatureBase" in signed) || Buffer.from(unsigned.signatureBase()).toString("hex") !== Buffer.from(signed.signatureBase()).toString("hex") || signed.signatures.length === 0) fail("The signed envelope does not match the reviewed deployment", 400, "signature_mismatch");
+        const hash = Buffer.from(signed.hash()).toString("hex");
+        const now = new Date().toISOString();
+        const { data: pending } = await admin.from("payment_transactions").update({ status: "pending", tx_hash: hash, submitted_xdr: signedXdr, submitted_at: now, updated_at: now }).eq("id", deployment.id).eq("status", "prepared").select("*").maybeSingle();
+        if (!pending) {
+          const { data: current } = await admin.from("payment_transactions").select("*").eq("id", deployment.id).single();
+          return reply({ transaction: current });
+        }
+        try {
+          const result = await soroban.sendTransaction(signed as never);
+          if (result.status === "ERROR") fail("Stellar RPC rejected the escrow deployment", 422, "ledger_rejected");
+        } catch (error) {
+          const detail = safeError(error);
+          await admin.from("payment_transactions").update({ status: "failed", error_code: detail.code, updated_at: new Date().toISOString() }).eq("id", pending.id);
+          return reply({ error: detail.message, code: detail.code, txHash: hash }, 422);
+        }
+        return reply({ transaction: await reconcileOne(admin, pending), explorerUrl: `https://stellar.expert/explorer/testnet/tx/${hash}` });
+      }
+    }
     const ctx = await context(admin, userId, agreementId, !["recordEvidence", "evidenceUrl"].includes(action));
 
     if (action === "quote") {
@@ -259,7 +450,7 @@ Deno.serve(async (request: Request) => {
         const roleMap: Record<string, string> = { fund: "organizer", submit: "provider", request_correction: "organizer", approve_release: "organizer", dispute: "participant", resolve: "support" };
         if (!roleMap[requestedAction]) fail("Unsupported transaction action");
         if ((roleMap[requestedAction] === "organizer" && ctx.agreement.organizer_id !== userId) || (roleMap[requestedAction] === "provider" && ctx.agreement.provider_id !== userId)) fail("This account is not authorized for that action", 403, "unauthorized");
-        if (roleMap[requestedAction] === "support" && !await isSupport(admin, userId)) fail("Assigned support access is required", 403, "unauthorized");
+        if (roleMap[requestedAction] === "support" && !(await isSupport(admin, userId) && await isAssignedSupport(admin, userId, agreementId))) fail("Assigned support access is required", 403, "unauthorized");
         const expectedWallet = requestedAction === "resolve" ? ctx.escrow.resolver_public_key : ctx.agreement.organizer_id === userId ? ctx.escrow.payer_public_key : ctx.escrow.payee_public_key;
         requireWallet(expectedWallet, ctx.wallet.public_key);
         const contract = new Contract(ctx.escrow.contract_address);
@@ -277,6 +468,7 @@ Deno.serve(async (request: Request) => {
         if (requestedAction === "resolve") {
           resolution = String(body.resolution ?? "");
           if (!["release", "refund"].includes(resolution)) fail("Choose release or refund");
+          if (String(body.feedback ?? "").trim().length < 3) fail("Record a decision reason before resolving the dispute");
           args.push(xdr.ScVal.scvVec([xdr.ScVal.scvSymbol(resolution === "release" ? "ReleaseToPayee" : "RefundToPayer")]));
         }
         if (requestedAction === "request_correction" && String(body.feedback ?? "").trim().length < 3) fail("Explain the required correction before signing");
@@ -288,7 +480,7 @@ Deno.serve(async (request: Request) => {
           fail("The escrow contract rejected this action in its current milestone state", 409, "invalid_contract_state");
         }
         kind = ({ fund: "funding", submit: "submission", request_correction: "correction", approve_release: "release", dispute: "dispute", resolve: "resolution" } as Record<string, string>)[requestedAction];
-        metadata = { ...metadata, contractAddress: ctx.escrow.contract_address, action: requestedAction, agreementId, feedback: requestedAction === "request_correction" ? String(body.feedback ?? "").slice(0, 4000) : undefined };
+        metadata = { ...metadata, contractAddress: ctx.escrow.contract_address, action: requestedAction, agreementId, feedback: requestedAction === "request_correction" ? String(body.feedback ?? "").slice(0, 4000) : undefined, decisionReason: requestedAction === "resolve" ? String(body.feedback ?? "").trim().slice(0, 4000) : undefined };
       }
       const xdr = tx.toXDR();
       const { data: transaction, error } = await admin.from("payment_transactions").insert({ agreement_id: agreementId, escrow_id: ctx.escrow.id, milestone_id: milestoneId, initiated_by: userId, actor_public_key: ctx.wallet.public_key, kind, idempotency_key: idempotencyKey, submitted_xdr: xdr, status: "prepared", quote_id: quoteId, action_name: requestedAction, milestone_index: milestoneIndex, resolution, action_metadata: metadata, prepared_at: new Date().toISOString() }).select("*").single();

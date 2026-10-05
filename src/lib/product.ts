@@ -8,7 +8,6 @@ export const roleContent: Record<Role, {
   eyebrow: string;
   title: string;
   description: string;
-  nav: string[];
   focus: string;
 }> = {
   organizer: {
@@ -16,7 +15,6 @@ export const roleContent: Record<Role, {
     eyebrow: "Readiness and decisions",
     title: "Organizer overview",
     description: "Explore sample events, requests, offers, and accepted unfunded agreements.",
-    nav: ["Overview", "Plan", "Team", "Agreements", "Messages"],
     focus: "Confirm venue access before the production walkthrough.",
   },
   supplier: {
@@ -24,7 +22,6 @@ export const roleContent: Record<Role, {
     eyebrow: "Offers and availability",
     title: "Supplier overview",
     description: "Explore sample inventory, relevant requests, offers, and accepted bookings.",
-    nav: ["Requests", "Offers", "Services", "Calendar", "Messages"],
     focus: "Review the revised delivery window before responding.",
   },
   crew: {
@@ -32,7 +29,6 @@ export const roleContent: Record<Role, {
     eyebrow: "Shifts and evidence",
     title: "Crew overview",
     description: "Explore sample opportunities, accepted jobs, schedule, and preparation timing.",
-    nav: ["Today", "Shifts", "Evidence", "Schedule", "Messages"],
     focus: "Sound check begins 24 minutes after venue access.",
   },
   support: {
@@ -40,7 +36,6 @@ export const roleContent: Record<Role, {
     eyebrow: "Assigned cases and decisions",
     title: "Support access boundary",
     description: "Support is server-assigned. This public demo contains no private cases or privileged tools.",
-    nav: ["Queue", "Cases", "Decisions", "Audit", "Messages"],
     focus: "Two parties are waiting for a milestone evidence review.",
   },
 };

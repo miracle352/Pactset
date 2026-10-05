@@ -355,6 +355,13 @@ html[data-theme="dark"] .scene-treatment { background: linear-gradient(90deg, rg
 .timeline-marker { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; color: var(--primary); background: var(--surface-dense); }
 .payment-timeline p { margin: 6px 0 0; color: var(--muted); font-size: .73rem; line-height: 1.5; }
 .payment-timeline li > span:last-child { color: var(--ink); font-size: .75rem; font-weight: 760; white-space: nowrap; }
+.case-form { display: grid; gap: 12px; margin-top: 18px; }
+.case-form label { display: grid; gap: 7px; color: var(--muted); font-size: .72rem; font-weight: 700; }
+.case-form textarea { width: 100%; resize: vertical; }
+.case-message-list, .case-event-list { display: grid; gap: 10px; margin: 16px 0; padding: 0; list-style: none; }
+.case-message-list li, .case-event-list li { padding: 13px 14px; border: 1px solid var(--line); border-radius: 11px; background: color-mix(in srgb, var(--surface) 82%, transparent); }
+.case-message-list p, .case-event-list p { margin: 0 0 7px; line-height: 1.55; }
+.case-message-list span, .case-event-list span { color: var(--muted); font-size: .68rem; }
 .evidence-panel .button { margin-top: 12px; }
 .action-requirement { display: block; margin-top: 9px; color: var(--muted); font-size: .68rem; }
 .wallet-card-heading { display: flex; align-items: flex-start; gap: 12px; }

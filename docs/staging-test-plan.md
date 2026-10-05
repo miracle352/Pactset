@@ -27,13 +27,13 @@ The following variables are configured only for `codex/stage-2b-preview`:
 
 Source inspection confirms the deployed Next.js app reads only these three `NEXT_PUBLIC_*` values. Stellar Testnet network and Horizon/Soroban endpoints are enforced in the checked-in Supabase Edge Functions. Do not add unused Stellar variables, issuer, liquidity, automated-test, wallet secret, seed phrase, Supabase service-role key, or evidence signing credential to Vercel. Issuer/liquidity provisioning remains an offline development operation. Supabase supplies its own server credentials to the deployed Edge Functions.
 
-Supabase Auth still has `http://localhost:3000` as Site URL and only `http://localhost:3000/**` in Redirect URLs. Saving the following security-sensitive change is pending the account owner's action-time confirmation:
+Supabase Auth now uses the exact protected Preview origin as its Site URL. The owner approved and the dashboard visibly confirmed these entries on 2026-10-05:
 
 - Site URL: `https://pactset-git-codex-stage-2b-preview-miracle352.vercel.app`
 - Redirect: `https://pactset-git-codex-stage-2b-preview-miracle352.vercel.app/auth/confirm**`
 - Redirect: `https://pactset-git-codex-stage-2b-preview-miracle352.vercel.app/auth/update-password`
 
-Keep the localhost redirect for developers. Do not add a broad Vercel wildcard or the public Production URL.
+The existing `http://localhost:3000/**` redirect remains for developers. No broad Vercel wildcard or public Production URL was added.
 
 ## Access and credentials
 
@@ -53,7 +53,7 @@ Keep the localhost redirect for developers. Do not add a broad Vercel wildcard o
 1. Install Freighter only from its official source. Create a disposable wallet, switch it to **Testnet**, and fund it only with Friendbot Testnet XLM. Never paste a seed phrase into Pactset or the test report.
 2. Open the protected Preview and sign into the organizer development account in a dedicated browser profile. Confirm the screen says **Stellar Testnet — no real monetary value**.
 3. Open fresh accepted agreement `b6346e29-c5ba-488c-aade-8e454df973d6` (5 TUSD). It deliberately has no escrow and no operator wallet. Connect distinct organizer and supplier Freighter Testnet wallets and sign each single-use ownership challenge. Reject once to verify the declined state, reconnect, then confirm the verified address and Testnet network.
-4. Pause for the developer to deploy the agreement-bound Soroban escrow using only those two verified public keys plus the disclosed development resolver. This administrative deployment must not sign a user payment. Refresh the agreement after the escrow record is reconciled.
+4. As organizer, choose **Create escrow**. Review the accepted agreement version, exact TUSD asset/issuer, participants, milestone amounts and disclosed resolver; sign the contract-creation envelope in Freighter. Refresh or use reconciliation until the confirmed contract identifier appears. Retrying or double-clicking must not create a second escrow.
 5. Request a TUSD quote. Check asset code **and issuer**, exact output, maximum XLM input, fee, illustrative-rate label, slippage and expiry before signing.
 6. Add the displayed TUSD trustline if requested, sign the conversion, wait for a real Testnet hash, refresh, and confirm reconciliation does not offer a second conversion.
 7. Sign escrow funding as a separate transaction. If it fails, retry funding from the converted TUSD balance without converting again.
@@ -74,7 +74,7 @@ Use a separate browser profile and a distinct Testnet wallet for every participa
 
 Normal signup email confirmation and password-recovery email links remain **unverified** until their real links are received and exercised. Dashboard auto-confirm is limited to development fixtures and does not count as email-flow verification.
 
-The dedicated support identity exists, but assigned-case functionality does not. During the rehearsal it may verify that unassigned private data is hidden; it must not be given a resolver wallet or broad data access as a workaround. The later support milestone must add an audited case-assignment model before the user can perform the resolver portion of the rehearsal.
+The dedicated support identity is bound to the disclosed development resolver through a fixture-signed ownership challenge. Agreement participants can open a case, assignment is server-controlled, and assigned support receives only case-authorized related access. This fixture binding proves the policy path, not the owner's Freighter extension. Use a fresh disputed agreement for the real resolver rehearsal; settled history must not be rewritten.
 
 ## Developer-only local commands
 

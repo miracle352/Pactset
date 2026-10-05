@@ -5,9 +5,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAccount } from "@/lib/account";
 import { type FormState, formFields } from "@/lib/form-state";
+import { isTestCurrencyAssetCode } from "@/lib/regions";
 import { createClient } from "@/lib/supabase/server";
 
-const termsSchema = z.object({ requestId: z.uuid(), scope: z.string().trim().min(10).max(4000), quantity: z.coerce.number().positive(), pricingUnit: z.string().trim().min(1).max(80), amount: z.coerce.number().min(0), currency: z.enum(["TUSD", "TGBP", "TAUD"]), availableFrom: z.string().min(10), availableUntil: z.string().min(10), preparationDeadline: z.string().min(10), cancellationTerms: z.string().trim().min(10).max(2000), milestones: z.string().max(2000), inventoryItemId: z.string().optional(), timezone: z.string(), idempotencyKey: z.uuid() });
+const termsSchema = z.object({ requestId: z.uuid(), scope: z.string().trim().min(10).max(4000), quantity: z.coerce.number().positive(), pricingUnit: z.string().trim().min(1).max(80), amount: z.coerce.number().min(0), currency: z.string().refine(isTestCurrencyAssetCode), availableFrom: z.string().min(10), availableUntil: z.string().min(10), preparationDeadline: z.string().min(10), cancellationTerms: z.string().trim().min(10).max(2000), milestones: z.string().max(2000), inventoryItemId: z.string().optional(), timezone: z.string(), idempotencyKey: z.uuid() });
 const lines = (value: string) => value.split("\n").map((line) => line.trim()).filter(Boolean).slice(0, 30);
 
 export async function submitOffer(_: FormState, formData: FormData): Promise<FormState> {

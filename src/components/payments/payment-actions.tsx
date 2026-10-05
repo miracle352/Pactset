@@ -48,7 +48,7 @@ function ReviewDetails({ details }: { details: Record<string, unknown> }) {
   return <dl className="signing-details">{rows.map(([key, value]) => <div key={key}><dt>{key.replaceAll(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase())}</dt><dd>{String(value)}</dd></div>)}</dl>;
 }
 
-function TransactionControl({ agreementId, wallet, label, transactionAction, milestoneIndex, feedback, resolution, onConfirmed }: { agreementId: string; wallet: Wallet; label: string; transactionAction: string; milestoneIndex?: number; feedback?: string; resolution?: "release" | "refund"; onConfirmed?: () => void }) {
+function TransactionControl({ agreementId, wallet, label, transactionAction, milestoneIndex, feedback, resolution, quoteId, onConfirmed }: { agreementId: string; wallet: Wallet; label: string; transactionAction: string; milestoneIndex?: number; feedback?: string; resolution?: "release" | "refund"; quoteId?: string; onConfirmed?: () => void }) {
   const router = useRouter();
   const [prepared, setPrepared] = useState<Prepared | null>(null);
   const [state, setState] = useState<"idle" | "preparing" | "review" | "signing" | "pending" | "confirmed" | "failed">("idle");
@@ -61,7 +61,7 @@ function TransactionControl({ agreementId, wallet, label, transactionAction, mil
     setMessage("Preparing a Testnet transaction without signing it…");
     try {
       key.current ??= idempotencyKey(transactionAction);
-      const payload = await paymentCall({ action: "prepare", agreementId, transactionAction, milestoneIndex, feedback, resolution, idempotencyKey: key.current });
+      const payload = await paymentCall({ action: "prepare", agreementId, transactionAction, milestoneIndex, feedback, resolution, quoteId, idempotencyKey: key.current });
       setPrepared(payload as unknown as Prepared);
       setState("review");
       setMessage("Review every detail before asking Freighter to sign.");
@@ -119,6 +119,10 @@ export function FundingControl({ agreementId, wallet, onConfirmed }: { agreement
   return <TransactionControl agreementId={agreementId} wallet={wallet} label="Review escrow funding" transactionAction="fund" onConfirmed={onConfirmed} />;
 }
 
+export function CreateEscrowControl({ agreementId, wallet, onConfirmed }: { agreementId: string; wallet: Wallet; onConfirmed?: () => void }) {
+  return <TransactionControl agreementId={agreementId} wallet={wallet} label="Create escrow" transactionAction="create_escrow" onConfirmed={onConfirmed} />;
+}
+
 export function ConversionControls({ agreementId, wallet, assetCode, assetReady, onConfirmed }: { agreementId: string; wallet: Wallet; assetCode: string; assetReady: boolean; onConfirmed?: () => void }) {
   const router = useRouter();
   const complete = onConfirmed ?? router.refresh;
@@ -148,21 +152,23 @@ export function ConversionControls({ agreementId, wallet, assetCode, assetReady,
     {!quote && <button className="button button-primary" type="button" onClick={getQuote} disabled={busy}>{busy ? <><SpinnerGap className="spinner" /> Quoting</> : `Quote XLM → ${assetCode}`}</button>}
     {message && <p className="transaction-message" role="status">{message}</p>}
     {needsTrustline && <TransactionControl agreementId={agreementId} wallet={wallet} label={`Add ${assetCode} trustline`} transactionAction="change_trust" onConfirmed={() => { setNeedsTrustline(false); setMessage("Trustline confirmed. Request a fresh conversion quote."); complete(); }} />}
-    {quote && <div className="quote-review financial-surface"><p className="kicker">Expires {new Date(quote.expiresAt).toLocaleTimeString()}</p><h3>{quote.expectedInput} XLM → {quote.exactOutput} {assetCode}</h3><dl><div><dt>Maximum input</dt><dd>{quote.maximumInput} XLM</dd></div><div><dt>Network fee</dt><dd>{quote.feeStroops} stroops</dd></div><div><dt>Slippage protection</dt><dd>{quote.slippageBps} bps</dd></div><div><dt>Rate source</dt><dd>{quote.rateSource}</dd></div></dl><TransactionControl agreementId={agreementId} wallet={wallet} label="Review conversion transaction" transactionAction="convert" onConfirmed={complete} /><button className="text-action" type="button" onClick={() => setQuote(null)}>Discard quote</button></div>}
+    {quote && <div className="quote-review financial-surface"><p className="kicker">Expires {new Date(quote.expiresAt).toLocaleTimeString()}</p><h3>{quote.expectedInput} XLM → {quote.exactOutput} {assetCode}</h3><dl><div><dt>Maximum input</dt><dd>{quote.maximumInput} XLM</dd></div><div><dt>Network fee</dt><dd>{quote.feeStroops} stroops</dd></div><div><dt>Slippage protection</dt><dd>{quote.slippageBps} bps</dd></div><div><dt>Rate source</dt><dd>{quote.rateSource}</dd></div></dl><TransactionControl agreementId={agreementId} wallet={wallet} label="Review conversion transaction" transactionAction="convert" quoteId={quote.id} onConfirmed={complete} /><button className="text-action" type="button" onClick={() => setQuote(null)}>Discard quote</button></div>}
   </div>;
 }
 
-export function MilestoneActions({ agreementId, wallet, role, milestone, onConfirmed }: { agreementId: string; wallet: Wallet; role: string; milestone: Milestone; onConfirmed?: () => void }) {
+export function MilestoneActions({ agreementId, wallet, viewerRole, role, milestone, onConfirmed }: { agreementId: string; wallet: Wallet; viewerRole?: string; role?: string; milestone: Milestone; onConfirmed?: () => void }) {
+  const activeRole = viewerRole ?? role ?? "";
   const [feedback, setFeedback] = useState("");
-  const canSubmit = (role === "supplier" || role === "crew") && ["pending", "correction_requested"].includes(milestone.status);
-  const canReview = role === "organizer" && milestone.status === "submitted";
-  const canDispute = ["organizer", "supplier", "crew"].includes(role) && !["released", "refunded"].includes(milestone.status);
-  const canResolve = role === "support" && milestone.status === "disputed";
+  const [resolutionReason, setResolutionReason] = useState("");
+  const canSubmit = (activeRole === "supplier" || activeRole === "crew") && ["pending", "correction_requested"].includes(milestone.status);
+  const canReview = activeRole === "organizer" && milestone.status === "submitted";
+  const canDispute = ["organizer", "supplier", "crew"].includes(activeRole) && !["released", "refunded"].includes(milestone.status);
+  const canResolve = activeRole === "support" && milestone.status === "disputed";
   return <div className="milestone-actions">
     {canSubmit && <TransactionControl agreementId={agreementId} wallet={wallet} label="Submit milestone on-chain" transactionAction="submit" milestoneIndex={milestone.milestone_index} onConfirmed={onConfirmed} />}
     {canReview && <><TransactionControl agreementId={agreementId} wallet={wallet} label="Approve and release payment" transactionAction="approve_release" milestoneIndex={milestone.milestone_index} onConfirmed={onConfirmed} /><label className="correction-field"><span>Correction request</span><textarea value={feedback} onChange={(event) => setFeedback(event.target.value)} maxLength={4000} placeholder="Explain what must be corrected" /></label>{feedback.trim().length >= 3 ? <TransactionControl agreementId={agreementId} wallet={wallet} label="Request corrections" transactionAction="request_correction" milestoneIndex={milestone.milestone_index} feedback={feedback} onConfirmed={onConfirmed} /> : <button className="button button-secondary" type="button" disabled>Explain the correction to continue</button>}</>}
     {canDispute && <TransactionControl agreementId={agreementId} wallet={wallet} label="Open dispute and freeze milestone" transactionAction="dispute" milestoneIndex={milestone.milestone_index} onConfirmed={onConfirmed} />}
-    {canResolve && <><TransactionControl agreementId={agreementId} wallet={wallet} label="Resolve: release to provider" transactionAction="resolve" milestoneIndex={milestone.milestone_index} resolution="release" onConfirmed={onConfirmed} /><TransactionControl agreementId={agreementId} wallet={wallet} label="Resolve: refund organizer" transactionAction="resolve" milestoneIndex={milestone.milestone_index} resolution="refund" onConfirmed={onConfirmed} /></>}
+    {canResolve && <><label className="correction-field"><span>Decision reason</span><textarea value={resolutionReason} onChange={(event) => setResolutionReason(event.target.value)} maxLength={4000} placeholder="Explain how the accepted resolver rules apply." /></label>{resolutionReason.trim().length >= 3 ? <><TransactionControl agreementId={agreementId} wallet={wallet} label="Resolve: release to provider" transactionAction="resolve" milestoneIndex={milestone.milestone_index} resolution="release" feedback={resolutionReason} onConfirmed={onConfirmed} /><TransactionControl agreementId={agreementId} wallet={wallet} label="Resolve: refund organizer" transactionAction="resolve" milestoneIndex={milestone.milestone_index} resolution="refund" feedback={resolutionReason} onConfirmed={onConfirmed} /></> : <button className="button button-secondary" type="button" disabled>Record a decision reason first</button>}</>}
   </div>;
 }
 

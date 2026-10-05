@@ -15,6 +15,7 @@ test-results/
 .stellar-testnet-state.local.json
 .stellar-failure-fixtures.local.json
 .staging-preview-state.local.json
+.wallet-escrow-test.local.json
 contracts/target/
 supabase/.temp/
 *.pem

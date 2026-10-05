@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAccount } from "@/lib/account";
 import { type FormState, formFields } from "@/lib/form-state";
-import { countries, timezones } from "@/lib/regions";
+import { countries, isTestCurrencyAssetCode, timezones } from "@/lib/regions";
 import { createClient } from "@/lib/supabase/server";
 
 const eventSchema = z.object({
@@ -13,7 +13,7 @@ const eventSchema = z.object({
   countryCode: z.string().refine((value) => countries.some(([code]) => code === value)), city: z.string().trim().min(2).max(100), venueAddress: z.string().trim().max(240),
   timezone: z.string().refine((value) => timezones().includes(value)), startsAt: z.string().min(10), endsAt: z.string().min(10), preparationDeadline: z.string().min(10),
   attendeeCount: z.coerce.number().int().positive(), venueCapacity: z.coerce.number().int().positive(),
-  budgetCurrency: z.enum(["TUSD", "TGBP", "TAUD"]), contingencyAmount: z.coerce.number().min(0),
+  budgetCurrency: z.string().refine(isTestCurrencyAssetCode, "Choose a current ISO fiat test currency."), contingencyAmount: z.coerce.number().min(0),
   spaces: z.string().max(2000), foodRequirements: z.string().max(2000), rentalEquipment: z.string().max(2000), purchaseEquipment: z.string().max(2000), crewRequirements: z.string().max(2000), budgetAllocations: z.string().max(2000),
 });
 
@@ -40,7 +40,7 @@ export async function saveEvent(eventId: string | null, _: FormState, formData: 
   return { status: "success", message: "Draft saved to your account.", fields, entityId: data.id };
 }
 
-const requestSchema = z.object({ title: z.string().trim().min(3).max(140), publicScope: z.string().trim().min(10).max(4000), providerRole: z.enum(["supplier", "crew"]), category: z.string().trim().min(2).max(100), quantity: z.coerce.number().positive(), quantityUnit: z.string().trim().min(1).max(40), pricingUnit: z.string().trim().min(1).max(80), currency: z.enum(["TUSD", "TGBP", "TAUD"]), availableFrom: z.string().min(10), availableUntil: z.string().min(10), preparationDeadline: z.string().min(10), cancellationTerms: z.string().trim().min(10).max(2000), milestones: z.string().max(2000), timezone: z.string() });
+const requestSchema = z.object({ title: z.string().trim().min(3).max(140), publicScope: z.string().trim().min(10).max(4000), providerRole: z.enum(["supplier", "crew"]), category: z.string().trim().min(2).max(100), quantity: z.coerce.number().positive(), quantityUnit: z.string().trim().min(1).max(40), pricingUnit: z.string().trim().min(1).max(80), currency: z.string().refine(isTestCurrencyAssetCode), availableFrom: z.string().min(10), availableUntil: z.string().min(10), preparationDeadline: z.string().min(10), cancellationTerms: z.string().trim().min(10).max(2000), milestones: z.string().max(2000), timezone: z.string() });
 
 export async function createRequest(eventId: string, _: FormState, formData: FormData): Promise<FormState> {
   const account = await requireAccount("organizer"); const fields = formFields(formData); const parsed = requestSchema.safeParse(fields);
