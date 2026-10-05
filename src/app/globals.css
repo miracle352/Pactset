@@ -370,6 +370,31 @@ html[data-theme="dark"] .scene-treatment { background: linear-gradient(90deg, rg
 .wallet-card .button, .conversion-card .button { width: 100%; margin-top: 6px; }
 .conversion-card > svg { color: var(--primary); }
 .conversion-card h2 { margin-top: 18px; font-size: 1.8rem; }
+.conversion-actions, .transaction-control, .milestone-actions, .evidence-upload, .fund-control { display: grid; gap: 10px; }
+.conversion-actions, .transaction-control { margin-top: 12px; }
+.transaction-control .button, .evidence-upload .button, .fund-control .button { width: 100%; }
+.transaction-message { display: flex; align-items: flex-start; gap: 7px; margin: 3px 0 0; color: var(--muted); font-size: .72rem; line-height: 1.5; }
+.transaction-message svg { flex: 0 0 auto; margin-top: 2px; }
+.transaction-message.error { color: var(--error); }
+.signing-review, .quote-review { margin-top: 4px; padding: 16px; border-radius: 16px; }
+.signing-review > strong { display: block; margin-bottom: 10px; }
+.signing-details, .quote-review dl { display: grid; gap: 8px; margin: 10px 0 13px; }
+.signing-details div, .quote-review dl div { display: grid; grid-template-columns: minmax(100px, .8fr) minmax(0, 1.2fr); gap: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+.signing-details dt, .quote-review dt { color: var(--muted); font-size: .67rem; }
+.signing-details dd, .quote-review dd { margin: 0; overflow-wrap: anywhere; color: var(--ink); font-size: .69rem; font-weight: 700; text-align: right; }
+.quote-review h3 { margin: 5px 0 0; font-size: 1rem; }
+.text-action { justify-self: start; padding: 5px 0; border: 0; background: transparent; color: var(--primary); font: inherit; font-size: .72rem; font-weight: 750; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.text-action:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+.milestone-actions { grid-column: 1 / -1; margin-top: 10px; }
+.milestone-actions .button { width: fit-content; min-height: 38px; padding: 9px 13px; font-size: .69rem; }
+.correction-field, .evidence-upload label { display: grid; gap: 6px; color: var(--ink); font-size: .7rem; font-weight: 720; }
+.correction-field textarea, .evidence-upload textarea { min-height: 86px; resize: vertical; }
+.evidence-milestone-form { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.evidence-upload { margin-top: 10px; }
+.file-input input { width: 100%; padding: 10px; border: 1px dashed var(--line-strong); border-radius: 12px; background: color-mix(in srgb, var(--surface) 78%, transparent); color: var(--ink); font-size: .72rem; }
+.upload-progress { height: 7px; overflow: hidden; border-radius: 99px; background: color-mix(in srgb, var(--primary) 14%, transparent); }
+.upload-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--primary), #9aa8ff); transition: width 180ms ease; }
+.fund-control { margin-top: 12px; }
 .transaction-card a { display: inline-flex; margin-top: 10px; color: var(--primary); font-size: .75rem; font-weight: 750; }
 .evidence-list, .transaction-list { margin: 16px 0; padding: 0; list-style: none; }
 .evidence-list li { padding: 13px 0; border-top: 1px solid var(--line); }
@@ -437,6 +462,7 @@ html[data-theme="dark"] .scene-treatment { background: linear-gradient(90deg, rg
   .brand-word { letter-spacing: .24em; }.theme-option { width: 29px; }.hero-actions { align-items: stretch; flex-direction: column; gap: 8px; }.hero-actions .button { width: 100%; min-width: 0; }.hero-demo-link { width: max-content; padding: 9px 1px; }.role-path-panel { align-items: flex-start; }.demo-event { display: grid; }.demo-event-currency { justify-items: start; }.metric-strip { grid-template-columns: 1fr 1fr; }.metric-strip div:nth-child(2) { border-right: 0; }.metric-strip div:last-child { grid-column: 1 / -1; padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--line); }
   .workspace-summary { grid-template-columns: 1fr; }.workspace-summary article:last-child { grid-column: auto; }.request-brief dl, .offer-terms dl { grid-template-columns: 1fr; }.compact-section-heading { align-items: flex-start; flex-direction: column; }.auth-footnote { flex-direction: column; }.pactset-avatar.avatar-large { width: 66px; height: 66px; }
   .finance-breakdown { grid-template-columns: 1fr; }.financial-surface, .milestone-panel, .wallet-card, .conversion-card { padding: 19px 16px; }
+  .signing-details div, .quote-review dl div { grid-template-columns: 1fr; gap: 4px; }.signing-details dd, .quote-review dd { text-align: left; }.milestone-actions .button { width: 100%; }
 }
 
 @media (max-width: 820px) and (max-height: 700px) {
@@ -449,6 +475,7 @@ html[data-theme="dark"] .scene-treatment { background: linear-gradient(90deg, rg
   .role-choice:hover, .role-choice:active { transform: none; }
   .agreement-card-link:hover { transform: none; }
   .role-choice:hover .role-choice-arrow, .role-choice:active .role-choice-arrow { transform: none; }
+  .upload-progress span { transition: none; }
 }
 
 @media (prefers-reduced-transparency: reduce) {

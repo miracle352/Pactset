@@ -3,6 +3,7 @@
 import { CheckCircle, LinkBreak, SpinnerGap, WarningCircle, Wallet } from "@phosphor-icons/react";
 import { getAddress, getNetwork, signMessage } from "@stellar/freighter-api";
 import { Networks } from "@stellar/stellar-sdk";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -22,6 +23,7 @@ function signatureString(value: string | Buffer) {
 }
 
 export function WalletConnection({ initialConnection }: { initialConnection: Connection }) {
+  const router = useRouter();
   const [connection, setConnection] = useState(initialConnection);
   const [state, setState] = useState<State>(initialConnection ? "confirmed" : "disconnected");
   const [message, setMessage] = useState(initialConnection ? "Wallet ownership verified on Stellar Testnet." : "Connect a Testnet wallet when you are ready to authorize a transaction.");
@@ -67,6 +69,7 @@ export function WalletConnection({ initialConnection }: { initialConnection: Con
       setConnection(verified.connection);
       setState("confirmed");
       setMessage("Wallet ownership verified on Stellar Testnet.");
+      router.refresh();
     } catch (error) {
       setState("error");
       setMessage(error instanceof Error ? error.message : "Wallet connection failed. Try again.");

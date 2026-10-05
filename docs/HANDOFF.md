@@ -2,65 +2,85 @@
 
 Last updated: 2026-10-05 (Africa/Lagos)
 
-## Safety and scope
+## Safety boundary
 
-- Work only in Supabase `pactset-development` (`lvpsemqalftvcqkrjsyu`) in “miracle352’s projects” and Stellar **Testnet**. Fieldwork and `supabase-canary-branch` remain untouched.
-- No push, Vercel deployment, Mainnet transaction, paid service, real fund, or public website change was performed.
-- `.env.local`, `.stage2a-test-state.local.json`, `.stellar-testnet.local.json`, and `.stellar-testnet-state.local.json` are ignored. The first three contain development credentials and must never be printed or committed. The fourth contains only public Testnet evidence but remains local to keep the repository clean.
-- Email confirmation and password-recovery email links remain blocked/unverified by the Free-plan email limit. Verification was not disabled.
+- Use only Supabase `pactset-development` (`lvpsemqalftvcqkrjsyu`) and Stellar Testnet. Fieldwork and `supabase-canary-branch` were not changed.
+- No website push or deployment was performed. The existing public Vercel site was not changed.
+- `.env.local`, `.stage2a-test-state.local.json`, `.stellar-testnet.local.json`, and `.stellar-testnet-state.local.json` are ignored and must remain uncommitted. Never print their credentials or secret keys.
+- Email confirmation and password-recovery email-link flows remain blocked/unverified. Verification was not disabled and no repeated rate-limited email attempts were made.
 
-## Applied development state
+## Verified remote state before resume
 
-- Stage 2A migrations and remote verification remain intact.
-- Applied Stage 2B migrations:
-  - `stage_2b_payments`
-  - `stage_2b_security_indexes`
-  - `stage_2b_service_grants`
-  - `stage_2b_ledger_actors`
-- Deployed authenticated `wallet-auth` Edge Function. Its expiring, single-use signing challenge passed wrong-network, replay, and cross-account wallet reuse rejection with separate organizer/supplier identities.
-- Private `milestone-evidence` bucket allows only JPEG/PNG/WebP/MP4/WebM up to 50 MB. A real supplier upload produced an organizer-only 60-second signed link; the unrelated account could read neither object nor metadata.
+- Applied migrations include `stage_2b_browser_payments` and `stage_2b_resolver_policy_fix`; do not apply them again.
+- `wallet-auth` is active at version 1 and `stellar-payments` is active at version 5 with JWT verification enabled; do not redeploy unless its checked-in source changes.
+- Fresh TUSD agreement `342466d3-c812-4dcb-ad12-9d9f373a70d4` is `completed` with one confirmed conversion, funding, submission and release.
+- Fresh TEUR agreement `69cd95a1-9651-4484-bd26-b4e2ff61ace4` is `awaiting_funding` with one confirmed conversion. This is the intentional conversion-success/funding-retry checkpoint; do not convert again.
 
-## Genuine Stellar Testnet evidence
+## Implemented browser payment path
+
+- Account authentication remains separate from a verified Stellar Testnet wallet. `wallet-auth` uses an expiring, single-use signed challenge and rejects wrong network, replay, and wallet reuse.
+- The authenticated `stellar-payments` function derives caller, role, wallet and agreement server-side. It prepares unsigned envelopes, verifies the returned envelope and signer, persists the hash before submission, and reconciles only the caller's pending transactions.
+- Organizer controls cover exact-output XLM quote, trustline when required, Freighter signing, conversion, separate escrow funding, dispute, correction request, approval/release and reconciliation.
+- Supplier/crew controls cover private note/photo/video evidence with progress and retry, on-chain submission, dispute and expiring private evidence links. Evidence does not require a wallet; money-moving actions do.
+- Resolver controls require server-assigned support, the exact disclosed resolver wallet and a disputed milestone. AI has no payment authority.
+- Idempotency keys and pending hashes survive refresh/retry. Prepared transactions expire after ten minutes. A confirmed conversion suppresses another quote and leaves funding independently retryable.
+- The UI distinguishes planned, committed, funded, released, refunded and disputed amounts and links confirmed hashes to Stellar Expert Testnet.
+
+## Genuine Testnet evidence
 
 - Issuer: `GDPHFGDZMCRZT7STPWFS7ZP4ZRWE2JOGNCH6XCAUYIU2IT32RFWUPXQO`
-- TUSD SAC: `CDH45Y72LSOSYCOCHU7WDA7UCFXJB2BXUB77AXULNBACC74VZBCJR43Q`; illustrative seeded rate 0.5 XLM per TUSD.
-- TEUR SAC: `CBLM6Y2Y5L5TMPZL5URHG2GNX5DRZUN62OUX2IGGQDLFIUHETVGBZUTO`; illustrative seeded rate 0.6 XLM per TEUR.
-- Escrow contract: `CAYZ36OCVMFANY7IIWA3PWJKQALKNY7GMMVL7G6LNROJQSZTZ4MZH74Y` for agreement `e6625251-d065-4879-add7-8ea679ec1e62`, accepted version 2, 2,250 TUSD total.
-- Conversion: `45d73a21a7f9d8ec2de08122aec4e54765cd8bb7e6b03edd44839ced74a1f74c` — exact 2,250 TUSD received for expected 1,125 XLM, 1,130.625 XLM maximum, 50 bps slippage, 100 stroop fee.
-- Funding: `bca785bd244bd6dd074bdd157906f357893a35f1ac0c20adae127e4dcf6c3726`.
-- Milestone submission: `86a9634224c978f05534d53b906a5374750cd84226c275b5c3a30a7058a2b844`.
-- Release: `a6484c534f35ad9a3ce9bfa63bd585bfe2528e29e1287ff2cb47bd91380e3ae4`; supplier balance increased from 0 to exactly 750 TUSD.
-- Live controls: repeated release, supplier unauthorized release, and organizer release while disputed were rejected. Milestone 1 submission `54000a613f70bb373dcd55a7ebc5de6d06b1ff1c2c0bdcaf5d078e22c046e321`, dispute `f0d429d86e388940de4748fd7371d6c6129a8eb91a55477b9f7bb7abada88a30`, resolver refund `fa689f013709d2345f4778599d147860d7ed1f9204e03aa75edd7c55156b0932`.
-- Final on-chain milestone states: released 750 TUSD, refunded 750 TUSD, pending 750 TUSD.
+- TUSD SAC: `CDH45Y72LSOSYCOCHU7WDA7UCFXJB2BXUB77AXULNBACC74VZBCJR43Q`
+- TEUR SAC: `CBLM6Y2Y5L5TMPZL5URHG2GNX5DRZUN62OUX2IGGQDLFIUHETVGBZUTO`
+- Fresh TUSD contract: `CDF6IVAJGRYF733QNLF5SSOHTDGZJCPCHAV6F3HC4CYEBELADTZKEKBZ`, 30 TUSD.
+  - conversion `874a41a93f25ff45d83d666906df8d6bdb052aad920ce325a655c6dd63342596` (ledger 5028302)
+  - funding `7a0d719f4e10c70b06e1c36a23773678a427d43835204a94a5e718a0b63408ba` (ledger 5028306)
+  - submission `6f05a87fd5be596f9a10becee01793a97c99ba56d6932aff70875145dbd829dd` (ledger 5028308)
+  - release `f95bc2af6ddde7a2d5628ea6af25d0ffbae1ea71f788be7b7f1b9a10020d18b9` (ledger 5028340)
+  - supplier balance moved from 750 to exactly 780 TUSD.
+- Fresh TEUR contract: `CDXY7TC665QUESWKOBP2IFQHC2BPMLWDGKL5Y4IDRK4VXJEC76Z4UDVQ`, 20 TEUR.
+  - conversion `5c7cd360f178e9746179a48e296579a9fdc1f91e2238e5a33cdbff2cfeadcfb1` (ledger 5028304)
+  - conversion is confirmed while funding is still retryable, proving the durable steps do not silently reconvert.
+- These fresh journeys used isolated development fixture wallet keys through the same prepared-envelope API. They are automated Testnet proof, **not** Freighter extension/browser signing.
 
-## Verified checks
+## Existing 750 TUSD explanation
 
-- `cargo test --manifest-path contracts/Cargo.toml`: 5 passed (exact single release, dispute/refund, mutual refund, unrelated actor rejection, agreement isolation).
-- `node scripts/stellar/verify-wallet-auth.mjs`: all 5 wallet boundary checks passed.
-- `node scripts/stellar/verify-private-evidence.mjs`: upload/participant signed URL/unrelated denial passed.
-- `node scripts/stellar/verify-escrow-controls.mjs`: all live rejection and resolver checks passed.
-- `npm run typecheck`, `npm run lint`, and `npm run build`: passed on the final files.
-- `npm test`: 7 passed, 0 failed.
-- `tests/e2e/stage2b-payments.spec.ts`: 2 passed against the production build with separate organizer, supplier, and unrelated contexts; theme persistence, transaction links, private evidence projection, no horizontal overflow, and unrelated denial passed.
-- Screenshots: `docs/screenshots/stage-2b-{light,dark}-{desktop,mobile}.png`, visually inspected.
-- Supabase advisors: no new Stage 2B RLS/grant warnings. Six intentional Stage 2A authenticated `SECURITY DEFINER` RPC warnings remain under prior review; leaked-password protection remains disabled; three older Stage 2A foreign-key index notices and expected unused-new-index notices remain.
+The older contract `CAYZ36OCVMFANY7IIWA3PWJKQALKNY7GMMVL7G6LNROJQSZTZ4MZH74Y` was funded with 2,250 TUSD. Confirmed state is 750 released, 750 refunded, and milestone 3 still pending for 750. Thus 2,250 − 750 − 750 = 750 TUSD remains held by the contract; it is not a database-only balance.
 
-## Honest incomplete work
+## Verification completed
 
-- The real payment journey is currently operator-driven through ignored local Testnet scripts. The browser can verify wallet ownership and display reconciled ledger truth, but quote/conversion/funding/evidence/approval/release buttons are not yet wallet-signed end-to-end; incomplete actions are disabled and labeled.
-- Missing-trustline, insufficient reserve/funds, unavailable-liquidity, expired-quote, rejected transaction-signature, conversion-success/funding-failure recovery, delayed confirmation, and automatic reconciliation-worker checks remain.
-- TEUR was provisioned and liquidity seeded by the same generic process, but no second end-user conversion was executed.
-- Browser evidence upload/progress/retry/correction UI, dispute initiation UI, and resolver case UI remain incomplete.
-- Contract deployment transaction hash was not captured; the verified contract address and all journey/action hashes are recorded.
+- Contract tests: 5 passed.
+- App tests: 7 passed; typecheck and lint passed.
+- `npx next build --webpack`: passed. Turbopack alone hit a OneDrive `EPERM` creating `_not-found.segments`.
+- API boundary test passed quote/preparation and rejected supplier release, unrelated access and unsigned submission.
+- Reconciliation worker passed for organizer, supplier, crew and unrelated identities; no pending transactions remained.
+- Browser test passed serially on desktop and Pixel 7 mobile with separate organizer/supplier/unrelated contexts, both themes, persistence, Explorer links and recovered TEUR funding UI.
+- Screenshots were visually inspected: `docs/screenshots/stage-2b-{light,dark}-{desktop,mobile}.png`.
+- Live prior controls rejected repeated, unauthorized and disputed ordinary release; resolver refund confirmed. Contract tests cover agreement isolation.
 
-## Exact next steps
+## Honest remaining blockers
 
-1. Implement server-built wallet transaction envelopes and Freighter signing for quote/conversion/funding without exposing secrets; persist pending identifiers before submission and reconcile from ledger confirmation.
-2. Add authenticated evidence upload/review/correction controls, then organizer release and dispute actions using the same on-chain contract.
-3. Execute the outstanding failure matrix and a second-currency user conversion.
-4. Address the three older foreign-key index notices in a separate reviewed migration; do not remove new “unused” indexes merely because this small development dataset has not exercised them.
-5. Before any future publication, rerun all checks and inspect the local commit. Do not push or deploy without new authorization.
+- Freighter extension signing needs the user's private browser interaction. No operator key was substituted for that claim. The UI/server path is implemented; extension confirmation remains for restricted staging.
+- Missing trustline is implemented, but fresh wallets already had trustlines. Insufficient XLM/reserve and unavailable-liquidity errors are implemented but not destructively forced. Quote expiry is enforced server-side but was not held open for a two-minute browser test.
+- No deliberately failing signed funding transaction was broadcast. The confirmed TEUR conversion with an unfunded escrow proves recovery state, not an actual failed ledger transaction.
+- A second crew Auth identity and support Auth identity are not present. The organizer/supplier/two-crew/support rehearsal remains for restricted staging; do not duplicate existing accounts.
+- The advisor reports seven authenticated `SECURITY DEFINER` functions because the resolver fix added `can_resolve_agreement`. Review is in `docs/security-definer-review.md`.
 
-## Preserved later scope
+## Developer commands
 
-Translated chat, AI-assisted budgeting, assigned support workspace, cancellation review, contingency-funded replacements, ratings/activity history, readiness deadlines, radar/list discovery, avatars, and the complete interactive 3D landing behavior remain required and are not complete.
+```powershell
+npm install
+npm run dev
+npm run payments:reconcile
+npm run payments:verify-api
+npm run typecheck
+npm run lint
+npm test
+npx next build --webpack
+& "$env:USERPROFILE\.cargo\bin\cargo.exe" test --manifest-path contracts/Cargo.toml
+```
+
+Do not rerun `payments:deploy-fixtures` or `payments:verify-fresh` against the recorded agreements. The future tester is not required to install locally; use `docs/staging-test-plan.md`.
+
+## Next exact step
+
+After explicit staging authorization, create only the missing second-crew and support identities, bind distinct Testnet wallets, publish a protected preview (not a custom production domain), configure exact Supabase redirects, and perform the Freighter rehearsal in separate browser profiles. Later translated chat, AI budgeting, cancellation/replacement, reputation, readiness, discovery, avatars and interactive 3D remain required.

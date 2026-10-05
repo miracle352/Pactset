@@ -136,3 +136,11 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - Stage 1 preferences may use versioned local storage because they are non-sensitive UI preferences; authoritative account/agreement settings wait for persistent backend work.
 - The approved pavilion artwork is a temporary visual fallback, not a 3D implementation.
 - Vercel access note: the browser session can read the specific private repository, while the API connector still returns a separate account-scope authorization error. The browser import route is the authorized fallback; no security setting or repository visibility change is required.
+
+## Stage 2B browser-payment checkpoint — 2026-10-05
+
+- Implemented real Freighter ownership/signing UI, server-prepared Testnet envelopes, exact conversion quote, separate escrow funding, private evidence, correction, approval/release, dispute/resolution and ledger reconciliation.
+- Confirmed fresh TUSD end-to-end Testnet transfers and generic TEUR conversion with genuine hashes. Automated fixture signing is explicitly not browser-extension proof.
+- Added caller-scoped local reconciliation, durable idempotency/pending state and conversion-success/funding-retry UI.
+- Desktop/mobile browser checks pass in both themes and screenshots were visually reviewed. Production build passes with webpack; Turbopack is blocked only by OneDrive generated-directory `EPERM`.
+- No push or website deployment. Restricted staging and manual Freighter/two-crew/support rehearsal remain gated by explicit authorization and private user interaction.

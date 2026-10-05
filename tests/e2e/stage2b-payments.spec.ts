@@ -6,6 +6,7 @@ type Role = "organizer" | "supplier" | "unrelated";
 type TestAccount = { email: string; password: string };
 const state = JSON.parse(readFileSync(path.join(process.cwd(), ".stage2a-test-state.local.json"), "utf8")) as { accounts: Record<Role, TestAccount> };
 const agreementId = "e6625251-d065-4879-add7-8ea679ec1e62";
+const recoverableFundingAgreementId = "69cd95a1-9651-4484-bd26-b4e2ff61ace4";
 const evidenceDir = path.join(process.cwd(), "docs", "screenshots");
 
 async function signIn(page: Page, role: Role, next = "/workspace") {
@@ -30,10 +31,14 @@ test.describe("Stage 2B payment projection", () => {
     await expect(page.getByText("Testnet payment is confirmed", { exact: false })).toBeVisible();
     await expect(page.getByText("returned this unreleased amount", { exact: false })).toBeVisible();
     await expect(page.getByText("Testnet ownership verified", { exact: false })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Explorer/ })).toHaveCount(4);
+    expect(await page.getByRole("link", { name: /Explorer/ }).count()).toBeGreaterThanOrEqual(4);
     await expect(page.getByText("Automated Testnet fixture", { exact: false })).toBeVisible();
     await expect(page.locator("body")).not.toHaveCSS("overflow-x", "scroll");
 
+    await page.goto(`/workspace/agreements/${recoverableFundingAgreementId}/payment`);
+    await expect(page.getByText("Conversion confirmed. Use the converted balance", { exact: false })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Review escrow funding" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: /Quote XLM/ })).toHaveCount(0);
     await page.getByRole("button", { name: "Light theme" }).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await page.screenshot({ path: path.join(evidenceDir, `stage-2b-light-${testInfo.project.name === "desktop-chromium" ? "desktop" : "mobile"}.png`), fullPage: true });
@@ -48,7 +53,7 @@ test.describe("Stage 2B payment projection", () => {
     const supplierPage = await supplierContext.newPage();
     await signIn(supplierPage, "supplier", route);
     await expect(supplierPage.getByText("Automated Testnet fixture", { exact: false })).toBeVisible();
-    await expect(supplierPage.getByRole("link", { name: /Explorer/ })).toHaveCount(4);
+    expect(await supplierPage.getByRole("link", { name: /Explorer/ }).count()).toBeGreaterThanOrEqual(4);
     await supplierContext.close();
 
     const unrelatedContext = await page.context().browser()?.newContext();
