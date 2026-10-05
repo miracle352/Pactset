@@ -1,6 +1,6 @@
 # Restricted staging review plan
 
-No staging deployment has been created by this plan. The public deployment and Production environment remain unchanged.
+A protected Preview is available for review. The public deployment and Production environment remain unchanged.
 
 ## Verified Vercel target and protection
 
@@ -9,31 +9,37 @@ No staging deployment has been created by this plan. The public deployment and P
 - Use a generated Preview `*.vercel.app` deployment only. Do not assign a custom domain, add a deployment-protection exception, promote it, or change Production.
 - Standard Protection runs before the deployment and therefore covers every path served by Vercel, including pages, static assets, route handlers and any future same-origin Next.js APIs. Reviewers must be logged into Vercel and belong to the team. If an outside reviewer needs access, create a deployment-specific Vercel Shareable Link; treat it as a bearer bypass, share it privately, and revoke it after review.
 - Supabase Edge Functions and Storage use `*.supabase.co`, so Vercel Authentication cannot cover those external origins. They are separately protected by the caller's Supabase JWT, server-derived role/agreement membership, RLS, a private `milestone-evidence` bucket, and 60-second signed evidence URLs. A direct expired URL must fail; an unrelated authenticated account must not be able to mint a URL.
-- The Codex Vercel connector currently returns `403 Not authorized` for the `miracle352` scope and must be re-authorized separately before connector-based inspection. The authenticated browser can see the correct project. This does not authorize or perform a deployment.
+- The Codex Vercel connector still returns `403 Not authorized` for the `miracle352` scope. The independently authenticated browser was used instead; do not keep retrying the connector.
 
-The intended review deployment is a **Preview** of the current local checkpoint in this existing project, created without `--prod`, a custom domain, or Production promotion. Prefer a directly authenticated Vercel CLI/API preview after the `miracle352` scope is authorized; do not push `main` merely to obtain staging. The generated Preview host becomes the exact callback host. Its URL cannot be recorded in advance because no deployment is authorized yet.
+The review target is the **Preview** branch `codex/stage-2b-preview` at `https://pactset-git-codex-stage-2b-preview-miracle352.vercel.app`. Deployment `dpl_2oUWebpMY1JN6QBSVSnBWSUz7PeX` rebuilt commit `413bcd7d415ffc314c128ff2a1ef894ed30cc969` with the branch-scoped configuration. It was not created with `--prod`, assigned a custom domain, or promoted. Production continues to track `main`.
+
+Unauthenticated HTTP requests to both `/` and `/auth/sign-in` returned a Vercel SSO `302`, `Cache-Control: no-store`, `X-Frame-Options: DENY`, and `X-Robots-Tag: noindex`. A Vercel-authenticated project owner reached the Pactset landing and sign-in pages. Each browser profile used for the rehearsal must therefore pass the Vercel gate first, then sign into Pactset separately.
 
 ## Preview-only configuration
 
-The dashboard currently reports **No Environment Variables Added**. Before a preview is built, add these only to the Preview environment (and Development only if a Vercel developer environment is deliberately used):
+The following variables are configured only for `codex/stage-2b-preview`:
 
 | Variable | Preview value/source | Exposure rule |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | `pactset-development` project URL (`lvpsemqalftvcqkrjsyu`) | Public project endpoint; never point to Fieldwork/canary |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Active publishable key for `pactset-development` | Public client key; never use `service_role` |
 | `NEXT_PUBLIC_SITE_URL` | Exact protected Preview origin | Public URL used to construct auth redirects |
-| `STELLAR_NETWORK` | `testnet` | Server/build configuration; reject any other value |
-| `STELLAR_HORIZON_URL` | `https://horizon-testnet.stellar.org` | Testnet only |
 
-Do not add issuer, liquidity, automated-test, wallet secret, seed phrase, Supabase service-role key, or evidence signing credential to Vercel. Issuer/liquidity provisioning remains an offline development operation. Supabase supplies its own server credentials to the deployed Edge Functions.
+Source inspection confirms the deployed Next.js app reads only these three `NEXT_PUBLIC_*` values. Stellar Testnet network and Horizon/Soroban endpoints are enforced in the checked-in Supabase Edge Functions. Do not add unused Stellar variables, issuer, liquidity, automated-test, wallet secret, seed phrase, Supabase service-role key, or evidence signing credential to Vercel. Issuer/liquidity provisioning remains an offline development operation. Supabase supplies its own server credentials to the deployed Edge Functions.
 
-Supabase Auth currently has `http://localhost:3000` as Site URL and only `http://localhost:3000/**` in Redirect URLs. Immediately before staging review, add the exact protected Preview origin with:
+Supabase Auth still has `http://localhost:3000` as Site URL and only `http://localhost:3000/**` in Redirect URLs. Saving the following security-sensitive change is pending the account owner's action-time confirmation:
 
-- `https://<exact-preview-host>/auth/confirm`
-- `https://<exact-preview-host>/auth/update-password`
-- `https://<exact-preview-host>/**` only if the current auth action requires a wildcard continuation path.
+- Site URL: `https://pactset-git-codex-stage-2b-preview-miracle352.vercel.app`
+- Redirect: `https://pactset-git-codex-stage-2b-preview-miracle352.vercel.app/auth/confirm**`
+- Redirect: `https://pactset-git-codex-stage-2b-preview-miracle352.vercel.app/auth/update-password`
 
-Keep the localhost entry for developers. Prefer exact hosts; use Supabase's documented preview wildcard only if the Vercel preview host is intentionally ephemeral. Do not make the public production URL the default Site URL during this restricted review.
+Keep the localhost redirect for developers. Do not add a broad Vercel wildcard or the public Production URL.
+
+## Access and credentials
+
+1. Open the branch Preview URL and sign into Vercel with an account that has access to the `miracle352` project. This Vercel gate is separate from Pactset authentication.
+2. The development account credentials remain only in ignored `.stage2a-test-state.local.json`. On the owner's machine, open that file locally in Codex or another local editor; do not paste it into chat, commit it, upload it, or add it to Vercel.
+3. An outside tester who is not a Vercel project member needs a deployment-specific Shareable Link. It is a private bearer bypass: create it only for that tester, send it privately, and revoke it after review. None was created automatically.
 
 ## Reconciliation on restricted staging
 
@@ -46,13 +52,13 @@ Keep the localhost entry for developers. Prefer exact hosts; use Supabase's docu
 
 1. Install Freighter only from its official source. Create a disposable wallet, switch it to **Testnet**, and fund it only with Friendbot Testnet XLM. Never paste a seed phrase into Pactset or the test report.
 2. Open the protected Preview and sign into the organizer development account in a dedicated browser profile. Confirm the screen says **Stellar Testnet — no real monetary value**.
-3. Open a fresh accepted, unfunded agreement. Connect Freighter and sign the single-use ownership challenge. Reject it once to verify the declined state, reconnect, then confirm the verified address and Testnet network.
-4. Request a TUSD quote. Check asset code **and issuer**, exact output, maximum XLM input, fee, illustrative-rate label, slippage and expiry before signing.
-5. Add the displayed TUSD trustline if requested, sign the conversion, wait for a real Testnet hash, refresh, and confirm reconciliation does not offer a second conversion.
-6. Sign escrow funding as a separate transaction. If it fails, retry funding from the converted TUSD balance without converting again.
-7. In the provider's separate profile/wallet, upload an allowed private image/video and note, then sign milestone submission. Verify progress/retry and that an unrelated account cannot open the evidence.
-8. Back as organizer, request one correction, have the provider resubmit, then approve/release. Confirm the Explorer link, ledger result, exact recipient balance increase, and zero duplicate release on double-click/refresh.
-9. Repeat the end-user conversion with TEUR through the same generic flow. TUSD must never be substituted for a TEUR agreement.
+3. Open fresh accepted agreement `b6346e29-c5ba-488c-aade-8e454df973d6` (5 TUSD). It deliberately has no escrow and no operator wallet. Connect distinct organizer and supplier Freighter Testnet wallets and sign each single-use ownership challenge. Reject once to verify the declined state, reconnect, then confirm the verified address and Testnet network.
+4. Pause for the developer to deploy the agreement-bound Soroban escrow using only those two verified public keys plus the disclosed development resolver. This administrative deployment must not sign a user payment. Refresh the agreement after the escrow record is reconciled.
+5. Request a TUSD quote. Check asset code **and issuer**, exact output, maximum XLM input, fee, illustrative-rate label, slippage and expiry before signing.
+6. Add the displayed TUSD trustline if requested, sign the conversion, wait for a real Testnet hash, refresh, and confirm reconciliation does not offer a second conversion.
+7. Sign escrow funding as a separate transaction. If it fails, retry funding from the converted TUSD balance without converting again.
+8. In the provider's separate profile/wallet, upload an allowed private image/video and note, then sign milestone submission. Verify progress/retry and that an unrelated account cannot open the evidence.
+9. Back as organizer, request one correction, have the provider resubmit, then approve/release. Confirm the Explorer link, ledger result, exact recipient balance increase, and zero duplicate release on double-click/refresh. Repeat a later end-user conversion with TEUR through the same generic flow; TUSD must never be substituted.
 
 ## Organizer, supplier, two-crew and support rehearsal
 
