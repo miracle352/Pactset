@@ -13,6 +13,7 @@
     "payments:reconcile": "node scripts/stellar/reconcile-payments.mjs",
     "payments:verify-api": "node scripts/stellar/verify-browser-payment-api.mjs",
     "payments:verify-failures": "node scripts/stellar/verify-isolated-payment-failures.mjs",
+    "accounts:verify-development": "node scripts/admin/verify-development-identities.mjs",
     "payments:deploy-fixtures": "node scripts/stellar/deploy-browser-fixtures.mjs",
     "payments:verify-fresh": "node scripts/stellar/verify-fresh-browser-journey.mjs",
     "db:types": "npx supabase@2.119.0 gen types typescript --linked > src/lib/supabase/database.types.ts"

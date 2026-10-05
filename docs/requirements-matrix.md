@@ -42,7 +42,7 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 | ID | Stage | Requirement | UI / route | Backend responsibility | Verification | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | ROL-001 | 1/2 | Organizer, supplier, and crew onboarding; one account may hold multiple roles | `/onboarding`, `/auth/sign-up`, `/settings` | Auth + role membership | Public UI verified; database authorization tests pending | Implemented locally; remote verification blocked |
-| ROL-002 | 1/2 | Support cannot be self-selected; assignment is server-enforced | `/onboarding`, `/support`, `/workspace/support` | Support assignment policy | Public boundary plus unrelated-account self-assignment denial passed | Verified in development |
+| ROL-002 | 1/2 | Support cannot be self-selected; assignment is server-enforced | `/onboarding`, `/support`, `/workspace/support` | Support assignment policy | Dedicated support fixture was assigned through database administration; role is absent from user metadata; Crew B self-assignment was rejected through the Data API | Verified in development |
 | REV-001 | 2A | Repair broken organizer navigation targets; every enabled item opens meaningful content | Public demo and `/workspace/organizer/*` | Route authorization | Public link crawl passed; authenticated data routes pending live session | Implemented locally; remote verification blocked |
 | REV-002 | 2A | Replace repetitive role shells with task-specific organizer, supplier, crew, and support layouts | `/workspace/*` | Role-scoped queries | Source/build verified; separate-account review pending | Implemented locally; remote verification blocked |
 | REV-003 | 2A | Use compact workspace headings instead of oversized marketing headlines | `/workspace/*` | None | Responsive CSS/source review; authenticated screenshots pending | Implemented locally; remote verification blocked |
@@ -125,7 +125,7 @@ Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Bl
 | CHT-002 | 4 | Unavailable translation explained, never faked | Chat | Translation error state | Provider failure test | Not started |
 | AI-001 | 4 | Tagged AI can summarize/draft/suggest/prepare; commitments/changes/money need approval | Chat/assistant | Permission/current-state validation | Prompt-injection and action-gate tests | Not started |
 | AI-002 | 4 | Chat is untrusted input | Assistant backend | Isolation and validation | Injection/adversarial tests | Not started |
-| SUP-001 | 4 | Assigned support sees relevant chats/agreements/evidence with disclosed access | Support cases | Scoped authorization | Separate-role ACL tests | Not started |
+| SUP-001 | 4 | Assigned support sees relevant chats/agreements/evidence with disclosed access | Support cases | Scoped authorization | No case/assignment table exists; support-without-resolver saw zero private agreement/evidence/dispute rows; resolver-wallet payment boundary is not an assigned-case workflow | Not started; narrow denial boundary verified |
 | SUP-002 | 4 | @support escalation, private and joint case conversations | Chat/support | Case/conversation membership | Visibility tests | Not started |
 | SUP-003 | 4 | Profanity signal offers calm reminder, not fault finding; language/context caveat | Chat/support | Advisory classifier only | False-positive/context tests | Not started |
 | CAN-001 | 4 | Cancellation reason and agreement/reservation/work/funding/terms checks | Cancellation | Policy/state validator | Partial-work scenario tests | Not started |

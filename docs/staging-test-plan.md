@@ -11,6 +11,8 @@ No staging deployment has been created by this plan. The public deployment and P
 - Supabase Edge Functions and Storage use `*.supabase.co`, so Vercel Authentication cannot cover those external origins. They are separately protected by the caller's Supabase JWT, server-derived role/agreement membership, RLS, a private `milestone-evidence` bucket, and 60-second signed evidence URLs. A direct expired URL must fail; an unrelated authenticated account must not be able to mint a URL.
 - The Codex Vercel connector currently returns `403 Not authorized` for the `miracle352` scope and must be re-authorized separately before connector-based inspection. The authenticated browser can see the correct project. This does not authorize or perform a deployment.
 
+The intended review deployment is a **Preview** of the current local checkpoint in this existing project, created without `--prod`, a custom domain, or Production promotion. Prefer a directly authenticated Vercel CLI/API preview after the `miracle352` scope is authorized; do not push `main` merely to obtain staging. The generated Preview host becomes the exact callback host. Its URL cannot be recorded in advance because no deployment is authorized yet.
+
 ## Preview-only configuration
 
 The dashboard currently reports **No Environment Variables Added**. Before a preview is built, add these only to the Preview environment (and Development only if a Vercel developer environment is deliberately used):
@@ -65,6 +67,8 @@ Use a separate browser profile and a distinct Testnet wallet for every participa
 7. Refresh and sign in again in every profile. Confirm sessions, agreements and ledger-derived funded/released/refunded/remaining totals persist.
 
 Normal signup email confirmation and password-recovery email links remain **unverified** until their real links are received and exercised. Dashboard auto-confirm is limited to development fixtures and does not count as email-flow verification.
+
+The dedicated support identity exists, but assigned-case functionality does not. During the rehearsal it may verify that unassigned private data is hidden; it must not be given a resolver wallet or broad data access as a workaround. The later support milestone must add an audited case-assignment model before the user can perform the resolver portion of the rehearsal.
 
 ## Developer-only local commands
 
