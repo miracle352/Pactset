@@ -7,3 +7,26 @@ export const languages = ["Arabic", "Bengali", "Chinese", "Dutch", "English", "F
 export function timezones() {
   return typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : ["UTC", "Africa/Lagos", "Europe/London", "America/New_York", "Asia/Tokyo", "Australia/Sydney"];
 }
+
+const nonFiatIsoUnits = new Set(["BOV", "CHE", "CHW", "CLF", "COU", "MXV", "USN", "UYI", "UYW", "XAG", "XAU", "XBA", "XBB", "XBC", "XBD", "XDR", "XPD", "XPT", "XSU", "XTS", "XUA", "XXX"]);
+
+export type TestCurrency = { currencyCode: string; assetCode: string; name: string; label: string };
+
+export function testCurrencies(locale = "en"): TestCurrency[] {
+  const codes = typeof Intl.supportedValuesOf === "function"
+    ? Intl.supportedValuesOf("currency")
+    : ["AUD", "EUR", "GBP", "NGN", "USD"];
+  const names = new Intl.DisplayNames([locale], { type: "currency" });
+  return codes
+    .filter((code) => /^[A-Z]{3}$/.test(code) && !nonFiatIsoUnits.has(code))
+    .map((currencyCode) => {
+      const name = names.of(currencyCode) ?? currencyCode;
+      const assetCode = `T${currencyCode}`;
+      return { currencyCode, assetCode, name, label: `${assetCode} · Test ${name}` };
+    })
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export function isTestCurrencyAssetCode(value: string) {
+  return testCurrencies().some(({ assetCode }) => assetCode === value);
+}

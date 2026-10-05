@@ -11,6 +11,9 @@ test-results/
 .env.*
 !.env.example
 .stage2a-test-state.local.json
+.stellar-testnet.local.json
+.stellar-testnet-state.local.json
+contracts/target/
 supabase/.temp/
 *.pem
 *.key

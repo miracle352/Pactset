@@ -1,10 +1,19 @@
 # Pactset progress
 
-Last updated: 2026-10-04 (Africa/Lagos)
+## 2026-10-05 — Stage 2B local Testnet checkpoint
+
+- Added a runtime ISO 4217 test-currency catalogue and a separate provisioned Stellar Testnet asset registry.
+- Provisioned TUSD and TEUR through one generic idempotent process with real trustlines, issued test supply, illustrative seeded liquidity, and SAC addresses.
+- Deployed a version-bound Soroban escrow and completed one genuine XLM → TUSD → escrow → submit → release journey; the supplier received exactly 750 TUSD.
+- Verified expiring single-use wallet ownership challenges, replay/wrong-network/cross-account rejection, private evidence ACL, repeated/unauthorized/disputed release rejection, and an authorized resolver refund.
+- Added a responsive participant-only payment projection with real explorer links and light/dark desktop/mobile screenshots.
+- Browser transaction signing, automatic reconciliation, the remaining failure matrix, and evidence/review actions remain incomplete and are labeled as such. No push or deployment was performed.
+
+Last updated: 2026-10-05 (Africa/Lagos)
 
 ## Current stage
 
-Stage 2A implementation and development verification are complete except for real email-link confirmation and recovery, which remain externally blocked by the hosted email rate limit. Stage 2B settlement and every later capability remain out of scope.
+Stage 2A remains complete except for real email-link confirmation and recovery, which are still blocked by the hosted email limit. Stage 2B has a genuine local/operator-driven Testnet settlement proof and participant payment projection, but browser-signed payment actions, automatic reconciliation, and several adversarial cases remain incomplete. Later stages remain out of scope.
 
 ## Stage 2A inspection and architecture record
 

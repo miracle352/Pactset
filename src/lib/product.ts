@@ -49,6 +49,8 @@ export const currencies = [
   { code: "TUSD", name: "Test US Dollar" },
   { code: "TGBP", name: "Test British Pound" },
   { code: "TAUD", name: "Test Australian Dollar" },
+  { code: "TNGN", name: "Test Nigerian Naira" },
+  { code: "TEUR", name: "Test Euro" },
 ] as const;
 
 export const demoEvent = {

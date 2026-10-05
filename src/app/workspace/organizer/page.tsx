@@ -43,7 +43,7 @@ export default async function OrganizerWorkspace() {
       </section>
       <section id="agreements" className="workspace-section">
         <div className="compact-section-heading"><h2>Accepted agreements</h2></div>
-        {agreements?.length ? <div className="agreement-grid">{agreements.map((agreement) => <article className="glass-panel" key={agreement.id}><span className="funding-status">Awaiting Testnet funding</span><h3>{agreement.scope}</h3><p>{agreement.amount} {agreement.currency} · {agreement.provider_role}</p></article>)}</div> : <EmptyState title="No accepted agreements" body="An agreement appears only after both parties accept the same current offer version." />}
+        {agreements?.length ? <div className="agreement-grid">{agreements.map((agreement) => <Link className="glass-panel agreement-card-link" href={`/workspace/agreements/${agreement.id}/payment`} key={agreement.id}><span className="funding-status">Awaiting Testnet funding</span><h3>{agreement.scope}</h3><p>{agreement.amount} {agreement.currency} · {agreement.provider_role}</p><span className="agreement-link-label">Open payment details <ArrowRight /></span></Link>)}</div> : <EmptyState title="No accepted agreements" body="An agreement appears only after both parties accept the same current offer version." />}
       </section>
     </WorkspaceShell>
   );

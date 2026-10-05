@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { publicAccountRoles, requireAccount } from "@/lib/account";
 import { type FormState, formFields } from "@/lib/form-state";
-import { countries, timezones } from "@/lib/regions";
+import { countries, isTestCurrencyAssetCode, timezones } from "@/lib/regions";
 import { createClient } from "@/lib/supabase/server";
 
 const profileSchema = z.object({
@@ -13,7 +13,7 @@ const profileSchema = z.object({
   countryCode: z.string().refine((value) => countries.some(([code]) => code === value), "Choose a country"),
   city: z.string().trim().min(2).max(100), serviceRadius: z.coerce.number().int().min(1).max(2000),
   language: z.string().trim().min(2).max(50), timezone: z.string().refine((value) => timezones().includes(value), "Choose a named timezone"),
-  currency: z.enum(["TUSD", "TGBP", "TAUD"]), headline: z.string().trim().max(120), bio: z.string().trim().max(1000),
+  currency: z.string().refine(isTestCurrencyAssetCode, "Choose a current ISO 4217 test currency"), headline: z.string().trim().max(120), bio: z.string().trim().max(1000),
   services: z.string().max(600), skills: z.string().max(600), pricingUnits: z.string().max(300), availability: z.string().max(300),
 });
 

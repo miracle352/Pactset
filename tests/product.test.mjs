@@ -22,10 +22,13 @@ test("public onboarding excludes support from selectable roles", async () => {
   assert.doesNotMatch(source, /Preview \{name\.toLowerCase\(\)\} shell/);
 });
 
-test("the three supported test currencies and agreement warning exist", async () => {
+test("the global test-currency catalogue stays separate from provisioned Stellar assets", async () => {
   const product = await read("src/lib/product.ts");
+  const regions = await read("src/lib/regions.ts");
   const preferences = await read("src/components/preferences/preferences-panel.tsx");
   for (const code of ["TUSD", "TGBP", "TAUD"]) assert.match(product, new RegExp(code));
+  assert.match(regions, /Intl\.supportedValuesOf\("currency"\)/);
+  assert.match(regions, /const assetCode = `T\$\{currencyCode\}`/);
   assert.match(preferences, /never changes the settlement currency of an existing agreement/);
 });
 
@@ -51,9 +54,27 @@ test("Stage 2A migration enforces authorization and concurrency boundaries", asy
   assert.match(migration, /security definer[\s\S]*has_active_provider_role|has_active_provider_role[\s\S]*security definer/i);
 });
 
-test("public UI has no milestone labels or dead wallet route", async () => {
+test("public UI has no internal stage labels and keeps wallet actions out of the fixture demo", async () => {
   const files = ["src/app/not-found.tsx", "src/app/opengraph-image.tsx", "src/app/demo/page.tsx", "src/components/auth/auth-form.tsx"];
   const sources = await Promise.all(files.map(read));
   const source = sources.join("\n");
   assert.doesNotMatch(source, /Stage 1|Stage 2|docs-not-available/);
+  assert.match(source, /public fixture never connects a wallet/i);
+});
+
+test("Stage 2B schema and contract preserve wallet, asset, evidence, and escrow boundaries", async () => {
+  const migration = await read("supabase/migrations/20261004223000_stage_2b_payments.sql");
+  const grants = await read("supabase/migrations/20261005004500_stage_2b_service_grants.sql");
+  const contract = await read("contracts/pactset-escrow/src/lib.rs");
+  for (const table of ["test_asset_registry", "wallet_connections", "wallet_challenges", "payment_quotes", "agreement_escrows", "escrow_milestones", "payment_transactions", "milestone_evidence"]) {
+    assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  }
+  assert.match(migration, /bucket_id = 'milestone-evidence'/);
+  assert.match(migration, /check \(asset_code = 'T' \|\| currency_code\)/);
+  assert.match(grants, /grant select, insert, update on public\.wallet_challenges to service_role/i);
+  assert.doesNotMatch(grants, /to authenticated/i);
+  assert.match(contract, /cfg\.payer\.require_auth\(\)/);
+  assert.match(contract, /cfg\.payee\.require_auth\(\)/);
+  assert.match(contract, /cfg\.resolver\.require_auth\(\)/);
+  assert.match(contract, /MilestoneState::Disputed/);
 });

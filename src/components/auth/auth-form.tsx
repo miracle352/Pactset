@@ -30,5 +30,5 @@ export function AuthForm({ action, submitLabel, fields, next, footnote }: { acti
 }
 
 export function AccountWalletBoundary() {
-  return <aside className="account-boundary"><strong>Your account is not a wallet.</strong><p>A Pactset account manages identity, roles, drafts, offers, and bookings. A Stellar wallet will authorize Testnet transactions in the next settlement milestone. Pactset never asks for a seed phrase.</p><span>Wallet connection is not available yet</span></aside>;
+  return <aside className="account-boundary"><strong>Your account is not a wallet.</strong><p>A Pactset account manages identity, roles, drafts, offers, and bookings. A separately verified wallet authorizes Stellar Testnet transactions. Pactset never asks for a seed phrase.</p><span>Connect only from an agreement payment view</span></aside>;
 }

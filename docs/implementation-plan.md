@@ -149,12 +149,16 @@
 
 ## Stage 2B: Persistent booking and real Testnet settlement
 
-- [ ] Extend the Stage 2A auth/database architecture with wallet-bound authorization and required private storage.
-- [ ] Fund one accepted Stage 2A agreement and prove the complete Testnet settlement flow.
-- [ ] Implement the issued-asset registry, trustlines, controlled Testnet distribution/liquidity, quote/convert flow, and explicit failure recovery.
-- [ ] Offer every supported local currency as a clearly labeled test choice while keeping that catalog separate from the smaller allowlist of Stellar assets actually provisioned for Testnet settlement. Never imply that choosing a display/test currency provisions an issuer, trustline, balance, or settlement path.
-- [ ] Implement versioned Soroban escrow with exact-unit arithmetic, idempotency, server-side validation, wallet-bound authorization, and ledger reconciliation.
-- [ ] Prove recipient-confirmed milestone release across separate browser sessions and record real explorer evidence.
+- [x] Extend Stage 2A with expiring single-use wallet ownership challenges, explicit server grants, role-scoped payment rows, and a private evidence bucket. Wrong network, replay, and cross-account wallet reuse are rejected.
+- [x] Provision TUSD and TEUR through the same idempotent Testnet process, including trustlines, supply, seeded illustrative liquidity, and Stellar Asset Contract addresses.
+- [x] Offer the runtime ISO 4217 fiat catalogue as clearly labeled `T<ISO>` planning choices while keeping settlement readiness in a separate asset registry. An unprovisioned asset is never substituted.
+- [x] Deploy and test a version-bound Soroban escrow with exact integer amounts, payer/payee/resolver authorization, release, dispute freeze, resolution, refund, replay protection, and agreement isolation.
+- [x] Complete one real operator-driven XLM → TUSD → escrow → submit → approve/release journey and confirm the supplier received exactly 750 TUSD. Record genuine hashes and participant-visible explorer links.
+- [x] Verify a private evidence upload through real authenticated client/storage paths and deny an unrelated account.
+- [x] Verify the reconciled payment view in separate organizer/supplier browser contexts, both themes and desktop/mobile; deny an unrelated account.
+- [ ] Connect quote, conversion, funding, evidence upload, approval, and release to wallet-signed browser actions. The current payment view honestly disables these incomplete actions; the completed journey used ignored local operator credentials.
+- [ ] Finish the adversarial matrix for missing trustline, insufficient reserve/funds, unavailable liquidity, expired quote, rejected transaction signature, conversion-success/funding-failure recovery, and delayed/pending reconciliation.
+- [ ] Add a durable reconciliation worker and automated contract lifetime/Testnet reset monitoring before any publication.
 
 ## Stage 3: Planning, readiness, evidence, changes, and replacement
 
