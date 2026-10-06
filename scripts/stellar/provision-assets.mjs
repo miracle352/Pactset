@@ -41,6 +41,7 @@ async function saveState(state) {
       provisioningStatus: asset.provisioningStatus,
       liquidityStatus: asset.liquidityStatus,
       offerId: asset.offerId,
+      reverseOfferId: asset.reverseOfferId,
       transactionHashes: asset.transactionHashes,
     }])),
   };
@@ -107,6 +108,28 @@ async function ensureOffer(distributor, asset, price) {
   return { id: created.id, hash: result.hash };
 }
 
+async function ensureReverseOffer(distributor, asset, xlmPerUnit) {
+  const offers = await server.offers().forAccount(distributor.publicKey).limit(200).call();
+  const existing = offers.records.find((offer) => offer.selling.asset_type === "native"
+    && offer.buying.asset_code === asset.code && offer.buying.asset_issuer === asset.issuer);
+  if (existing) return { id: existing.id, hash: null };
+  // Keep a deliberate 1% illustrative spread so the two development market
+  // makers do not cross each other as soon as the reverse offer is created.
+  const assetPerXlm = ((1 / Number(xlmPerUnit)) * 1.01).toFixed(7);
+  const result = await submit(distributor, [Operation.manageSellOffer({
+    selling: Asset.native(),
+    buying: asset,
+    amount: "1000",
+    price: assetPerXlm,
+    offerId: "0",
+  })], `Pactset ${asset.code} payout path`);
+  const refreshed = await server.offers().forAccount(distributor.publicKey).limit(200).call();
+  const created = refreshed.records.find((offer) => offer.selling.asset_type === "native"
+    && offer.buying.asset_code === asset.code && offer.buying.asset_issuer === asset.issuer);
+  if (!created) throw new Error(`Reverse liquidity offer for ${asset.code} was not found after confirmation`);
+  return { id: created.id, hash: result.hash };
+}
+
 async function main() {
   const requested = (process.argv.slice(2).length ? process.argv.slice(2) : ["USD", "EUR"])
     .map((value) => value.toUpperCase());
@@ -115,7 +138,7 @@ async function main() {
   }
   const state = await loadState();
   if (state.network !== "TESTNET") throw new Error("Local provisioning state is not Testnet");
-  for (const name of ["issuer", "liquidity", "organizer", "supplier", "crew", "resolver"]) {
+  for (const name of ["issuer", "liquidity", "payoutLiquidity", "organizer", "supplier", "crew", "resolver"]) {
     state.accounts[name] ??= newAccount();
   }
   await saveState(state);
@@ -135,7 +158,7 @@ async function main() {
       transactionHashes: [],
     };
     await saveState(state);
-    for (const name of ["liquidity", "organizer", "supplier", "crew"]) {
+    for (const name of ["liquidity", "payoutLiquidity", "organizer", "supplier", "crew"]) {
       const result = await ensureTrustline(state.accounts[name], asset);
       if (result?.hash) state.assets[assetCode].transactionHashes.push(result.hash);
     }
@@ -143,7 +166,10 @@ async function main() {
     if (issuance?.hash) state.assets[assetCode].transactionHashes.push(issuance.hash);
     const offer = await ensureOffer(state.accounts.liquidity, asset, state.assets[assetCode].illustrativeXlmPerUnit);
     if (offer.hash) state.assets[assetCode].transactionHashes.push(offer.hash);
+    const reverseOffer = await ensureReverseOffer(state.accounts.payoutLiquidity, asset, state.assets[assetCode].illustrativeXlmPerUnit);
+    if (reverseOffer.hash) state.assets[assetCode].transactionHashes.push(reverseOffer.hash);
     state.assets[assetCode].offerId = offer.id;
+    state.assets[assetCode].reverseOfferId = reverseOffer.id;
     state.assets[assetCode].provisioningStatus = "ready";
     state.assets[assetCode].liquidityStatus = "ready";
     await saveState(state);
@@ -153,7 +179,7 @@ async function main() {
     issuer: state.accounts.issuer.publicKey,
     assets: requested.map((currencyCode) => {
       const item = state.assets[`T${currencyCode}`];
-      return { assetCode: item.assetCode, issuer: item.issuer, offerId: item.offerId, status: item.liquidityStatus, transactionHashes: item.transactionHashes };
+      return { assetCode: item.assetCode, issuer: item.issuer, offerId: item.offerId, reverseOfferId: item.reverseOfferId, status: item.liquidityStatus, transactionHashes: item.transactionHashes };
     }),
     publicStateFile: ".stellar-testnet-state.local.json",
     secretStateStored: true,

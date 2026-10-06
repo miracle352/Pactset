@@ -158,7 +158,8 @@ async function applyConfirmation(admin: ReturnType<typeof createClient>, transac
   }
   await admin.from("payment_transactions").update({ status: "confirmed", ledger, confirmed_at: now, updated_at: now, error_code: null }).eq("id", transactionId).eq("status", "pending");
   if (kind === "conversion" && transaction.quote_id) await admin.from("payment_quotes").update({ consumed_at: now }).eq("id", transaction.quote_id);
-  if (kind === "conversion" || kind === "trustline" || kind === "contract_deploy") return;
+  if (kind === "recipient_conversion" && transaction.recipient_quote_id) await admin.from("recipient_conversion_quotes").update({ consumed_at: now }).eq("id", transaction.recipient_quote_id);
+  if (kind === "conversion" || kind === "recipient_conversion" || kind === "trustline" || kind === "contract_deploy") return;
   if (!escrowId) return;
   if (kind === "funding") await admin.from("agreement_escrows").update({ status: "funded", funding_tx_hash: transaction.tx_hash, funded_at: now, last_reconciled_at: now, updated_at: now }).eq("id", escrowId);
   if (kind === "submission" && milestoneId) await admin.from("escrow_milestones").update({ status: "submitted", submitted_at: now, updated_at: now }).eq("id", milestoneId);
@@ -190,7 +191,7 @@ async function applyConfirmation(admin: ReturnType<typeof createClient>, transac
 async function reconcileOne(admin: ReturnType<typeof createClient>, transaction: Record<string, unknown>) {
   if (!transaction.tx_hash || transaction.status !== "pending") return transaction;
   try {
-    if (transaction.kind === "trustline" || transaction.kind === "conversion") {
+    if (transaction.kind === "trustline" || transaction.kind === "conversion" || transaction.kind === "recipient_conversion") {
       const record = await horizon.transactions().transaction(String(transaction.tx_hash)).call();
       if (record.successful) await applyConfirmation(admin, transaction, Number(record.ledger_attr));
       else await admin.from("payment_transactions").update({ status: "failed", error_code: "ledger_failed", updated_at: new Date().toISOString() }).eq("id", transaction.id);
@@ -356,7 +357,7 @@ Deno.serve(async (request: Request) => {
         return reply({ transaction: await reconcileOne(admin, pending), explorerUrl: `https://stellar.expert/explorer/testnet/tx/${hash}` });
       }
     }
-    const ctx = await context(admin, userId, agreementId, !["recordEvidence", "evidenceUrl"].includes(action));
+    const ctx = await context(admin, userId, agreementId, !["recordEvidence", "evidenceUrl", "sandboxWithdrawal"].includes(action));
 
     if (action === "quote") {
       if (ctx.agreement.organizer_id !== userId) fail("Only the organizer can request a conversion quote", 403, "unauthorized");
@@ -381,6 +382,78 @@ Deno.serve(async (request: Request) => {
       }).select("*").single();
       if (error || !quote) fail("Could not save the conversion quote", 500);
       return reply({ quote: { id: quote.id, inputAsset: "XLM", outputAsset: `${ctx.asset.asset_code}:${ctx.asset.issuer_public_key}`, expectedInput: unitsToDecimal(expected), maximumInput: unitsToDecimal(sendMax), exactOutput: destination, feeStroops: Number(BASE_FEE), slippageBps: Number(SLIPPAGE_BPS), expiresAt, rateSource: quote.rate_source } });
+    }
+
+    if (action === "recipientQuote") {
+      if (ctx.agreement.provider_id !== userId) fail("Only the agreement recipient can convert released earnings", 403, "unauthorized");
+      requireWallet(ctx.escrow.payee_public_key, ctx.wallet.public_key);
+      if (!ctx.asset.issuer_public_key || ctx.asset.provisioning_status !== "ready" || ctx.asset.liquidity_status !== "ready") fail("The earned asset does not have conversion liquidity", 409, "liquidity_unavailable");
+      const requestedAmount = decimalToUnits(String(body.amount ?? ""));
+      const { data: releasedRows } = await admin.from("escrow_milestones").select("amount").eq("escrow_id", ctx.escrow.id).eq("status", "released");
+      const releasedUnits = (releasedRows ?? []).reduce((sum, item) => sum + BigInt(item.amount), 0n);
+      const { data: priorConversions } = await admin.from("payment_transactions").select("action_metadata").eq("agreement_id", agreementId).eq("initiated_by", userId).eq("kind", "recipient_conversion").eq("status", "confirmed");
+      const convertedUnits = (priorConversions ?? []).reduce((sum, item) => sum + BigInt(String((item.action_metadata as Record<string, unknown> | null)?.inputAmountUnits ?? 0)), 0n);
+      const availableUnits = releasedUnits > convertedUnits ? releasedUnits - convertedUnits : 0n;
+      if (requestedAmount > availableUnits) fail(`Up to ${unitsToDecimal(availableUnits)} ${ctx.asset.asset_code} from this agreement remains available to convert`, 409, "amount_unavailable");
+
+      const targetCode = String(body.targetAssetCode ?? "XLM").toUpperCase();
+      let outputAsset = Asset.native();
+      let outputRegistry: Record<string, unknown> | null = null;
+      if (targetCode !== "XLM") {
+        const { data } = await admin.from("test_asset_registry").select("*").eq("network", "TESTNET").eq("asset_code", targetCode).maybeSingle();
+        outputRegistry = data;
+        if (!outputRegistry || outputRegistry.provisioning_status !== "ready" || outputRegistry.liquidity_status !== "ready" || !outputRegistry.issuer_public_key) fail("That destination asset has no supported Testnet conversion path", 409, "liquidity_unavailable");
+        if (outputRegistry.id === ctx.asset.id) fail("Choose XLM or a different supported Stellar Testnet asset", 409, "same_asset");
+        outputAsset = new Asset(String(outputRegistry.asset_code), String(outputRegistry.issuer_public_key));
+        const walletAccount = await horizon.loadAccount(ctx.wallet.public_key);
+        const trustline = walletAccount.balances.find((item) => "asset_code" in item && item.asset_code === outputRegistry?.asset_code && item.asset_issuer === outputRegistry?.issuer_public_key);
+        if (!trustline) return reply({ requiresTrustline: true, asset: { code: outputRegistry.asset_code, issuer: outputRegistry.issuer_public_key }, reserveNotice: "The destination trustline increases the wallet's minimum XLM reserve." }, 409);
+      }
+      const sourceAsset = new Asset(ctx.asset.asset_code, ctx.asset.issuer_public_key);
+      const paths = await horizon.strictSendPaths(sourceAsset, unitsToDecimal(requestedAmount), [outputAsset]).call();
+      const path = paths.records[0];
+      if (!path) fail("No supported Testnet path is available for this payout choice", 409, "liquidity_unavailable");
+      const expectedOutput = decimalToUnits(path.destination_amount);
+      const minimumOutput = expectedOutput * (10_000n - SLIPPAGE_BPS) / 10_000n;
+      const expiresAt = new Date(Date.now() + QUOTE_LIFETIME_MS).toISOString();
+      const { data: quote, error } = await admin.from("recipient_conversion_quotes").insert({
+        agreement_id: agreementId, requested_by: userId, input_asset_id: ctx.asset.id,
+        output_asset_id: outputRegistry?.id ?? null, output_is_native: targetCode === "XLM",
+        input_amount: requestedAmount.toString(), expected_output_amount: expectedOutput.toString(),
+        minimum_output_amount: minimumOutput.toString(), fee_stroops: Number(BASE_FEE),
+        slippage_bps: Number(SLIPPAGE_BPS), path: path.path, expires_at: expiresAt,
+      }).select("*").single();
+      if (error || !quote) fail("Could not save the recipient conversion quote", 500);
+      return reply({ quote: {
+        id: quote.id, inputAsset: `${ctx.asset.asset_code}:${ctx.asset.issuer_public_key}`,
+        outputAsset: targetCode === "XLM" ? "XLM" : `${outputRegistry?.asset_code}:${outputRegistry?.issuer_public_key}`,
+        exactInput: unitsToDecimal(requestedAmount), expectedOutput: unitsToDecimal(expectedOutput),
+        minimumOutput: unitsToDecimal(minimumOutput), feeStroops: Number(BASE_FEE),
+        slippageBps: Number(SLIPPAGE_BPS), expiresAt, rateSource: quote.rate_source,
+      } });
+    }
+
+    if (action === "sandboxWithdrawal") {
+      if (ctx.agreement.provider_id !== userId) fail("Only the agreement recipient can preview a sandbox withdrawal", 403, "unauthorized");
+      const idempotencyKey = String(body.idempotencyKey ?? "");
+      if (!/^[a-z0-9_-]{16,160}$/i.test(idempotencyKey)) fail("A valid idempotency key is required");
+      const { data: existing } = await admin.from("sandbox_withdrawals").select("*").eq("idempotency_key", idempotencyKey).maybeSingle();
+      if (existing) {
+        if (existing.requested_by !== userId || existing.agreement_id !== agreementId) fail("Idempotency key conflict", 409);
+        return reply({ withdrawal: existing });
+      }
+      const requestedAmount = decimalToUnits(String(body.amount ?? ""));
+      const destinationLabel = String(body.destinationLabel ?? "").trim();
+      const { data: releasedRows } = await admin.from("escrow_milestones").select("amount").eq("escrow_id", ctx.escrow.id).eq("status", "released");
+      const releasedUnits = (releasedRows ?? []).reduce((sum, item) => sum + BigInt(item.amount), 0n);
+      if (requestedAmount > releasedUnits) fail("The sandbox amount cannot exceed released earnings", 409, "amount_unavailable");
+      if (destinationLabel.length < 3 || destinationLabel.length > 120) fail("Use a short fictional destination label");
+      const { data: withdrawal, error } = await admin.from("sandbox_withdrawals").insert({
+        agreement_id: agreementId, requested_by: userId, asset_id: ctx.asset.id,
+        amount: requestedAmount.toString(), destination_label: destinationLabel, idempotency_key: idempotencyKey,
+      }).select("*").single();
+      if (error || !withdrawal) fail("Could not save the sandbox withdrawal rehearsal", 500);
+      return reply({ withdrawal });
     }
 
     if (action === "recordEvidence") {
@@ -428,14 +501,23 @@ Deno.serve(async (request: Request) => {
       let kind = "";
       let milestoneId: string | null = null;
       let quoteId: string | null = null;
+      let recipientQuoteId: string | null = null;
       let resolution: string | null = null;
       let metadata: Record<string, unknown> = { network: "Stellar Testnet", networkPassphrase: Networks.TESTNET };
-      if (requestedAction === "change_trust") {
+      if (requestedAction === "change_trust" || requestedAction === "recipient_change_trust") {
         const account = await horizon.loadAccount(ctx.wallet.public_key);
-        const asset = new Asset(ctx.asset.asset_code, ctx.asset.issuer_public_key);
-        tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: Networks.TESTNET }).addMemo(Memo.text(`Trust ${ctx.asset.asset_code}`)).addOperation(Operation.changeTrust({ asset })).setTimeout(180).build();
+        let trustAsset = ctx.asset;
+        if (requestedAction === "recipient_change_trust") {
+          if (ctx.agreement.provider_id !== userId) fail("Only the recipient can prepare this trustline", 403, "unauthorized");
+          const targetCode = String(body.targetAssetCode ?? "").toUpperCase();
+          const { data } = await admin.from("test_asset_registry").select("*").eq("network", "TESTNET").eq("asset_code", targetCode).maybeSingle();
+          if (!data?.issuer_public_key || data.provisioning_status !== "ready") fail("That destination asset is not provisioned", 409, "asset_unavailable");
+          trustAsset = data;
+        }
+        const asset = new Asset(trustAsset.asset_code, trustAsset.issuer_public_key);
+        tx = new TransactionBuilder(account, { fee: BASE_FEE, networkPassphrase: Networks.TESTNET }).addMemo(Memo.text(`Trust ${trustAsset.asset_code}`)).addOperation(Operation.changeTrust({ asset })).setTimeout(180).build();
         kind = "trustline";
-        metadata = { ...metadata, assetCode: ctx.asset.asset_code, issuer: ctx.asset.issuer_public_key, feeStroops: Number(BASE_FEE), reserveNotice: "This trustline increases the wallet's minimum XLM reserve." };
+        metadata = { ...metadata, assetCode: trustAsset.asset_code, issuer: trustAsset.issuer_public_key, feeStroops: Number(BASE_FEE), reserveNotice: "This trustline increases the wallet's minimum XLM reserve." };
       } else if (requestedAction === "convert") {
         if (ctx.agreement.organizer_id !== userId) fail("Only the organizer can convert for this agreement", 403, "unauthorized");
         requireWallet(ctx.escrow.payer_public_key, ctx.wallet.public_key);
@@ -446,6 +528,18 @@ Deno.serve(async (request: Request) => {
         tx = new TransactionBuilder(account, { fee: String(quote.fee_stroops), networkPassphrase: Networks.TESTNET }).addMemo(Memo.text(`Pactset ${ctx.asset.asset_code}`)).addOperation(Operation.pathPaymentStrictReceive({ sendAsset: Asset.native(), sendMax: unitsToDecimal(BigInt(quote.send_max_stroops)), destination: ctx.wallet.public_key, destAsset: new Asset(ctx.asset.asset_code, ctx.asset.issuer_public_key), destAmount: unitsToDecimal(BigInt(quote.destination_amount)), path: (quote.path as Record<string, string>[]).map(assetFromPath) })).setTimeout(180).build();
         kind = "conversion";
         metadata = { ...metadata, inputAsset: "XLM", outputAsset: `${ctx.asset.asset_code}:${ctx.asset.issuer_public_key}`, expectedInput: unitsToDecimal(BigInt(quote.expected_send_amount)), maximumInput: unitsToDecimal(BigInt(quote.send_max_stroops)), exactOutput: unitsToDecimal(BigInt(quote.destination_amount)), feeStroops: quote.fee_stroops, slippageBps: quote.slippage_bps, quoteExpiresAt: quote.expires_at, rateSource: quote.rate_source };
+      } else if (requestedAction === "recipient_convert") {
+        if (ctx.agreement.provider_id !== userId) fail("Only the recipient can convert released earnings", 403, "unauthorized");
+        requireWallet(ctx.escrow.payee_public_key, ctx.wallet.public_key);
+        recipientQuoteId = String(body.quoteId ?? "");
+        const { data: quote } = await admin.from("recipient_conversion_quotes").select("*,input_asset:test_asset_registry!recipient_conversion_quotes_input_asset_id_fkey(*),output_asset:test_asset_registry!recipient_conversion_quotes_output_asset_id_fkey(*)").eq("id", recipientQuoteId).eq("agreement_id", agreementId).eq("requested_by", userId).maybeSingle();
+        if (!quote || quote.consumed_at || Date.parse(quote.expires_at) <= Date.now()) fail("The payout quote has expired. Request a fresh quote.", 410, "quote_expired");
+        const inputAsset = new Asset(quote.input_asset.asset_code, quote.input_asset.issuer_public_key);
+        const outputAsset = quote.output_is_native ? Asset.native() : new Asset(quote.output_asset.asset_code, quote.output_asset.issuer_public_key);
+        const account = await horizon.loadAccount(ctx.wallet.public_key);
+        tx = new TransactionBuilder(account, { fee: String(quote.fee_stroops), networkPassphrase: Networks.TESTNET }).addMemo(Memo.text("Pactset payout")).addOperation(Operation.pathPaymentStrictSend({ sendAsset: inputAsset, sendAmount: unitsToDecimal(BigInt(quote.input_amount)), destination: ctx.wallet.public_key, destAsset: outputAsset, destMin: unitsToDecimal(BigInt(quote.minimum_output_amount)), path: (quote.path as Record<string, string>[]).map(assetFromPath) })).setTimeout(180).build();
+        kind = "recipient_conversion";
+        metadata = { ...metadata, inputAsset: `${quote.input_asset.asset_code}:${quote.input_asset.issuer_public_key}`, outputAsset: quote.output_is_native ? "XLM" : `${quote.output_asset.asset_code}:${quote.output_asset.issuer_public_key}`, inputAmount: unitsToDecimal(BigInt(quote.input_amount)), inputAmountUnits: String(quote.input_amount), expectedOutput: unitsToDecimal(BigInt(quote.expected_output_amount)), minimumOutput: unitsToDecimal(BigInt(quote.minimum_output_amount)), feeStroops: quote.fee_stroops, slippageBps: quote.slippage_bps, quoteExpiresAt: quote.expires_at, rateSource: quote.rate_source };
       } else {
         const roleMap: Record<string, string> = { fund: "organizer", submit: "provider", request_correction: "organizer", approve_release: "organizer", dispute: "participant", resolve: "support" };
         if (!roleMap[requestedAction]) fail("Unsupported transaction action");
@@ -483,7 +577,7 @@ Deno.serve(async (request: Request) => {
         metadata = { ...metadata, contractAddress: ctx.escrow.contract_address, action: requestedAction, agreementId, feedback: requestedAction === "request_correction" ? String(body.feedback ?? "").slice(0, 4000) : undefined, decisionReason: requestedAction === "resolve" ? String(body.feedback ?? "").trim().slice(0, 4000) : undefined };
       }
       const xdr = tx.toXDR();
-      const { data: transaction, error } = await admin.from("payment_transactions").insert({ agreement_id: agreementId, escrow_id: ctx.escrow.id, milestone_id: milestoneId, initiated_by: userId, actor_public_key: ctx.wallet.public_key, kind, idempotency_key: idempotencyKey, submitted_xdr: xdr, status: "prepared", quote_id: quoteId, action_name: requestedAction, milestone_index: milestoneIndex, resolution, action_metadata: metadata, prepared_at: new Date().toISOString() }).select("*").single();
+      const { data: transaction, error } = await admin.from("payment_transactions").insert({ agreement_id: agreementId, escrow_id: ctx.escrow.id, milestone_id: milestoneId, initiated_by: userId, actor_public_key: ctx.wallet.public_key, kind, idempotency_key: idempotencyKey, submitted_xdr: xdr, status: "prepared", quote_id: quoteId, recipient_quote_id: recipientQuoteId, action_name: requestedAction, milestone_index: milestoneIndex, resolution, action_metadata: metadata, prepared_at: new Date().toISOString() }).select("*").single();
       if (error || !transaction) fail("Could not save the prepared transaction", 500);
       return reply({ transaction, xdr, details: metadata });
     }
@@ -506,7 +600,7 @@ Deno.serve(async (request: Request) => {
         return reply({ transaction: current });
       }
       try {
-        if (pending.kind === "trustline" || pending.kind === "conversion") await horizon.submitTransaction(signed as never);
+        if (pending.kind === "trustline" || pending.kind === "conversion" || pending.kind === "recipient_conversion") await horizon.submitTransaction(signed as never);
         else {
           const result = await soroban.sendTransaction(signed as never);
           if (result.status === "ERROR") fail("Stellar RPC rejected the transaction", 422, "ledger_rejected");

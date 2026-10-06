@@ -90,3 +90,34 @@ npx next build --webpack
 ```
 
 Reviewers are not required to set up the project locally.
+
+## Wallet discovery and recipient payout review
+
+For a newly registered supplier, use the real authenticated workspace rather than **Solo Test Lab**:
+
+1. Open **Account → Wallet and Testnet**, or use **Wallet** in the desktop sidebar/mobile bottom navigation.
+2. Verify Freighter is on **Stellar Testnet**, then select **Connect Freighter**. Pactset signs a single-use ownership challenge; it never asks for a seed phrase.
+3. Return to **Requests**, open a matching published request, submit an offer, and accept the same current version as the organizer.
+4. Open **Bookings**, choose the accepted booking, then select **Open wallet and payment details**.
+5. If no booking exists, the empty state explains the prerequisites and does not add private fixtures to the account.
+
+After a milestone release is confirmed, the supplier or crew member sees **Choose what happens to earned funds**:
+
+- **Keep T…** requires no transaction; the agreed Testnet asset remains in the escrow-recipient wallet.
+- **Convert** requests a strict-send quote from the released asset to XLM or another provisioned Stellar Testnet asset. The recipient reviews exact input, expected/minimum output, fee, slippage and expiry before Freighter signs.
+- **Sandbox withdrawal** creates only a fictional rehearsal record. It does not contact a bank or anchor, move tokens, prove redemption, collect KYC, or turn test assets into money.
+
+Receiving, conversion, sending to another wallet and off-ramp withdrawal are separate actions. Direct recipient transfers and a real anchor are deferred; no control claims arbitrary-chain tokens or a bank payout.
+
+## First protected-Preview Freighter checklist
+
+1. Pass the Vercel Preview gate, then sign into Pactset separately.
+2. Open **Account → Wallet and Testnet** and connect a fresh Freighter account on Testnet.
+3. Have the other agreement participant sign in through a separate browser profile and verify a different Testnet wallet.
+4. From an accepted agreement, let the organizer select **Create escrow**, review the bound version, participants, asset, milestones and resolver, then sign.
+5. Request the exact-receive XLM quote, check maximum spend/fee/expiry/slippage, sign conversion, then sign escrow funding as a separate step.
+6. As supplier or crew, upload private evidence and sign submission. As organizer, request a correction once, then approve and release after resubmission.
+7. As the recipient, keep the asset or request a separate conversion to XLM/another listed provisioned asset; confirm the release remains successful even if the later conversion is rejected.
+8. Open every confirmed hash in Stellar Expert Testnet and compare the agreement asset, issuer and amount. Refresh and use **Reconcile pending transactions** to prove recovery without duplication.
+
+Freighter extension signing remains unverified until these steps are performed privately by the owner. Automated fixture-key transactions are evidence of the server/API/ledger path only.

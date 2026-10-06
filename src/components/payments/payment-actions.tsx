@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowSquareOut, CheckCircle, FileArrowUp, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
+import { ArrowSquareOut, CheckCircle, CurrencyCircleDollar, FileArrowUp, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
 import { signTransaction } from "@stellar/freighter-api";
 import { Networks } from "@stellar/stellar-sdk";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,8 @@ import { createClient } from "@/lib/supabase/client";
 type Wallet = { public_key: string; network: string; wallet_provider: string; verified_at: string } | null;
 type Milestone = { id: string; milestone_index: number; label: string; amount: number | string; status: string };
 type Quote = { id: string; inputAsset: string; outputAsset: string; expectedInput: string; maximumInput: string; exactOutput: string; feeStroops: number; slippageBps: number; expiresAt: string; rateSource: string };
+type RecipientQuote = { id: string; inputAsset: string; outputAsset: string; exactInput: string; expectedOutput: string; minimumOutput: string; feeStroops: number; slippageBps: number; expiresAt: string; rateSource: string };
+type PayoutAsset = { asset_code: string; issuer_public_key: string; currency_code: string | null };
 type Prepared = { transaction: { id: string; status: string; tx_hash?: string | null }; xdr?: string; details: Record<string, unknown> };
 
 class PaymentError extends Error {
@@ -48,7 +50,7 @@ function ReviewDetails({ details }: { details: Record<string, unknown> }) {
   return <dl className="signing-details">{rows.map(([key, value]) => <div key={key}><dt>{key.replaceAll(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase())}</dt><dd>{String(value)}</dd></div>)}</dl>;
 }
 
-function TransactionControl({ agreementId, wallet, label, transactionAction, milestoneIndex, feedback, resolution, quoteId, onConfirmed }: { agreementId: string; wallet: Wallet; label: string; transactionAction: string; milestoneIndex?: number; feedback?: string; resolution?: "release" | "refund"; quoteId?: string; onConfirmed?: () => void }) {
+function TransactionControl({ agreementId, wallet, label, transactionAction, milestoneIndex, feedback, resolution, quoteId, targetAssetCode, onConfirmed }: { agreementId: string; wallet: Wallet; label: string; transactionAction: string; milestoneIndex?: number; feedback?: string; resolution?: "release" | "refund"; quoteId?: string; targetAssetCode?: string; onConfirmed?: () => void }) {
   const router = useRouter();
   const [prepared, setPrepared] = useState<Prepared | null>(null);
   const [state, setState] = useState<"idle" | "preparing" | "review" | "signing" | "pending" | "confirmed" | "failed">("idle");
@@ -61,7 +63,7 @@ function TransactionControl({ agreementId, wallet, label, transactionAction, mil
     setMessage("Preparing a Testnet transaction without signing it…");
     try {
       key.current ??= idempotencyKey(transactionAction);
-      const payload = await paymentCall({ action: "prepare", agreementId, transactionAction, milestoneIndex, feedback, resolution, quoteId, idempotencyKey: key.current });
+      const payload = await paymentCall({ action: "prepare", agreementId, transactionAction, milestoneIndex, feedback, resolution, quoteId, targetAssetCode, idempotencyKey: key.current });
       setPrepared(payload as unknown as Prepared);
       setState("review");
       setMessage("Review every detail before asking Freighter to sign.");
@@ -153,6 +155,62 @@ export function ConversionControls({ agreementId, wallet, assetCode, assetReady,
     {message && <p className="transaction-message" role="status">{message}</p>}
     {needsTrustline && <TransactionControl agreementId={agreementId} wallet={wallet} label={`Add ${assetCode} trustline`} transactionAction="change_trust" onConfirmed={() => { setNeedsTrustline(false); setMessage("Trustline confirmed. Request a fresh conversion quote."); complete(); }} />}
     {quote && <div className="quote-review financial-surface"><p className="kicker">Expires {new Date(quote.expiresAt).toLocaleTimeString()}</p><h3>{quote.expectedInput} XLM → {quote.exactOutput} {assetCode}</h3><dl><div><dt>Maximum input</dt><dd>{quote.maximumInput} XLM</dd></div><div><dt>Network fee</dt><dd>{quote.feeStroops} stroops</dd></div><div><dt>Slippage protection</dt><dd>{quote.slippageBps} bps</dd></div><div><dt>Rate source</dt><dd>{quote.rateSource}</dd></div></dl><TransactionControl agreementId={agreementId} wallet={wallet} label="Review conversion transaction" transactionAction="convert" quoteId={quote.id} onConfirmed={complete} /><button className="text-action" type="button" onClick={() => setQuote(null)}>Discard quote</button></div>}
+  </div>;
+}
+
+export function RecipientPayoutControls({ agreementId, wallet, agreementAsset, releasedAmount, assets }: { agreementId: string; wallet: Wallet; agreementAsset: string; releasedAmount: number; assets: PayoutAsset[] }) {
+  const router = useRouter();
+  const [choice, setChoice] = useState<"keep" | "convert" | "withdraw">("keep");
+  const [target, setTarget] = useState("XLM");
+  const [amount, setAmount] = useState(String(releasedAmount));
+  const [destination, setDestination] = useState("Fictional local payout destination");
+  const [quote, setQuote] = useState<RecipientQuote | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("Released funds remain in your wallet unless you authorize another action.");
+  const [needsTrustline, setNeedsTrustline] = useState(false);
+  const withdrawalKey = useRef<string | null>(null);
+
+  async function getQuote() {
+    setBusy(true); setQuote(null); setNeedsTrustline(false);
+    try {
+      const payload = await paymentCall({ action: "recipientQuote", agreementId, amount, targetAssetCode: target });
+      setQuote(payload.quote as RecipientQuote);
+      setMessage("Quote ready. Review the exact spend, minimum receive, fee, and expiry before signing.");
+    } catch (error) {
+      const paymentError = error as PaymentError;
+      setNeedsTrustline(paymentError.payload.requiresTrustline === true || paymentError.code === "missing_trustline");
+      setMessage(paymentError.message);
+    } finally { setBusy(false); }
+  }
+
+  async function previewWithdrawal() {
+    setBusy(true);
+    try {
+      withdrawalKey.current ??= idempotencyKey("sandbox-withdrawal");
+      const payload = await paymentCall({ action: "sandboxWithdrawal", agreementId, amount, destinationLabel: destination, idempotencyKey: withdrawalKey.current });
+      const withdrawal = payload.withdrawal as { status: string; disclosure: string };
+      setMessage(`${withdrawal.status.replaceAll("_", " ")}. ${withdrawal.disclosure}`);
+      router.refresh();
+    } catch (error) { setMessage(error instanceof Error ? error.message : "The sandbox preview could not be saved."); }
+    finally { setBusy(false); }
+  }
+
+  if (releasedAmount <= 0) return <p className="empty-inline">Payout choices appear after a milestone release is confirmed on Testnet.</p>;
+  return <div className="payout-choice">
+    <div className="payout-choice-tabs" role="tablist" aria-label="Recipient payout choice">
+      <button type="button" role="tab" aria-selected={choice === "keep"} onClick={() => { setChoice("keep"); setQuote(null); }}>Keep {agreementAsset}</button>
+      <button type="button" role="tab" aria-selected={choice === "convert"} onClick={() => { setChoice("convert"); setQuote(null); }}>Convert</button>
+      <button type="button" role="tab" aria-selected={choice === "withdraw"} onClick={() => { setChoice("withdraw"); setQuote(null); }}>Sandbox withdrawal</button>
+    </div>
+    {choice === "keep" && <div className="payout-explanation"><CheckCircle /><div><strong>No transaction required</strong><p>Your earned {agreementAsset} stays in the wallet that received the confirmed escrow release.</p></div></div>}
+    {choice === "convert" && <div className="payout-form">
+      <label>Amount to convert<input type="number" min="0.0000001" max={releasedAmount} step="0.0000001" value={amount} onChange={(event) => { setAmount(event.target.value); setQuote(null); }} /></label>
+      <label>Receive<select value={target} onChange={(event) => { setTarget(event.target.value); setQuote(null); }}><option value="XLM">XLM · Stellar Testnet native asset</option>{assets.filter((asset) => asset.asset_code !== agreementAsset).map((asset) => <option key={`${asset.asset_code}:${asset.issuer_public_key}`} value={asset.asset_code}>{asset.asset_code} · provisioned Testnet asset</option>)}</select></label>
+      {!wallet ? <button className="button button-primary" type="button" disabled>Connect the escrow recipient wallet first</button> : !quote ? <button className="button button-primary" type="button" onClick={getQuote} disabled={busy}>{busy ? <><SpinnerGap className="spinner" /> Quoting</> : `Quote ${agreementAsset} conversion`}</button> : <div className="quote-review financial-surface"><p className="kicker">Expires {new Date(quote.expiresAt).toLocaleTimeString()}</p><h3>{quote.exactInput} {agreementAsset} → about {quote.expectedOutput} {target}</h3><dl><div><dt>Minimum receive</dt><dd>{quote.minimumOutput} {target}</dd></div><div><dt>Network fee</dt><dd>{quote.feeStroops} stroops</dd></div><div><dt>Slippage limit</dt><dd>{quote.slippageBps} bps</dd></div><div><dt>Rate source</dt><dd>{quote.rateSource}</dd></div></dl><TransactionControl agreementId={agreementId} wallet={wallet} label="Review payout conversion" transactionAction="recipient_convert" quoteId={quote.id} onConfirmed={() => { setQuote(null); router.refresh(); }} /></div>}
+      {needsTrustline && target !== "XLM" && <TransactionControl agreementId={agreementId} wallet={wallet} label={`Add ${target} trustline`} transactionAction="recipient_change_trust" targetAssetCode={target} onConfirmed={() => { setNeedsTrustline(false); setMessage("Trustline confirmed. Request a fresh quote."); }} />}
+    </div>}
+    {choice === "withdraw" && <div className="payout-form sandbox-withdrawal"><div className="sandbox-disclosure"><CurrencyCircleDollar /><p><strong>Simulation only.</strong> This rehearsal does not contact a bank or anchor, move tokens, or prove redemption.</p></div><label>Amount to preview<input type="number" min="0.0000001" max={releasedAmount} step="0.0000001" value={amount} onChange={(event) => setAmount(event.target.value)} /></label><label>Fictional destination label<input value={destination} onChange={(event) => setDestination(event.target.value)} maxLength={120} /></label><button className="button button-secondary" type="button" onClick={previewWithdrawal} disabled={busy}>{busy ? "Saving preview" : "Create sandbox withdrawal preview"}</button></div>}
+    <p className="transaction-message" role="status">{message}</p>
   </div>;
 }
 

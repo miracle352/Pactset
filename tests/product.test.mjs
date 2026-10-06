@@ -110,3 +110,21 @@ test("verified wallet switching cannot rewrite existing escrow participants", as
   assert.match(walletAuth, /rpc\("activate_wallet_connection"/);
   assert.match(payment, /existing escrows remain bound/i);
 });
+
+test("recipient payout choices keep release, conversion, and sandbox withdrawal distinct", async () => {
+  const migration = await read("supabase/migrations/20261006120000_stage_2b_recipient_payouts.sql");
+  const edge = await read("supabase/functions/stellar-payments/index.ts");
+  const payment = await read("src/components/payments/payment-actions.tsx");
+  const walletSettings = await read("src/app/settings/wallet/page.tsx");
+  for (const table of ["recipient_conversion_quotes", "sandbox_withdrawals"]) {
+    assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  }
+  assert.match(edge, /strictSendPaths/);
+  assert.match(edge, /pathPaymentStrictSend/);
+  assert.match(edge, /ctx\.agreement\.provider_id !== userId/);
+  assert.match(migration, /Simulation only\. No bank, anchor, or real-world payout was contacted\./);
+  assert.match(payment, /Keep \{agreementAsset\}/);
+  assert.match(payment, /recipient_convert/);
+  assert.match(payment, /Create sandbox withdrawal preview/);
+  assert.match(walletSettings, /Sign in for identity\. Sign with Freighter for money\./);
+});

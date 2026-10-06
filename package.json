@@ -16,6 +16,7 @@
     "accounts:verify-development": "node scripts/admin/verify-development-identities.mjs",
     "payments:deploy-fixtures": "node scripts/stellar/deploy-browser-fixtures.mjs",
     "payments:verify-fresh": "node scripts/stellar/verify-fresh-browser-journey.mjs",
+    "payments:verify-recipient": "node scripts/stellar/verify-recipient-payouts.mjs",
     "staging:prepare-wallet-agreement": "node scripts/staging/prepare-wallet-agreement.mjs",
     "staging:bind-support-resolver": "node scripts/staging/bind-support-resolver.mjs",
     "staging:verify-wallet-escrow": "node scripts/staging/verify-wallet-created-escrow.mjs",

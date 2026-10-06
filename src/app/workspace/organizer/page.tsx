@@ -4,6 +4,11 @@ import { EmptyState, WorkspaceHeading, WorkspaceShell } from "@/components/works
 import { requireAccount } from "@/lib/account";
 import { createClient } from "@/lib/supabase/server";
 
+function agreementStatus(agreement: { status: string; agreement_escrows?: { status: string } | { status: string }[] | null }) {
+  const escrow = Array.isArray(agreement.agreement_escrows) ? agreement.agreement_escrows[0] : agreement.agreement_escrows;
+  return (escrow?.status ?? agreement.status).replaceAll("_", " ");
+}
+
 export default async function OrganizerWorkspace() {
   const account = await requireAccount("organizer");
   const supabase = await createClient();
@@ -11,14 +16,14 @@ export default async function OrganizerWorkspace() {
     supabase.from("events").select("id,name,event_type,status,city,timezone,starts_at,updated_at").order("updated_at", { ascending: false }).limit(8),
     supabase.from("requests").select("id,title,status,event_id,provider_role,updated_at").order("updated_at", { ascending: false }).limit(8),
     supabase.from("offers").select("id,status,current_version,request_id,updated_at").order("updated_at", { ascending: false }).limit(8),
-    supabase.from("agreements").select("id,scope,status,amount,currency,starts_at,provider_role").order("created_at", { ascending: false }).limit(8),
+    supabase.from("agreements").select("id,scope,status,amount,currency,starts_at,provider_role,agreement_escrows(status)").order("created_at", { ascending: false }).limit(8),
   ]);
   const nav = [
     { label: "Overview", href: "/workspace/organizer" },
-    { label: "Events", href: "#events" },
-    { label: "Requests", href: "#requests" },
-    { label: "Offers", href: "#offers" },
-    { label: "Agreements", href: "#agreements" },
+    { label: "Events", href: "/workspace/organizer/events" },
+    { label: "Requests", href: "/workspace/organizer#requests" },
+    { label: "Offers", href: "/workspace/organizer#offers" },
+    { label: "Agreements", href: "/workspace/organizer#agreements" },
   ];
 
   return (
@@ -43,7 +48,7 @@ export default async function OrganizerWorkspace() {
       </section>
       <section id="agreements" className="workspace-section">
         <div className="compact-section-heading"><h2>Accepted agreements</h2></div>
-        {agreements?.length ? <div className="agreement-grid">{agreements.map((agreement) => <Link className="glass-panel agreement-card-link" href={`/workspace/agreements/${agreement.id}/payment`} key={agreement.id}><span className="funding-status">Awaiting Testnet funding</span><h3>{agreement.scope}</h3><p>{agreement.amount} {agreement.currency} · {agreement.provider_role}</p><span className="agreement-link-label">Open payment details <ArrowRight /></span></Link>)}</div> : <EmptyState title="No accepted agreements" body="An agreement appears only after both parties accept the same current offer version." />}
+        {agreements?.length ? <div className="agreement-grid">{agreements.map((agreement) => <Link className="agreement-card-link operational-card" href={`/workspace/agreements/${agreement.id}/payment`} key={agreement.id}><span className="funding-status">{agreementStatus(agreement)}</span><h3>{agreement.scope}</h3><p>{agreement.amount} {agreement.currency} · {agreement.provider_role}</p><span className="agreement-link-label">Open wallet and payment details <ArrowRight /></span></Link>)}</div> : <EmptyState title="No accepted agreements" body="An agreement appears only after both parties accept the same current offer version." />}
       </section>
     </WorkspaceShell>
   );
