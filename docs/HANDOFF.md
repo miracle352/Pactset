@@ -1,6 +1,20 @@
 # Pactset Stage 2B handoff
 
-Last updated: 2026-10-05 (Africa/Lagos)
+Last updated: 2026-10-07 (Africa/Lagos)
+
+## 2026-10-07 wallet, navigation, and cinematic checkpoint
+
+- Durable design source is now `docs/design-standard.md`, referenced by repository `AGENTS.md`. It records the task-level Personal Web3 and DeFi Design Standard and the Pactset-specific “illuminated pavilion” thesis. The pre-existing repository AGENTS block remains the generated Next.js runtime guidance.
+- First-time Freighter connection now follows the installed v6.0.1 API sequence: `isConnected()` → `requestAccess()` → Testnet check → single-use ownership message → server verification. The accessible native dialog shows only Freighter as enabled; WalletConnect/mobile stays explicitly unsupported until its full message-signing and transaction path is implemented. Cancellation, timeout, wrong network, unavailable extension, rejected ownership, server failure, pending and confirmed states are distinct.
+- Authenticated wallet disconnect is implemented in `wallet-auth` and deployed only to `pactset-development`. It deactivates the current wallet for new actions while account sign-in and existing escrow participant keys remain unchanged. It was not exercised against the retained fixture wallet to avoid disturbing payment evidence.
+- `/workspace` now honors an HttpOnly same-site role preference only after server-side membership validation. The shared shell computes active route/hash state, exposes all mobile destinations through More, shows wallet status, and consistently includes role switching, profile/settings, sample Help, theme, and sign-out. Settings and wallet pages use that same shell. Fictional demos show a persistent sample-data boundary and return authenticated users to their real workspace.
+- Organizer headline aggregates use exact count queries instead of the eight-row preview. Supplier queries surface failures instead of silently rendering empty data, explain why eligible-request counts can differ from offer history, and name offers by request/scope, current price/currency and version.
+- Agreement pages include a deterministic next-step panel driven by role, wallet, escrow, conversion, evidence and dispute state. It never uses AI to infer financial readiness.
+- Landing now lazy-loads a real Three.js pavilion with glass/metal geometry, reflective floor, warm point/spot lighting, pointer camera depth, four scroll stages, and animated daylight/evening lighting. DPR is capped, coarse pointers reduce work, offscreen rendering pauses, and reduced-motion or missing WebGL uses the scenery-only image. The static image remains a fallback, not the implementation claim.
+- Local browser evidence: `docs/recordings/pavilion-story.webm`; responsive screenshots in `docs/screenshots/cinematic-checkpoint/`; wallet picker bounds and WebGL availability were inspected at 390px; 360/390/430/768/1440 layout checks passed in both themes with no horizontal overflow; 200% root text and reduced motion passed.
+- Existing Stage 2B conversion, escrow, evidence, release, disputes, reconciliation, recipient conversion and simulated withdrawal code was preserved. No fixture payment or contract was duplicated during this checkpoint.
+- Actual first-time Freighter extension approval/signing is still unverified because it requires the owner's private extension interaction. Email confirmation and password recovery remain unverified. Do not describe fixture signing as either result.
+- Next contract milestone is Pactset Go: a separately reviewed bounded bundle contract with exact versioned reservations, funding/expiry checks and atomic all-or-none activation only within its actual transaction boundary. Current per-agreement escrows do not provide package atomicity.
 
 ## Safety boundary
 

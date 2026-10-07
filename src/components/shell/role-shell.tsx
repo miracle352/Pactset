@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BrandMark } from "@/components/brand/brand-mark";
 import { ThemeControl } from "@/components/theme/theme-control";
 import { type Role, roleContent } from "@/lib/product";
+import { getAccount } from "@/lib/account";
 
 const demoSections: Record<Role, { id: string; title: string; copy: string; rows: [string, string, string][] }[]> = {
   organizer: [
@@ -26,8 +27,9 @@ const demoSections: Record<Role, { id: string; title: string; copy: string; rows
   ],
 };
 
-export function RoleShell({ workspaceRole }: { workspaceRole: Role }) {
+export async function RoleShell({ workspaceRole }: { workspaceRole: Role }) {
   const content = roleContent[workspaceRole];
+  const account = await getAccount();
   return (
     <main className="workspace-page">
       <aside className="workspace-sidebar glass-panel">
@@ -37,7 +39,7 @@ export function RoleShell({ workspaceRole }: { workspaceRole: Role }) {
         <Link className="back-link" href="/demo"><ArrowLeft size={15} /> Demo index</Link>
       </aside>
       <div className="workspace-main">
-        <header className="workspace-topbar"><div><p className="kicker">{content.eyebrow}</p><span className="demo-chip">Fictional fixtures</span></div><ThemeControl /></header>
+        <header className="workspace-topbar"><div><p className="kicker">{content.eyebrow}</p><span className="demo-chip">Sample data · not your account</span></div><div>{account ? <Link className="button button-secondary" href="/workspace">Return to my workspace</Link> : <Link className="text-link" href="/auth/sign-in">Sign in</Link>}<ThemeControl /></div></header>
         <section className="workspace-hero">
           <div><h1>{content.title}</h1><p>{content.description}</p></div>
           <article className="focus-card glass-panel"><span className="pulse-dot" aria-hidden="true" /><p>Sample next focus</p><strong>{content.focus}</strong><Link className="text-link" href={`/auth/sign-up?role=${workspaceRole === "support" ? "organizer" : workspaceRole}`}>{workspaceRole === "support" ? "Sign in with assigned access" : "Create an account"}<ArrowRight size={14} /></Link></article>

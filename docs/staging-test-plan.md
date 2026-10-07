@@ -2,6 +2,20 @@
 
 A protected Preview is available for review. The public deployment and Production environment remain unchanged.
 
+## First wallet rehearsal after the navigation repair
+
+1. Pass the Vercel Preview gate, then sign in to Pactset as the organizer; these are separate authentication steps.
+2. Open **Wallet & payments** from the shared navigation, choose **Select wallet**, then choose **Freighter — Recommended**.
+3. Approve site access in Freighter, switch to **Stellar Testnet** if prompted, and sign the ownership message. It cannot transfer funds.
+4. Have the supplier sign in in a separate browser profile and complete the same ownership check with a different Testnet wallet.
+5. From the supplier workspace follow **Requests → your offer → accepted booking → Open wallet and payment details**. The deterministic next step will say which participant acts.
+6. As organizer, open the same booking, review and sign **Create escrow**, then request the exact-output XLM quote. Confirm asset code plus issuer, exact receive amount, maximum XLM spend, fee, slippage and expiry before signing.
+7. After conversion confirmation, use **Fund this booking**. If funding fails, retry funding from the converted balance; do not convert again.
+8. Supplier submits private evidence; organizer approves only after review; both profiles refresh and confirm the genuine Testnet hash and recipient balance.
+9. Supplier may separately keep the test asset, convert it, or create the clearly simulated withdrawal rehearsal. A recipient conversion failure does not undo release.
+
+For Crew A and Crew B, repeat steps 2–8 in separate browser profiles with their own eligible agreements and distinct wallets. The owner acting as support signs in separately, opens only an assigned case, and must also connect the exact disclosed resolver wallet before an authorized disputed release/refund. Unassigned cases must remain invisible. Email confirmation/recovery and real Freighter signing stay unverified until these private steps are completed on the current protected Preview.
+
 ## Verified Vercel target and protection
 
 - Existing project: `pactset`, project ID `prj_YFD3oimOHAfrcRMcAyjIS2J1zNjT`, under the `miracle352` Hobby scope. The linked Git remote remains `https://github.com/miracle352/Pactset.git`.

@@ -23,8 +23,9 @@ const journey = [
 export default function Home() {
   return (
     <main className="landing-page">
-      <section className="landing-hero" aria-labelledby="landing-title">
+      <div className="cinematic-landing">
         <PavilionScene />
+      <section className="landing-hero" data-scene-stage="0" aria-labelledby="landing-title">
         <SiteHeader />
         <div className="hero-content">
           <div className="hero-copy">
@@ -45,7 +46,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="journey-section page-width" aria-labelledby="journey-title">
+      <section className="journey-section story-beat page-width" data-scene-stage="1" aria-labelledby="journey-title">
         <div className="journey-intro">
           <h2 id="journey-title">One plan from booking to payment.</h2>
           <p>Everyone sees what is ready, what is blocked, and who needs to act next.</p>
@@ -60,7 +61,7 @@ export default function Home() {
         </ol>
       </section>
 
-      <section id="how-it-works" className="explanation-section page-width">
+      <section id="how-it-works" className="explanation-section story-beat page-width" data-scene-stage="2">
         <div className="statement">
           <h2>Clear work for every role.</h2>
           <p>Organizers align the plan, suppliers confirm scope, and crew see exactly what to prepare and deliver.</p>
@@ -72,10 +73,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="testnet-section page-width glass-panel">
+      <section className="testnet-section story-beat page-width glass-panel" data-scene-stage="3">
         <div className="testnet-map"><MapPin size={22} /><span className="orbit orbit-one" /><span className="orbit orbit-two" /></div>
         <div><h2>A clear Testnet boundary.</h2><p>Public demos use fictional sample data. Authenticated payment rehearsals use Pactset-issued Testnet assets with no real-world value and show real Testnet transaction evidence when confirmed.</p><Link className="text-link" href="/demo">See the fictional demo boundary <ArrowRight size={15} /></Link></div>
       </section>
+      </div>
       <footer className="site-footer page-width"><span>PACTSET</span><p>Global event operations on Stellar Testnet.</p><Link href="/demo">Explore demo</Link></footer>
       <MobilePlanAction />
     </main>

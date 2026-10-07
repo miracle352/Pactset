@@ -108,7 +108,9 @@ test("verified wallet switching cannot rewrite existing escrow participants", as
   assert.match(migration, /current_user not in \('service_role','postgres'\)/i);
   assert.match(migration, /revoke all on function public\.activate_wallet_connection[\s\S]*authenticated/i);
   assert.match(walletAuth, /rpc\("activate_wallet_connection"/);
-  assert.match(payment, /existing escrows remain bound/i);
+  assert.match(payment, /existing escrows keep their original participant keys/i);
+  assert.match(payment, /requestAccess\(\)/);
+  assert.match(payment, /isConnected\(\)/);
 });
 
 test("recipient payout choices keep release, conversion, and sandbox withdrawal distinct", async () => {
@@ -126,5 +128,6 @@ test("recipient payout choices keep release, conversion, and sandbox withdrawal 
   assert.match(payment, /Keep \{agreementAsset\}/);
   assert.match(payment, /recipient_convert/);
   assert.match(payment, /Create sandbox withdrawal preview/);
-  assert.match(walletSettings, /Sign in for identity\. Sign with Freighter for money\./);
+  assert.match(walletSettings, /Wallet &amp; payments/);
+  assert.match(walletSettings, /Pactset sign-in controls your account/);
 });

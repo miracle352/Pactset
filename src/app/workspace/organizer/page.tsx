@@ -12,11 +12,14 @@ function agreementStatus(agreement: { status: string; agreement_escrows?: { stat
 export default async function OrganizerWorkspace() {
   const account = await requireAccount("organizer");
   const supabase = await createClient();
-  const [{ data: events }, { data: requests }, { data: offers }, { data: agreements }] = await Promise.all([
+  const [{ data: events }, { data: requests }, { data: offers }, { data: agreements }, { count: draftCount }, { count: publishedCount }, { count: pendingOfferCount }] = await Promise.all([
     supabase.from("events").select("id,name,event_type,status,city,timezone,starts_at,updated_at").order("updated_at", { ascending: false }).limit(8),
     supabase.from("requests").select("id,title,status,event_id,provider_role,updated_at").order("updated_at", { ascending: false }).limit(8),
     supabase.from("offers").select("id,status,current_version,request_id,updated_at").order("updated_at", { ascending: false }).limit(8),
     supabase.from("agreements").select("id,scope,status,amount,currency,starts_at,provider_role,agreement_escrows(status)").order("created_at", { ascending: false }).limit(8),
+    supabase.from("events").select("id", { count: "exact", head: true }).eq("status", "draft"),
+    supabase.from("requests").select("id", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("offers").select("id", { count: "exact", head: true }).in("status", ["submitted", "countered"]),
   ]);
   const nav = [
     { label: "Overview", href: "/workspace/organizer" },
@@ -30,9 +33,9 @@ export default async function OrganizerWorkspace() {
     <WorkspaceShell workspaceRole="organizer" account={account} nav={nav}>
       <WorkspaceHeading eyebrow="Organizer" title="Your event desk" description="Resume plans, publish provider requests, and decide on current offers." action={<Link className="button button-primary" href="/workspace/organizer/events/new"><CalendarPlus /> New event</Link>} />
       <section className="workspace-summary" aria-label="Organizer summary">
-        <article><span>Drafts</span><strong>{events?.filter((event) => event.status === "draft").length ?? 0}</strong></article>
-        <article><span>Published requests</span><strong>{requests?.filter((request) => request.status === "published").length ?? 0}</strong></article>
-        <article><span>Pending offers</span><strong>{offers?.filter((offer) => ["submitted", "countered"].includes(offer.status)).length ?? 0}</strong></article>
+        <article><span>Drafts</span><strong>{draftCount ?? "—"}</strong></article>
+        <article><span>Published requests</span><strong>{publishedCount ?? "—"}</strong></article>
+        <article><span>Pending offers</span><strong>{pendingOfferCount ?? "—"}</strong></article>
       </section>
       <section id="events" className="workspace-section">
         <div className="compact-section-heading"><h2>Events and drafts</h2><Link href="/workspace/organizer/events">View all</Link></div>

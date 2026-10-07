@@ -63,6 +63,12 @@ Deno.serve(async (request: Request) => {
   if (!StrKey.isValidEd25519PublicKey(publicKey)) return response({ error: "Invalid Stellar account" }, 400);
   if (body.network !== "TESTNET") return response({ error: "Pactset wallet verification requires Stellar Testnet" }, 400);
 
+  if (action === "disconnect") {
+    const { error } = await admin.from("wallet_connections").update({ active: false, updated_at: new Date().toISOString() }).eq("user_id", authData.user.id).eq("public_key", publicKey).eq("network", "TESTNET").eq("active", true);
+    if (error) return response({ error: "Could not disconnect this wallet" }, 500);
+    return response({ disconnected: true });
+  }
+
   if (action === "challenge") {
     const issuedAt = new Date();
     const expiresAt = new Date(issuedAt.getTime() + 5 * 60 * 1000);
