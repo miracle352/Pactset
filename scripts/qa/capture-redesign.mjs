@@ -2,9 +2,9 @@ import { chromium } from "@playwright/test";
 import { mkdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-const baseURL = process.env.PACTSET_QA_URL ?? "http://127.0.0.1:3000";
+const baseURL = process.env.PACTSET_QA_URL ?? "http://localhost:3000";
 const state = JSON.parse(await readFile(new URL("../../.stage2a-test-state.local.json", import.meta.url), "utf8"));
-const output = new URL("../../docs/screenshots/redesign/", import.meta.url);
+const output = new URL("../../docs/screenshots/pavilion-recovery/", import.meta.url);
 await mkdir(output, { recursive: true });
 const shot = (name) => fileURLToPath(new URL(name, output));
 const browser = await chromium.launch({ headless: true, executablePath: process.env.PACTSET_QA_BROWSER ?? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" });
@@ -43,6 +43,23 @@ async function signIn(page, role) {
   await page.goto(baseURL, { waitUntil: "networkidle" });
   await inspect(page, "landing-light-desktop");
   await page.screenshot({ path: shot("landing-light-desktop.png"), fullPage: true });
+  await value.close();
+}
+{
+  const value = await context(1440, 960, "dark");
+  const page = await value.newPage();
+  await page.goto(baseURL, { waitUntil: "networkidle" });
+  await page.waitForFunction(() => document.querySelector(".scene-status")?.textContent?.includes("Interactive"));
+  await inspect(page, "landing-dark-desktop");
+  await page.screenshot({ path: shot("landing-dark-desktop.png"), fullPage: true });
+  await value.close();
+}
+for (const theme of ["light", "dark"]) {
+  const value = await context(390, 844, theme);
+  const page = await value.newPage();
+  await page.goto(baseURL, { waitUntil: "networkidle" });
+  await inspect(page, `landing-${theme}-mobile`);
+  await page.screenshot({ path: shot(`landing-${theme}-mobile.png`), fullPage: false });
   await value.close();
 }
 {

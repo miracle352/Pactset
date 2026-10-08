@@ -1,11 +1,6 @@
 import {
   ArrowRight,
-  CalendarCheck,
   CheckCircle,
-  ClipboardText,
-  CreditCard,
-  MapPin,
-  UsersThree,
 } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { RolePathSelector } from "@/components/landing/role-path-selector";
@@ -13,71 +8,80 @@ import { MobilePlanAction } from "@/components/landing/mobile-plan-action";
 import { SiteHeader } from "@/components/navigation/site-header";
 import { PavilionScene } from "@/components/pavilion/pavilion-scene";
 
-const journey = [
-  { title: "Book", copy: "Choose the right venue and suppliers.", icon: CalendarCheck },
-  { title: "Prepare", copy: "Give every person a clear next action.", icon: ClipboardText },
-  { title: "Approve", copy: "Review evidence before work moves on.", icon: CheckCircle },
-  { title: "Pay", copy: "Preview when a test payment would be eligible.", icon: CreditCard },
+const story = [
+  {
+    number: "01",
+    title: "Plan and book",
+    copy: "Bring the venue, equipment, suppliers, and crew into one event-local plan. Compare real terms before anyone commits.",
+  },
+  {
+    number: "02",
+    title: "Prepare and review evidence",
+    copy: "Give every participant a clear deadline. Providers submit private progress evidence; organizers review it or request corrections.",
+  },
+  {
+    number: "03",
+    title: "Approve milestone payments",
+    copy: "Fund an agreement-bound Stellar Testnet escrow, approve completed work, and release only the accepted milestone amount.",
+  },
 ];
 
 export default function Home() {
   return (
-    <main className="landing-page">
-      <div className="cinematic-landing">
+    <main className="landing-page recovered-landing">
+      <div className="pavilion-narrative">
         <PavilionScene />
-      <section className="landing-hero" data-scene-stage="0" aria-labelledby="landing-title">
-        <SiteHeader />
-        <div className="hero-content">
-          <div className="hero-copy">
-            <p className="hero-kicker">Global event operations on Stellar Testnet</p>
-            <h1 id="landing-title"><span>Every detail.</span><span>One shared plan.</span></h1>
-            <p className="hero-lede">
-              Bring venues, suppliers, and crew into one clear plan from booking through approval.
-            </p>
-            <div className="hero-actions" id="hero-actions">
-              <Link className="button button-primary" href="/auth/sign-up?role=organizer">
-                Plan an event <ArrowRight size={17} aria-hidden="true" />
-              </Link>
-              <Link className="hero-demo-link" href="/demo">Explore demo</Link>
+        <section className="landing-hero" data-scene-stage="0" aria-labelledby="landing-title">
+          <SiteHeader />
+          <div className="hero-content">
+            <div className="hero-copy">
+              <p className="hero-kicker">Global event operations · Stellar Testnet</p>
+              <h1 id="landing-title"><span>Every detail.</span><span>One shared plan.</span></h1>
+              <p className="hero-lede">
+                Book your venue, suppliers and crew. Review the work. Approve milestone payments on Stellar.
+              </p>
+              <div className="hero-actions" id="hero-actions">
+                <Link className="button button-primary button-arrow" href="/auth/sign-up?role=organizer">
+                  Plan an event <ArrowRight size={17} aria-hidden="true" />
+                </Link>
+                <Link className="hero-demo-link" href="/demo">Explore demo</Link>
+              </div>
+              <p className="network-copy">Stellar Testnet only · Test assets have no monetary value.</p>
             </div>
-            <p className="network-copy">Fictional demo on Stellar Testnet. Test assets only.</p>
+            <a className="story-scroll-cue" href="#pactset-story">
+              <span>Follow the plan</span><ArrowRight className="story-scroll-arrow" aria-hidden="true" />
+            </a>
           </div>
-          <RolePathSelector />
-        </div>
-      </section>
+        </section>
 
-      <section className="journey-section story-beat page-width" data-scene-stage="1" aria-labelledby="journey-title">
-        <div className="journey-intro">
-          <h2 id="journey-title">One plan from booking to payment.</h2>
-          <p>Everyone sees what is ready, what is blocked, and who needs to act next.</p>
-        </div>
-        <ol className="journey-sequence">
-          {journey.map(({ title, copy, icon: Icon }) => (
-            <li key={title}>
-              <span className="journey-icon" aria-hidden="true"><Icon size={21} /></span>
-              <div><h3>{title}</h3><p>{copy}</p></div>
-            </li>
+        <section id="pactset-story" className="story-reel" aria-label="How Pactset works">
+          {story.map((beat, index) => (
+            <section className="narrative-beat page-width" data-scene-stage={index + 1} key={beat.number}>
+              <div className="narrative-rule"><span>{beat.number}</span><span>03</span></div>
+              <div className="narrative-copy">
+                <h2>{beat.title}</h2>
+                <p>{beat.copy}</p>
+                {index === 2 && <small><CheckCircle aria-hidden="true" /> Illustrative scene; financial states come from the confirmed Testnet ledger.</small>}
+              </div>
+            </section>
           ))}
-        </ol>
-      </section>
-
-      <section id="how-it-works" className="explanation-section story-beat page-width" data-scene-stage="2">
-        <div className="statement">
-          <h2>Clear work for every role.</h2>
-          <p>Organizers align the plan, suppliers confirm scope, and crew see exactly what to prepare and deliver.</p>
-        </div>
-        <div className="role-explanations">
-          <article><UsersThree size={24} aria-hidden="true" /><h3>Organizers</h3><p>Build the event plan, compare offers, assign work, and approve the next step.</p><Link href="/organizer">See organizer demo <ArrowRight size={16} /></Link></article>
-          <article><CalendarCheck size={24} aria-hidden="true" /><h3>Suppliers</h3><p>Share availability, agree scope, and keep delivery requirements visible.</p><Link href="/supplier">See supplier demo <ArrowRight size={16} /></Link></article>
-          <article><ClipboardText size={24} aria-hidden="true" /><h3>Crew</h3><p>Find shifts, preparation notes, due work, and evidence expectations in one place.</p><Link href="/crew">See crew demo <ArrowRight size={16} /></Link></article>
-        </div>
-      </section>
-
-      <section className="testnet-section story-beat page-width glass-panel" data-scene-stage="3">
-        <div className="testnet-map"><MapPin size={22} /><span className="orbit orbit-one" /><span className="orbit orbit-two" /></div>
-        <div><h2>A clear Testnet boundary.</h2><p>Public demos use fictional sample data. Authenticated payment rehearsals use Pactset-issued Testnet assets with no real-world value and show real Testnet transaction evidence when confirmed.</p><Link className="text-link" href="/demo">See the fictional demo boundary <ArrowRight size={15} /></Link></div>
-      </section>
+        </section>
       </div>
+
+      <section id="how-it-works" className="participation-section page-width" aria-labelledby="participation-title">
+        <div className="participation-copy">
+          <p className="kicker">One shared plan, distinct responsibilities</p>
+          <h2 id="participation-title">Start with the work you do.</h2>
+          <p>Organizers build and fund the plan. Suppliers manage services and bookings. Crew coordinate shifts, preparation, and evidence.</p>
+          <Link className="text-link" href="/demo">Explore fictional sample data <ArrowRight aria-hidden="true" /></Link>
+        </div>
+        <RolePathSelector />
+      </section>
+
+      <aside className="testnet-boundary page-width">
+        <strong>Stellar Testnet</strong>
+        <p>Pactset test assets have no monetary value. The public demo is fictional; authenticated payment rehearsals show ledger evidence only after confirmation.</p>
+      </aside>
       <footer className="site-footer page-width"><span>PACTSET</span><p>Global event operations on Stellar Testnet.</p><Link href="/demo">Explore demo</Link></footer>
       <MobilePlanAction />
     </main>

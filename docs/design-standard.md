@@ -1,6 +1,12 @@
 # Pactset design standard
 
-Status: approved product direction, October 2026. This document makes the task-level Personal Web3 and DeFi Design Standard durable and applies it specifically to Pactset.
+Status: approved recovery direction, October 2026. This document makes the task-level Personal Web3 and DeFi Design Standard durable and applies it specifically to Pactset.
+
+## Primary reference and adaptation boundary
+
+The single visual reference for this checkpoint is [Integrated Biosciences](https://integratedbio.com/). Pactset adapts its principles: an immediately usable editorial entrance, one substantial evolving backdrop, a compact floating navigation frame, numbered full-viewport story beats, strong typography, and a shorter portrait mobile composition. Pactset does not copy its branding, scientific objects, media, wording, or distinctive compositions.
+
+The reference is a pacing and hierarchy guide, not page content. The Pactset object remains an original event pavilion whose physical venue, equipment, crew dependencies, and payment path change with the product story.
 
 ## Creative thesis
 
@@ -22,11 +28,11 @@ The public story is cinematic and architectural. Authenticated work is calmer, d
 The real interactive pavilion is a progressively enhanced Three.js scene, never a screenshot of a website. It must use real scene lights and reflective materials so the warm interior visibly affects the floor, glass, and metal.
 
 1. Introduce the venue with a gentle entrance while the headline and actions are immediately usable.
-2. Reveal venue, equipment, and crew dependencies.
-3. Assemble essential bookings into one shared plan.
-4. Trace preparation, evidence, approval, and Testnet payment without presenting illustrative light as live state.
+2. **Plan and book:** reveal venue, equipment, suppliers, and crew dependencies.
+3. **Prepare and review evidence:** assemble essential bookings and show the idea of accountable preparation.
+4. **Approve milestone payments:** trace approval and Testnet release without presenting illustrative light as live state.
 
-Pointer depth is restrained; there is no continuous toy-like spin or scroll hijacking. Theme changes transition scene lighting from pearl daylight to warm evening. Mobile gets portrait framing and a shorter narrative. Reduced motion, slow devices, and missing WebGL receive a polished static pavilion fallback. Rendering pauses offscreen and device pixel ratio is capped.
+Pointer depth is restrained; there is no continuous toy-like spin or scroll hijacking. Theme changes transition scene lighting from pearl daylight to warm evening. Mobile gets portrait framing and shorter sections. Reduced motion, data-saving devices, and missing WebGL receive a polished static pavilion fallback. Rendering pauses offscreen and device pixel ratio is capped.
 
 ## Product and trust model
 

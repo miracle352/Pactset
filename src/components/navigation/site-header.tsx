@@ -40,6 +40,7 @@ export function SiteHeader() {
         ))}
       </nav>
       <div className="header-actions">
+        <Link className="header-sign-in" href="/auth/sign-in">Sign in</Link>
         <ThemeControl />
         <button className="menu-button" type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-controls="mobile-menu" aria-label={open ? "Close menu" : "Open menu"}>
           {open ? <X size={21} /> : <List size={21} />}
