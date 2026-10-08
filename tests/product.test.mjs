@@ -4,12 +4,19 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("landing preserves approved headline and actions", async () => {
-  const source = await read("src/app/page.tsx");
-  assert.match(source, /Every detail\./);
-  assert.match(source, /One shared plan\./);
-  assert.match(source, /Plan an event/);
-  assert.match(source, /Explore demo/);
+test("landing implements the approved architectural hero and footer without external icon packages", async () => {
+  const page = await read("src/app/page.tsx");
+  const source = await read("src/components/landing/architectural-landing.tsx");
+  assert.match(page, /ArchitecturalLanding/);
+  assert.match(source, /Build ideas people/);
+  assert.match(source, /remember\./);
+  assert.match(source, /DIGITAL CREATIVE PLATFORM/);
+  assert.match(source, /EXPLORE FOOTER/);
+  assert.match(source, /VELORA/);
+  assert.match(source, /premium_photo-1665426465884-d2361b53a866/);
+  assert.match(source, /Copyright © \{year\} Velora Studio/);
+  assert.match(source, /prefers-reduced-motion:reduce/);
+  assert.doesNotMatch(source, /lucide|framer-motion|font-awesome/i);
 });
 
 test("public onboarding excludes support from selectable roles", async () => {

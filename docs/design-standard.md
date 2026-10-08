@@ -1,8 +1,16 @@
 # Pactset design standard
 
-Status: approved recovery direction, October 2026. This document makes the task-level Personal Web3 and DeFi Design Standard durable and applies it specifically to Pactset.
+Status: approved landing checkpoint direction, October 2026. This document makes the task-level Personal Web3 and DeFi Design Standard durable and applies it specifically to Pactset.
 
-## Primary reference and adaptation boundary
+## Current landing authority — 2026-10-08
+
+The owner's latest detailed landing prompt supersedes conflicting earlier landing composition and content instructions. The current `/` checkpoint is deliberately limited to exactly two connected sections: a cinematic editorial hero and an overlapping architectural footer. It has no navigation bar or additional product sections. Its visible copy is the supplied Velora copy, its palette is deep teal `#061f1e` / `#103f3c`, off-white `#f3f5ef`, and architectural gold `#dfa12d`, and its only image is the exact owner-supplied Unsplash URL.
+
+The hero/footer uses real semantic HTML, inline SVG geometry/icons, native scroll behavior, and CSS/SVG motion. It adds no runtime package. Gold line signals, the restrained logo float, hover depth and smooth in-page movement stop or become effectively static under `prefers-reduced-motion`. Mobile is a one-column editorial composition rather than a compressed desktop grid.
+
+This checkpoint does not rename Pactset's application, alter metadata, or replace authenticated routes. The older pavilion narrative below remains preserved as product history and an explicitly superseded landing direction, not as a concurrent requirement for the current `/` route. Authentication, role, wallet, payment and support design rules remain authoritative for the rest of the frontend. Extending the new teal/gold language beyond the landing requires a separate route-by-route review so practical financial surfaces do not become decorative.
+
+## Superseded pavilion reference and adaptation boundary
 
 The single visual reference for this checkpoint is [Integrated Biosciences](https://integratedbio.com/). Pactset adapts its principles: an immediately usable editorial entrance, one substantial evolving backdrop, a compact floating navigation frame, numbered full-viewport story beats, strong typography, and a shorter portrait mobile composition. Pactset does not copy its branding, scientific objects, media, wording, or distinctive compositions.
 
