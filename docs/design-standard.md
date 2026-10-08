@@ -27,6 +27,8 @@ The public story is cinematic and architectural. Authenticated work is calmer, d
 
 The real interactive pavilion is a progressively enhanced Three.js scene, never a screenshot of a website. It must use real scene lights and reflective materials so the warm interior visibly affects the floor, glass, and metal.
 
+The pavilion is a grounded, framed glass-and-metal event structure rather than an abstract tunnel. Its foundation, structural bays, pitched roof panels, glass walls, stage, tables, chairs, equipment cases, and small crew figures form one readable architectural object. On first entry those parts complete one short foundation-to-prepared-event assembly, then settle. Scroll may adjust camera and lighting emphasis, but must not restart the build, spin the venue, or add floating labels and wires.
+
 1. Introduce the venue with a gentle entrance while the headline and actions are immediately usable.
 2. **Plan and book:** reveal venue, equipment, suppliers, and crew dependencies.
 3. **Prepare and review evidence:** assemble essential bookings and show the idea of accountable preparation.

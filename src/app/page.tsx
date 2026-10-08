@@ -10,17 +10,17 @@ import { PavilionScene } from "@/components/pavilion/pavilion-scene";
 
 const story = [
   {
-    number: "01",
+    phase: "Venue and terms",
     title: "Plan and book",
     copy: "Bring the venue, equipment, suppliers, and crew into one event-local plan. Compare real terms before anyone commits.",
   },
   {
-    number: "02",
+    phase: "Preparation and proof",
     title: "Prepare and review evidence",
     copy: "Give every participant a clear deadline. Providers submit private progress evidence; organizers review it or request corrections.",
   },
   {
-    number: "03",
+    phase: "Approval and release",
     title: "Approve milestone payments",
     copy: "Fund an agreement-bound Stellar Testnet escrow, approve completed work, and release only the accepted milestone amount.",
   },
@@ -48,17 +48,14 @@ export default function Home() {
               </div>
               <p className="network-copy">Stellar Testnet only · Test assets have no monetary value.</p>
             </div>
-            <a className="story-scroll-cue" href="#pactset-story">
-              <span>Follow the plan</span><ArrowRight className="story-scroll-arrow" aria-hidden="true" />
-            </a>
           </div>
         </section>
 
         <section id="pactset-story" className="story-reel" aria-label="How Pactset works">
           {story.map((beat, index) => (
-            <section className="narrative-beat page-width" data-scene-stage={index + 1} key={beat.number}>
-              <div className="narrative-rule"><span>{beat.number}</span><span>03</span></div>
+            <section className="narrative-beat page-width" data-scene-stage={index + 1} key={beat.phase}>
               <div className="narrative-copy">
+                <p className="narrative-phase">{beat.phase}</p>
                 <h2>{beat.title}</h2>
                 <p>{beat.copy}</p>
                 {index === 2 && <small><CheckCircle aria-hidden="true" /> Illustrative scene; financial states come from the confirmed Testnet ledger.</small>}

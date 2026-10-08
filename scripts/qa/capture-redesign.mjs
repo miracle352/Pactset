@@ -4,10 +4,11 @@ import { fileURLToPath } from "node:url";
 
 const baseURL = process.env.PACTSET_QA_URL ?? "http://localhost:3000";
 const state = JSON.parse(await readFile(new URL("../../.stage2a-test-state.local.json", import.meta.url), "utf8"));
-const output = new URL("../../docs/screenshots/pavilion-recovery/", import.meta.url);
+const output = new URL("../../docs/screenshots/pavilion-rebuild/after/", import.meta.url);
 await mkdir(output, { recursive: true });
 const shot = (name) => fileURLToPath(new URL(name, output));
-const browser = await chromium.launch({ headless: true, executablePath: process.env.PACTSET_QA_BROWSER ?? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" });
+const launchBrowser = () => chromium.launch({ headless: true, executablePath: process.env.PACTSET_QA_BROWSER ?? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", args: ["--use-angle=swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"] });
+let browser = await launchBrowser();
 const results = [];
 
 async function context(width, height, theme) {
@@ -41,26 +42,36 @@ async function signIn(page, role) {
   const value = await context(1440, 960, "light");
   const page = await value.newPage();
   await page.goto(baseURL, { waitUntil: "networkidle" });
+  await page.waitForSelector(".pavilion-scene.is-interactive", { timeout: 20_000 });
+  await page.waitForTimeout(3200);
   await inspect(page, "landing-light-desktop");
-  await page.screenshot({ path: shot("landing-light-desktop.png"), fullPage: true });
+  await page.screenshot({ path: shot("landing-light-desktop.png"), fullPage: false, timeout: 60_000 });
   await value.close();
+  await browser.close();
+  browser = await launchBrowser();
 }
 {
   const value = await context(1440, 960, "dark");
   const page = await value.newPage();
   await page.goto(baseURL, { waitUntil: "networkidle" });
-  await page.waitForFunction(() => document.querySelector(".scene-status")?.textContent?.includes("Interactive"));
+  await page.waitForSelector(".pavilion-scene.is-interactive", { timeout: 20_000 });
+  await page.waitForTimeout(3200);
   await inspect(page, "landing-dark-desktop");
-  await page.screenshot({ path: shot("landing-dark-desktop.png"), fullPage: true });
+  await page.screenshot({ path: shot("landing-dark-desktop.png"), fullPage: false, timeout: 60_000 });
   await value.close();
+  await browser.close();
+  browser = await launchBrowser();
 }
 for (const theme of ["light", "dark"]) {
   const value = await context(390, 844, theme);
   const page = await value.newPage();
   await page.goto(baseURL, { waitUntil: "networkidle" });
+  await page.waitForTimeout(600);
   await inspect(page, `landing-${theme}-mobile`);
   await page.screenshot({ path: shot(`landing-${theme}-mobile.png`), fullPage: false });
   await value.close();
+  await browser.close();
+  browser = await launchBrowser();
 }
 {
   const value = await context(1440, 1000, "dark");

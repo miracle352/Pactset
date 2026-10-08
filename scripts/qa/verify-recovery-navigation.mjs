@@ -19,6 +19,13 @@ await page.goto(baseURL, { waitUntil: "networkidle" });
 if (await page.getByRole("heading", { level: 1 }).count() !== 1) throw new Error("Landing must have exactly one main heading.");
 await page.getByRole("link", { name: "Plan an event" }).first().waitFor();
 await page.getByRole("link", { name: "Explore demo" }).first().waitFor();
+await page.setViewportSize({ width: 390, height: 844 });
+await page.getByRole("button", { name: "Open menu" }).click();
+await page.getByRole("navigation", { name: "Mobile navigation" }).waitFor();
+await page.keyboard.press("Tab");
+if (await page.evaluate(() => document.activeElement === document.body)) throw new Error("Keyboard focus did not enter the mobile landing navigation.");
+await page.getByRole("button", { name: "Close menu" }).click();
+await page.setViewportSize({ width: 1440, height: 900 });
 
 await signIn();
 await page.getByRole("link", { name: /Wallet & payments/ }).first().click();
@@ -43,4 +50,4 @@ if (mobileDestinations < 3) throw new Error("Mobile workspace navigation is inco
 
 await context.close();
 await browser.close();
-console.log(JSON.stringify({ landingHeading: 1, primaryActions: 2, walletRoute: true, paymentRoute: true, safeBackLink: true, signOutProtectedWorkspace: true, mobileDestinations }, null, 2));
+console.log(JSON.stringify({ landingHeading: 1, primaryActions: 2, mobileMenu: true, keyboardFocus: true, walletRoute: true, paymentRoute: true, safeBackLink: true, signOutProtectedWorkspace: true, mobileDestinations }, null, 2));
