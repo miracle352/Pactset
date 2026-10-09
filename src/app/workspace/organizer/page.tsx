@@ -9,13 +9,15 @@ function agreementStatus(agreement: { status: string; agreement_escrows?: { stat
   return (escrow?.status ?? agreement.status).replaceAll("_", " ");
 }
 
+type OrganizerOffer = { id: string; status: string; current_version: number; requests: Array<{ title: string; events: Array<{ name: string }> }>; offer_versions: { version: number; scope: string; amount: number; currency: string }[] };
+
 export default async function OrganizerWorkspace() {
   const account = await requireAccount("organizer");
   const supabase = await createClient();
   const [{ data: events }, { data: requests }, { data: offers }, { data: agreements }, { count: draftCount }, { count: publishedCount }, { count: pendingOfferCount }] = await Promise.all([
     supabase.from("events").select("id,name,event_type,status,city,timezone,starts_at,updated_at").order("updated_at", { ascending: false }).limit(8),
     supabase.from("requests").select("id,title,status,event_id,provider_role,updated_at").order("updated_at", { ascending: false }).limit(8),
-    supabase.from("offers").select("id,status,current_version,request_id,updated_at").order("updated_at", { ascending: false }).limit(8),
+    supabase.from("offers").select("id,status,current_version,request_id,updated_at,requests(title,events(name)),offer_versions(version,scope,amount,currency)").order("updated_at", { ascending: false }).limit(8),
     supabase.from("agreements").select("id,scope,status,amount,currency,starts_at,provider_role,agreement_escrows(status)").order("created_at", { ascending: false }).limit(8),
     supabase.from("events").select("id", { count: "exact", head: true }).eq("status", "draft"),
     supabase.from("requests").select("id", { count: "exact", head: true }).eq("status", "published"),
@@ -47,7 +49,7 @@ export default async function OrganizerWorkspace() {
       </section>
       <section id="offers" className="workspace-section">
         <div className="compact-section-heading"><h2>Incoming offers</h2></div>
-        {offers?.length ? <div className="record-list">{offers.map((offer) => <Link href={`/workspace/offers/${offer.id}`} key={offer.id}><div><strong>Offer version {offer.current_version}</strong><p>Open the current terms before responding.</p></div><span>{offer.status}</span><ArrowRight /></Link>)}</div> : <EmptyState title="No offers need a decision" body="Offers from eligible providers appear here after a request is published." />}
+        {offers?.length ? <div className="record-list">{(offers as unknown as OrganizerOffer[]).map((offer) => { const terms = offer.offer_versions.find((item) => item.version === offer.current_version); const request = offer.requests[0]; return <Link href={`/workspace/offers/${offer.id}`} key={offer.id}><div><strong>{request?.title ?? terms?.scope ?? "Provider offer"}</strong><p>{request?.events?.[0]?.name ?? "Event"} · {terms ? `${terms.amount} ${terms.currency}` : "Terms unavailable"} · version {offer.current_version}</p></div><span>{offer.status}</span><ArrowRight /></Link>; })}</div> : <EmptyState title="No offers need a decision" body="Offers from eligible providers appear here after a request is published." />}
       </section>
       <section id="agreements" className="workspace-section">
         <div className="compact-section-heading"><h2>Accepted agreements</h2></div>

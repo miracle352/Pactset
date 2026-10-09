@@ -168,3 +168,24 @@ test("recipient payout choices keep release, conversion, and sandbox withdrawal 
   assert.match(walletSettings, /Wallet &amp; payments/);
   assert.match(walletSettings, /Pactset sign-in controls your account/);
 });
+
+test("agreement collaboration is scoped, immutable, and auditable", async () => {
+  const migration = await read("supabase/migrations/20261009120000_stage_3_practical_collaboration.sql");
+  const actions = await read("src/app/workspace/agreements/actions.ts");
+  const interfaceSource = await read("src/components/agreements/agreement-collaboration.tsx");
+
+  for (const table of ["agreement_messages", "deadline_extension_requests"]) {
+    assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  }
+  assert.match(migration, /revoke all on public\.agreement_messages, public\.deadline_extension_requests from public, anon, authenticated/i);
+  assert.match(migration, /grant select on public\.agreement_messages, public\.deadline_extension_requests to authenticated/i);
+  assert.match(migration, /can_access_agreement_collaboration[\s\S]*assigned_support_id = \(select auth\.uid\(\)\)[\s\S]*status in \('assigned','under_review'\)/i);
+  assert.match(migration, /security definer\s+set search_path = ''/i);
+  assert.match(migration, /Only the other agreement participant may respond/i);
+  assert.match(migration, /deadline_extension_(requested|accepted|rejected)/i);
+  assert.doesNotMatch(migration, /update public\.agreements\s+set\s+preparation_deadline/i);
+  assert.match(actions, /fromZonedTime/);
+  assert.match(interfaceSource, /The accepted deadline remains/);
+  assert.match(interfaceSource, /Original shown · translation/);
+  assert.match(interfaceSource, /neutral human review/i);
+});

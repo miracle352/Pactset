@@ -1,6 +1,7 @@
 import { ArrowLeft, CheckCircle, Clock, CurrencyCircleDollar, LockKey, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AgreementConversation, DeadlineExtensions, type AgreementMessage, type DeadlineRequest } from "@/components/agreements/agreement-collaboration";
 import { ConversionControls, CreateEscrowControl, EvidenceLink, EvidenceUpload, ExplorerLink, FundingControl, MilestoneActions, RecipientPayoutControls, ReconcileButton } from "@/components/payments/payment-actions";
 import { WalletConnection } from "@/components/payments/wallet-connection";
 import { OpenSupportCaseForm, SupportCaseMessageForm } from "@/components/support/case-forms";
@@ -26,7 +27,7 @@ export default async function AgreementPaymentPage({ params }: { params: Promise
   const account = await requireAccount();
   const supabase = await createClient();
   const [{ data: agreement }, { data: wallet }, { data: escrow }] = await Promise.all([
-    supabase.from("agreements").select("*").eq("id", id).maybeSingle(),
+    supabase.from("agreements").select("*,requests(events(name,timezone))").eq("id", id).maybeSingle(),
     supabase.from("wallet_connections").select("public_key,network,wallet_provider,verified_at").eq("user_id", account.userId).eq("network", "TESTNET").eq("active", true).maybeSingle(),
     supabase.from("agreement_escrows").select("*,test_asset_registry(*)").eq("agreement_id", id).maybeSingle(),
   ]);
@@ -37,12 +38,14 @@ export default async function AgreementPaymentPage({ params }: { params: Promise
   const workspaceRole = agreement.organizer_id === account.userId ? "organizer" : agreement.provider_id === account.userId ? agreement.provider_role : account.roles.includes("support") ? "support" : null;
   if (!workspaceRole || !["organizer", "supplier", "crew", "support"].includes(workspaceRole)) notFound();
 
-  const [{ data: milestoneRows }, { data: transactions }, { data: supportCases }, { data: payoutAssets }, { data: sandboxWithdrawals }] = await Promise.all([
+  const [{ data: milestoneRows }, { data: transactions }, { data: supportCases }, { data: payoutAssets }, { data: sandboxWithdrawals }, messageResult, deadlineResult] = await Promise.all([
     escrow ? supabase.from("escrow_milestones").select("*").eq("escrow_id", escrow.id).order("milestone_index") : Promise.resolve({ data: null }),
     supabase.from("payment_transactions").select("id,kind,status,tx_hash,confirmed_at").eq("agreement_id", id).order("confirmed_at", { ascending: false }),
     supabase.from("support_cases").select("id,status,reason,decision,decision_reason,assigned_support_id,created_at,resolved_at").eq("agreement_id", id).order("created_at", { ascending: false }).limit(1),
     supabase.from("test_asset_registry").select("asset_code,issuer_public_key,currency_code").eq("network", "TESTNET").eq("provisioning_status", "ready").eq("liquidity_status", "ready").order("asset_code"),
     supabase.from("sandbox_withdrawals").select("id,status,amount,destination_label,disclosure,created_at").eq("agreement_id", id).order("created_at", { ascending: false }),
+    supabase.from("agreement_messages").select("id,author_id,body_original,language_code,translated_body,translated_language_code,translation_status,support_reminder,created_at").eq("agreement_id", id).order("created_at"),
+    supabase.from("deadline_extension_requests").select("id,requested_by,original_deadline,proposed_deadline,reason,status,response_reason,created_at").eq("agreement_id", id).order("created_at", { ascending: false }),
   ]);
   const supportCase = supportCases?.[0] ?? null;
   const { data: caseMessages } = supportCase ? await supabase.from("support_case_messages").select("id,author_id,body,created_at").eq("case_id", supportCase.id).order("created_at") : { data: null };
@@ -56,6 +59,7 @@ export default async function AgreementPaymentPage({ params }: { params: Promise
     { label: "Overview", href: `/workspace/${workspaceRole}` },
     { label: "Agreement", href: `/workspace/agreements/${id}/payment` },
     { label: "Evidence", href: "#evidence" },
+    { label: "Messages", href: "#messages" },
     { label: "Transactions", href: "#transactions" },
   ];
   const planned = Array.isArray(agreement.milestones) ? agreement.milestones as MilestoneTerm[] : [];
@@ -66,6 +70,7 @@ export default async function AgreementPaymentPage({ params }: { params: Promise
   const refunded = onChainMilestones.filter((item) => item.status === "refunded").reduce((sum, item) => sum + displayAmount(item.amount), 0);
   const disputed = onChainMilestones.filter((item) => item.status === "disputed").reduce((sum, item) => sum + displayAmount(item.amount), 0);
   const timeline = onChainMilestones.length ? onChainMilestones : planned.length ? planned : [{ label: "Complete agreed work", amount: agreement.amount }];
+  const eventTimezone = (agreement.requests as { events?: { timezone?: string } | null } | null)?.events?.timezone ?? "UTC";
 
   return <WorkspaceShell workspaceRole={workspaceRole} account={account} nav={nav}>
     <Link className="back-link payment-back" href={`/workspace/${workspaceRole}`}><ArrowLeft /> Back to {workspaceRole} workspace</Link>
@@ -76,6 +81,8 @@ export default async function AgreementPaymentPage({ params }: { params: Promise
       <section className="funding-summary financial-surface" aria-labelledby="funding-title"><div className="compact-section-heading"><div><p className="kicker">Funding summary</p><h2 id="funding-title">{agreement.amount} {agreement.currency}</h2></div><span className={`finance-status ${escrow?.status ?? "awaiting_funding"}`}>{(escrow?.status ?? "awaiting_funding").replaceAll("_", " ")}</span></div><dl className="finance-breakdown"><div><dt>Planned</dt><dd>{agreement.amount} {agreement.currency}</dd></div><div><dt>Committed</dt><dd>{agreement.amount} {agreement.currency}</dd></div><div><dt>Funded</dt><dd>{escrow?.funded_at ? `${agreement.amount} ${agreement.currency}` : `0 ${agreement.currency}`}</dd></div><div><dt>Released</dt><dd>{released} {agreement.currency}</dd></div><div><dt>Refunded</dt><dd>{refunded} {agreement.currency}</dd></div><div><dt>Disputed</dt><dd>{disputed} {agreement.currency}</dd></div></dl><p>Conversion and escrow funding are separate recoverable transactions. A completed conversion is never repeated automatically if funding fails.</p></section>
       <section className="milestone-panel glass-panel"><div className="compact-section-heading"><div><p className="kicker">Milestone timeline</p><h2>Evidence, approval, payment</h2></div><LockKey /></div><ol className="payment-timeline">{timeline.map((milestone, index) => { const status = "status" in milestone ? String(milestone.status) : "planned"; return <li key={("id" in milestone && String(milestone.id)) || index}><span className="timeline-marker">{status === "released" ? <CheckCircle /> : <Clock />}</span><div><strong>{String(milestone.label ?? ("title" in milestone ? milestone.title : undefined) ?? `Milestone ${index + 1}`)}</strong><p>{statusCopy[status] ?? "Planned in the accepted agreement."}</p>{"id" in milestone && <MilestoneActions agreementId={id} wallet={wallet} role={workspaceRole} milestone={milestone as LedgerMilestone} />}</div><span>{"status" in milestone ? displayAmount(milestone.amount) : Number(milestone.amount ?? 0)} {agreement.currency}</span></li>; })}</ol></section>
       <section id="evidence" className="evidence-panel financial-surface"><p className="kicker">Private work evidence</p><h2>Evidence is not approval</h2><p>Notes and media stay in private storage. A submission, organizer approval, and confirmed payment are separate states.</p>{evidence?.length ? <ul className="evidence-list">{evidence.map((item) => <li key={item.id}><strong>{item.status.replaceAll("_", " ")}</strong><p>{item.note}</p><span>{item.media_type ?? "Note only"} · private object</span>{item.media_type && <EvidenceLink agreementId={id} evidenceId={item.id} />}</li>)}</ul> : <p className="empty-inline">No private evidence is visible for this agreement.</p>}{(workspaceRole === "supplier" || workspaceRole === "crew") && onChainMilestones.filter((milestone) => ["pending", "correction_requested"].includes(milestone.status)).map((milestone) => <div key={milestone.id} className="evidence-milestone-form"><strong>{milestone.label}</strong><EvidenceUpload agreementId={id} milestoneId={milestone.id} /></div>)}</section>
+      {messageResult.error ? <section className="agreement-collaboration financial-surface"><p className="form-message error"><WarningCircle /> Agreement messages are unavailable until the collaboration migration is applied.</p></section> : <AgreementConversation agreementId={id} currentUserId={account.userId} messages={(messageResult.data ?? []) as AgreementMessage[]} />}
+      {deadlineResult.error ? null : <DeadlineExtensions agreementId={id} currentUserId={account.userId} timezone={eventTimezone} originalDeadline={agreement.preparation_deadline} requests={(deadlineResult.data ?? []) as DeadlineRequest[]} />}
       {(workspaceRole === "supplier" || workspaceRole === "crew") && <section className="recipient-payout-panel financial-surface"><p className="kicker">After release</p><h2>Choose what happens to earned funds</h2><p>Escrow releases the agreed asset first. Keeping it, converting it, sending it elsewhere, and withdrawing through an off-ramp are different actions. Pactset currently supports wallet-authorized Stellar conversion and a clearly simulated withdrawal rehearsal.</p><RecipientPayoutControls agreementId={id} wallet={wallet} agreementAsset={agreement.currency} releasedAmount={released} assets={(payoutAssets ?? []).filter((item) => item.issuer_public_key) as { asset_code: string; issuer_public_key: string; currency_code: string | null }[]} />{sandboxWithdrawals?.length ? <ul className="sandbox-history">{sandboxWithdrawals.map((item) => <li key={item.id}><strong>{displayAmount(item.amount)} {agreement.currency}</strong><span>{item.status.replaceAll("_", " ")} · {item.destination_label}</span><small>{item.disclosure}</small></li>)}</ul> : null}</section>}
     </div><aside id="payment-actions" className="payment-sidebar">
       <WalletConnection initialConnection={wallet} />
