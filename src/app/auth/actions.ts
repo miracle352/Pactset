@@ -35,20 +35,23 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
   if (!parsed.success) return { status: "error", message: "Enter your name, a valid email, a 10-character password, and a public role.", fields: safeFields(fields) };
   const requestHeaders = await headers();
   const origin = originFromHeaders(requestHeaders);
+  const defaultNext = `/workspace/${parsed.data.role}`;
+  const requestedNext = typeof fields.next === "string" && fields.next.startsWith("/") && !fields.next.startsWith("//") ? fields.next : defaultNext;
+  const next = parsed.data.role === "organizer" && requestedNext.startsWith("/workspace/organizer") ? requestedNext : parsed.data.role !== "organizer" && requestedNext.startsWith(`/workspace/${parsed.data.role}`) ? requestedNext : defaultNext;
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { display_name: parsed.data.displayName },
-      emailRedirectTo: `${origin}/auth/confirm?next=/workspace/${parsed.data.role}&role=${parsed.data.role}`,
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}&role=${parsed.data.role}`,
     },
   });
   if (error) return { status: "error", message: "Account creation failed. The address may already be registered.", fields: { email: parsed.data.email, displayName: parsed.data.displayName, role: parsed.data.role } };
   if (data.session) {
     const { error: roleError } = await supabase.from("account_roles").insert({ user_id: data.session.user.id, role: parsed.data.role });
     if (roleError && roleError.code !== "23505") return { status: "error", message: "The account was created, but its role could not be assigned. Sign in and try again.", fields: { email: parsed.data.email, displayName: parsed.data.displayName, role: parsed.data.role } };
-    redirect(`/workspace/${parsed.data.role}`);
+    redirect(next);
   }
   return { status: "success", message: "Check your email to verify the account, then return to Pactset.", fields: { email: parsed.data.email, displayName: parsed.data.displayName, role: parsed.data.role } };
 }

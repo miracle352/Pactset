@@ -11,7 +11,7 @@ async function signIn(page: Page, role: Role) {
   const account = state.accounts[role];
   await page.goto(`/auth/sign-in?next=/workspace/${role}`);
   await page.getByLabel("Email").fill(account.email);
-  await page.getByLabel("Password").fill(account.password);
+  await page.getByLabel("Password", { exact: true }).fill(account.password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(new RegExp(`/workspace/${role}$`));
 }

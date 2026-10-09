@@ -138,6 +138,7 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 .button-arrow:hover svg { transform: translateX(4px); }
 .fixture-label, .demo-chip, .network-badge { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; background: var(--surface-dense); color: var(--muted); font-size: .7rem; font-weight: 700; }
 
+.auth-field { display:grid; gap:8px; }
 .password-input { position:relative; display:block; }
 .password-input input { width:100%; padding-right:88px; }
 .password-input button { position:absolute; top:50%; right:7px; min-width:70px; min-height:38px; display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:0 9px; transform:translateY(-50%); border:1px solid var(--line); border-radius:7px; color:var(--muted); background:var(--surface-soft); cursor:pointer; font-size:.7rem; font-weight:750; }
@@ -307,7 +308,7 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 /* Accounts and operational workspaces */
 .auth-page, .settings-page { min-height: 100dvh; padding-bottom: 90px; }
 .auth-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 470px); gap: clamp(50px, 9vw, 130px); align-items: start; padding: 80px 0; }
-.auth-intro h1, .settings-heading h1 { max-width: 720px; margin: 28px 0 16px; font-size: clamp(2.8rem, 6vw, 5.5rem); font-weight: 500; line-height: .96; letter-spacing: -.052em; }
+.auth-intro h1, .settings-heading h1 { max-width: 720px; margin: 28px 0 16px; font-size: clamp(2.55rem, 5vw, 4.6rem); font-weight: 500; line-height: .98; letter-spacing: -.045em; }
 .auth-intro > p, .settings-heading > p { max-width: 620px; color: var(--muted); line-height: 1.7; }
 .account-boundary { max-width: 620px; margin-top: 42px; padding-top: 22px; border-top: 1px solid var(--line-strong); }
 .account-boundary p { color: var(--muted); line-height: 1.6; }
@@ -724,6 +725,9 @@ html[data-theme="dark"] .kicker { color: var(--gold); }
 .auth-intro h1,.demo-intro h1,.onboarding-intro h1 { color:var(--ink); }.account-boundary { border-color:color-mix(in srgb,var(--gold) 34%,var(--line)); background:color-mix(in srgb,var(--gold) 6%,var(--surface-dense)); }
 .payment-layout { align-items:start; }.payment-summary,.payment-timeline,.transaction-card { font-variant-numeric:tabular-nums; }.signing-review,.quote-review { background:color-mix(in srgb,var(--surface-dense) 96%,var(--gold) 4%); }
 .account-workspace .workspace-section { min-height:0; }
+.settings-back { margin-top:28px; }
+.settings-heading { padding-top:32px; }
+.settings-heading h1 { font-size:clamp(2.55rem,5vw,4.25rem); }
 
 .header-wallet-control { position:relative; }
 .header-wallet-control>summary { min-height:44px; display:grid; grid-template-columns:auto auto; align-items:center; gap:1px 8px; padding:6px 11px; border:1px solid var(--line); border-radius:10px; color:var(--ink); background:var(--surface-dense); cursor:pointer; list-style:none; }

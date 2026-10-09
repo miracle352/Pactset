@@ -7,10 +7,9 @@ import { SiteHeader } from "@/components/navigation/site-header";
 import { getAccount } from "@/lib/account";
 
 const journey = [
-  { number: "01", title: "Book the right people", copy: "Publish a clear request, compare current offers, and accept one version of the scope, price, timing, and milestones." },
-  { number: "02", title: "Prepare against one timeline", copy: "Keep venue access, equipment, food, crew shifts, preparation deadlines, and corrections tied to event-local time." },
-  { number: "03", title: "Review the work", copy: "Suppliers and crew submit private progress evidence. Organizers approve it, request a correction, or open an assigned support case." },
-  { number: "04", title: "Release the milestone", copy: "The organizer approves the agreed milestone and the confirmed Stellar Testnet ledger result becomes the payment record." },
+  { number: "01", title: "Arrange the event and agree the work", copy: "Shape the brief, publish the right requests, compare offers, and accept one current version of scope, price, timing, and milestones." },
+  { number: "02", title: "Track preparation and review evidence", copy: "Keep venue access, equipment, food, crew shifts, deadlines, private evidence, and requested corrections tied to the event timeline." },
+  { number: "03", title: "Approve eligible Testnet payments", copy: "Review the completed work before approving a milestone. The confirmed Stellar Testnet ledger result becomes the payment record." },
 ];
 
 const coordination = [
@@ -44,7 +43,7 @@ export default async function Home() {
           <p className="editorial-kicker"><span />Global event operations · Stellar Testnet</p>
           <h1 id="landing-title">A thousand moving parts. <span>One seamless experience.</span></h1>
           <p className="hero-description">Bring your venue, suppliers and crew together. Track preparations, review the work, and approve milestone payments on Stellar.</p>
-          <div className="hero-actions"><Link className="button button-primary button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link><Link className="editorial-link" href={account ? "/workspace" : "/onboarding"}>{account ? "Continue your work" : "Find work"} <ArrowRight aria-hidden="true" /></Link></div>
+          <div className="hero-actions"><Link className="button button-primary button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer&next=%2Fworkspace%2Forganizer%2Fevents%2Fnew"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link><Link className="editorial-link" href={account ? "/workspace" : "/onboarding"}>{account ? "Continue your work" : "Find work"} <ArrowRight aria-hidden="true" /></Link></div>
           <p className="hero-boundary">Stellar Testnet · Test assets have no monetary value.</p>
         </div></div>
       </section>
@@ -55,7 +54,7 @@ export default async function Home() {
       </section>
 
       <section className="landing-section roles-section" id="roles" aria-labelledby="roles-title"><div className="page-width roles-layout">
-        <div className="roles-copy"><p className="kicker">A workspace shaped around your part</p><h2 id="roles-title">Different responsibilities. <em>One coordinated event.</em></h2><p>Organizers make the decisions. Suppliers manage services and inventory. Crew see the timing and proof expected from them. Assigned support enters only when a case requires it.</p></div>
+        <div className="roles-copy"><p className="kicker">A workspace shaped around your part</p><h2 id="roles-title">Different responsibilities. <em>One coordinated event.</em></h2><p id="organizers"><strong>Organizers</strong> shape the event brief, compare offers, and approve eligible work.</p><p id="providers"><strong>Suppliers and crew</strong> manage services, availability, bookings, preparation, and evidence. Assigned support enters only when a case requires it.</p></div>
         <RolePathSelector />
       </div></section>
 
@@ -76,7 +75,7 @@ export default async function Home() {
 
       <section className="landing-section faq-section page-width" aria-labelledby="faq-title"><header><p className="kicker">Practical answers</p><h2 id="faq-title">Know what Pactset does—and what it does not claim.</h2></header><div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
 
-      <section className="final-cta" aria-labelledby="final-cta-title"><ArchitecturalLines /><div><p className="kicker">Start with the plan</p><h2 id="final-cta-title">Bring every decision into <em>one accountable view.</em></h2><p>Create the event, invite the right work, and keep every decision attached to the terms people accepted.</p><Link className="button button-gold button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link></div></section>
+      <section className="final-cta" aria-labelledby="final-cta-title"><ArchitecturalLines /><div><p className="kicker">Start with the plan</p><h2 id="final-cta-title">Bring every decision into <em>one accountable view.</em></h2><p>Create the event, invite the right work, and keep every decision attached to the terms people accepted.</p><Link className="button button-gold button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer&next=%2Fworkspace%2Forganizer%2Fevents%2Fnew"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link></div></section>
       <LandingFooter />
     </main>
   );

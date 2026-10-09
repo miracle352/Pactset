@@ -4,8 +4,8 @@ import { BrandMark } from "@/components/brand/brand-mark";
 
 const choices = [
   { name: "Organizer", icon: UsersThree, copy: "Create a real account, save event drafts, publish requests, and approve the decisions that move work forward.", href: "/auth/sign-up?role=organizer" },
-  { name: "Supplier", icon: Wrench, copy: "Create a service profile, set availability, and respond to eligible event requests.", href: "/auth/sign-up?role=supplier" },
-  { name: "Crew", icon: Check, copy: "Create a skills profile, find eligible shifts, and keep preparation and evidence requirements clear.", href: "/auth/sign-up?role=crew" },
+  { name: "Supplier", icon: Wrench, copy: "Create a service profile, set availability, and respond to eligible event requests.", href: "/auth/sign-up?role=supplier&next=%2Fworkspace%2Fsupplier%23opportunities" },
+  { name: "Crew", icon: Check, copy: "Create a skills profile, find eligible shifts, and keep preparation and evidence requirements clear.", href: "/auth/sign-up?role=crew&next=%2Fworkspace%2Fcrew%23opportunities" },
 ];
 
 export default function OnboardingPage() {

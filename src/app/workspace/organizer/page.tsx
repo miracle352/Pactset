@@ -9,7 +9,13 @@ function agreementStatus(agreement: { status: string; agreement_escrows?: { stat
   return (escrow?.status ?? agreement.status).replaceAll("_", " ");
 }
 
-type OrganizerOffer = { id: string; status: string; current_version: number; requests: Array<{ title: string; events: Array<{ name: string }> }>; offer_versions: { version: number; scope: string; amount: number; currency: string }[] };
+type RelatedEvent = { name: string };
+type RelatedRequest = { title: string; events: RelatedEvent | RelatedEvent[] | null };
+type OrganizerOffer = { id: string; status: string; current_version: number; requests: RelatedRequest | RelatedRequest[] | null; offer_versions: { version: number; scope: string; amount: number; currency: string }[] };
+
+function firstRelated<T>(value: T | T[] | null | undefined) {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
 
 export default async function OrganizerWorkspace() {
   const account = await requireAccount("organizer");
@@ -49,7 +55,7 @@ export default async function OrganizerWorkspace() {
       </section>
       <section id="offers" className="workspace-section">
         <div className="compact-section-heading"><h2>Incoming offers</h2></div>
-        {offers?.length ? <div className="record-list">{(offers as unknown as OrganizerOffer[]).map((offer) => { const terms = offer.offer_versions.find((item) => item.version === offer.current_version); const request = offer.requests[0]; return <Link href={`/workspace/offers/${offer.id}`} key={offer.id}><div><strong>{request?.title ?? terms?.scope ?? "Provider offer"}</strong><p>{request?.events?.[0]?.name ?? "Event"} · {terms ? `${terms.amount} ${terms.currency}` : "Terms unavailable"} · version {offer.current_version}</p></div><span>{offer.status}</span><ArrowRight /></Link>; })}</div> : <EmptyState title="No offers need a decision" body="Offers from eligible providers appear here after a request is published." />}
+        {offers?.length ? <div className="record-list">{(offers as unknown as OrganizerOffer[]).map((offer) => { const terms = offer.offer_versions.find((item) => item.version === offer.current_version); const request = firstRelated(offer.requests); const event = firstRelated(request?.events); return <Link href={`/workspace/offers/${offer.id}`} key={offer.id}><div><strong>{request?.title ?? terms?.scope ?? "Provider offer"}</strong><p>{event?.name ?? "Event details unavailable"} · {terms ? `${terms.amount} ${terms.currency}` : "Terms unavailable"} · version {offer.current_version}</p></div><span>{offer.status}</span><ArrowRight /></Link>; })}</div> : <EmptyState title="No offers need a decision" body="Offers from eligible providers appear here after a request is published." />}
       </section>
       <section id="agreements" className="workspace-section">
         <div className="compact-section-heading"><h2>Accepted agreements</h2></div>

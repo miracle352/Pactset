@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 
 const paths = [
-  { id: "organize", label: "Organize", copy: "Shape the brief, align contributors, and approve the next move.", action: "Start as organizer", href: "/auth/sign-up?role=organizer" },
-  { id: "supply", label: "Supply", copy: "Set availability, agree scope, and keep delivery requirements clear.", action: "Start as supplier", href: "/auth/sign-up?role=supplier" },
-  { id: "crew", label: "Join crew", copy: "See shifts, preparation notes, due work, and evidence expectations.", action: "Start as crew", href: "/auth/sign-up?role=crew" },
+  { id: "organize", label: "Organize", copy: "Shape the brief, align contributors, and approve the next move.", action: "Start as organizer", href: "/auth/sign-up?role=organizer&next=%2Fworkspace%2Forganizer%2Fevents%2Fnew" },
+  { id: "supply", label: "Supply", copy: "Set availability, agree scope, and keep delivery requirements clear.", action: "Start as supplier", href: "/auth/sign-up?role=supplier&next=%2Fworkspace%2Fsupplier%23opportunities" },
+  { id: "crew", label: "Join crew", copy: "See shifts, preparation notes, due work, and evidence expectations.", action: "Start as crew", href: "/auth/sign-up?role=crew&next=%2Fworkspace%2Fcrew%23opportunities" },
 ] as const;
 
 export function RolePathSelector() {

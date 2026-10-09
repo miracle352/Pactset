@@ -54,7 +54,7 @@ Motion personality is premium and restrained. The standard easing is `cubic-bezi
 
 ## Navigation and interaction
 
-- Public navigation has working How it works, For your role, Sign in/Open workspace and Plan an event destinations. Find work leads to real supplier/crew onboarding. Demo tools remain isolated and do not compete in the main journey.
+- Public navigation has working How it works, For organizers, For suppliers & crew, Payments, Sign in/Open workspace and Plan an event destinations. Plan an event preserves the event-creation destination through authentication; Find work preserves the selected supplier or crew opportunity destination. Demo tools remain isolated and do not compete in the main journey.
 - Authenticated navigation identifies the current role, validates role switching server-side, shows the active destination, exposes wallet/settings/account/sign-out and preserves safe parent links.
 - Fictional demonstrations carry persistent sample-data boundaries and a route back to the authenticated workspace.
 - Every enabled action works or explains its prerequisite. Empty and failed queries are distinct.
@@ -67,6 +67,6 @@ Motion personality is premium and restrained. The standard easing is `cubic-bezi
 - Crew: skills, shifts, conflicts, preparation countdowns, evidence and earnings.
 - Support: assigned cases only, authorized evidence, decision reasons, timestamps and audited actions. A database role alone never authorizes on-chain movement.
 
-## Deferred contract direction: Pactset Go
+## Pactset Go boundary
 
-Pactset Go remains a later bounded contract milestone. It will cover exact versioned bundle terms, authorized participants, funding and expiry checks, and atomic all-or-none activation within an actual transaction boundary. Existing independent escrows do not provide atomic package booking. Earned payments and disputed funds remain protected; organizer-approved replacements require separate funding.
+Pactset Go is implemented locally as a bounded Stellar Testnet bundle contract and event workflow. It covers exact versioned bundle terms, authorized participants, funding and expiry checks, and atomic all-or-none activation within one Soroban transaction boundary. Existing independent escrows still do not provide atomic package booking. Earned payments and disputed funds remain protected; organizer-approved replacements require separate funding. The uploaded WASM and automated contract tests are not evidence that a fresh browser-signed bundle instance or multi-account Freighter rehearsal has passed; the interface must retain that honest distinction.

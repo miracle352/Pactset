@@ -8,7 +8,7 @@ type Field = { name: string; label: string; type?: string; autoComplete?: string
 
 function PasswordField({ field, value }: { field: Field; value?: string }) {
   const [visible, setVisible] = useState(false);
-  return <label htmlFor={`auth-${field.name}`}>{field.label}<span className="password-input"><input id={`auth-${field.name}`} name={field.name} type={visible ? "text" : "password"} autoComplete={field.autoComplete} defaultValue={value ?? field.defaultValue} required /><button type="button" aria-label={visible ? `Hide ${field.label.toLowerCase()}` : `Show ${field.label.toLowerCase()}`} aria-pressed={visible} onClick={() => setVisible((current) => !current)}>{visible ? <EyeSlash aria-hidden="true" /> : <Eye aria-hidden="true" />}<span>{visible ? "Hide" : "Show"}</span></button></span></label>;
+  return <div className="auth-field"><label htmlFor={`auth-${field.name}`}>{field.label}</label><span className="password-input"><input id={`auth-${field.name}`} name={field.name} type={visible ? "text" : "password"} autoComplete={field.autoComplete} defaultValue={value ?? field.defaultValue} required /><button type="button" aria-label={visible ? `Hide ${field.label.toLowerCase()}` : `Show ${field.label.toLowerCase()}`} aria-pressed={visible} onClick={() => setVisible((current) => !current)}>{visible ? <EyeSlash aria-hidden="true" /> : <Eye aria-hidden="true" />}<span>{visible ? "Hide" : "Show"}</span></button></span></div>;
 }
 
 export function AuthForm({ action, submitLabel, fields, next, footnote }: { action: (state: FormState, data: FormData) => Promise<FormState>; submitLabel: string; fields: Field[]; next?: string; footnote?: React.ReactNode }) {
@@ -35,5 +35,5 @@ export function AuthForm({ action, submitLabel, fields, next, footnote }: { acti
 }
 
 export function AccountWalletBoundary() {
-  return <aside className="account-boundary"><strong>Your account is not a wallet.</strong><p>A Pactset account manages identity, roles, drafts, offers, and bookings. A separately verified wallet authorizes Stellar Testnet transactions. Pactset never asks for a seed phrase.</p><span>Wallet setup is available after sign-in; payments remain agreement-bound.</span></aside>;
+  return <aside className="account-boundary"><strong>Your account is separate from your wallet.</strong><p>Sign in to plan and coordinate work. Connect a wallet only when a Stellar Testnet action needs your signature.</p></aside>;
 }

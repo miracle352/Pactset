@@ -69,7 +69,7 @@ try {
   async function signIn(page, role) {
     await page.goto(`${baseURL}/auth/sign-in`, { waitUntil: "networkidle" });
     await page.getByLabel("Email").fill(state.accounts[role].email);
-    await page.getByLabel("Password").fill(state.accounts[role].password);
+    await page.getByLabel("Password", { exact: true }).fill(state.accounts[role].password);
     await page.getByRole("button", { name: "Sign in" }).click();
     await page.waitForURL(/\/workspace\//, { timeout: 20_000 });
   }
