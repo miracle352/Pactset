@@ -11,16 +11,22 @@ await context.addInitScript(() => localStorage.setItem("pactset-theme-v1", "dark
 const page = await context.newPage();
 await page.goto(baseURL, { waitUntil: "networkidle" });
 await page.waitForTimeout(1500);
-await page.getByRole("link", { name: "Explore demo" }).first().hover();
+await page.getByRole("link", { name: "Plan an event" }).first().hover();
 await page.waitForTimeout(650);
-for (const selector of ["#how-it-works", "#roles", "#payments", ".final-cta"]) {
+for (const selector of ["#how-it-works", "#roles", "#preparation"]) {
   await page.locator(selector).scrollIntoViewIfNeeded();
   await page.waitForTimeout(1100);
+}
+await page.getByRole("button", { name: "Replay" }).click();
+await page.waitForTimeout(2400);
+for (const selector of ["#payments", ".final-cta"]) {
+  await page.locator(selector).scrollIntoViewIfNeeded();
+  await page.waitForTimeout(900);
 }
 await page.locator(".pactset-footer").scrollIntoViewIfNeeded();
 await page.waitForTimeout(1200);
 const rawPath = await page.video().path();
 await context.close();
 await browser.close();
-await rename(rawPath, fileURLToPath(new URL("architectural-system.webm", output)));
-console.log("Recorded architectural-system.webm");
+await rename(rawPath, fileURLToPath(new URL("frontend-completion.webm", output)));
+console.log("Recorded frontend-completion.webm");

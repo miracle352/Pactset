@@ -1,5 +1,18 @@
 # Pactset requirements matrix
 
+## Frontend completion review — 2026-10-09
+
+| ID | Requirement | Evidence | Status |
+|---|---|---|---|
+| UX-NAV-01 | Consistent Find work choice and safe auth return destinations | `/onboarding`; `safeInternalPath`; wallet return-path browser/source review | Implemented and browser-verified locally |
+| UX-HDR-01 | Compact, overlaying desktop/mobile menus with Escape, outside click, focus return, and viewport safety | `SiteHeader`, `DismissibleDetails`; 360/390/430/768/1440 QA | Partially verified; public menu and wallet popover passed, role/account dropdown private keyboard replay remains manual |
+| UX-AUTH-01 | Email or unique username sign-in without email enumeration | local migration, `account-auth`, auth action, settings editor | Implemented locally; backend not applied and end-to-end username sign-in unverified |
+| UX-AUTH-02 | Recovery-specific guidance and real email-link behavior | forgot/update-password routes | UI implemented; real email delivery/link flow unverified |
+| UX-MOTION-01 | Independent landing reveals and animated preparation checkpoint line with replay | GSAP/ScrollTrigger, `frontend-completion.webm` | Implemented and browser-verified; reduced-motion static state verified by harness |
+| UX-LEGAL-01 | Legitimate Help, Privacy, and Terms destinations without invented legal claims | `/help`, `/privacy`, `/terms` | Implemented; final owner/legal text required |
+| UX-WALLET-01 | Discoverable wallet control that separates saved verification from current browser readiness | header wallet + `/settings/wallet` | Preserved and browser-verified without extension; real Freighter interaction unverified |
+| UX-DATA-01 | Rich offer identity/context and explicit restricted/failed states | role workspace queries | Partial; supplier/crew details preserved, organizer provider identity and all private-account failure-state replay remain open |
+
 Statuses: **Not started**, **Fixture only**, **Implemented**, **Verified**, **Blocked**, **Superseded**. “Fixture only” means visible fictional data or interaction exists without the authoritative backend behavior. “Superseded” retains an earlier requirement for traceability after a later owner direction explicitly replaces it.
 
 ## Foundation and design

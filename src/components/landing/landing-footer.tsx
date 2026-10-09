@@ -3,8 +3,8 @@ import Link from "next/link";
 import { BrandMark } from "@/components/brand/brand-mark";
 import { ArchitecturalLines } from "./architectural-lines";
 
-const product = [["How it works", "/#how-it-works"], ["For your role", "/#roles"], ["Event preparation", "/#preparation"], ["Stellar payments", "/#payments"], ["Find work", "/auth/sign-up/supplier"]];
-const account = [["Plan an event", "/auth/sign-up/organizer"], ["Sign in", "/auth/sign-in"], ["Profile settings", "/settings"], ["Wallet & payments", "/settings/wallet"]];
+const product = [["How it works", "/#how-it-works"], ["For your role", "/#roles"], ["Event preparation", "/#preparation"], ["Stellar payments", "/#payments"], ["Find work", "/onboarding"]];
+const account = [["Plan an event", "/auth/sign-up/organizer"], ["Sign in", "/auth/sign-in"], ["Help", "/help"], ["Privacy", "/privacy"], ["Terms", "/terms"]];
 
 export function LandingFooter() {
   return (

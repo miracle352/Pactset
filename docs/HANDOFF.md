@@ -2,6 +2,25 @@
 
 Last updated: 2026-10-09 (Africa/Lagos)
 
+## 2026-10-09 focused frontend completion checkpoint
+
+- Kept the approved dark-only PACTSET system and payment architecture. No Supabase migration/function was applied, no Stellar transaction was submitted, and no branch was pushed or deployed.
+- Centralized allowlisted internal return destinations. Signed-out `/settings/wallet` now returns to wallet settings after authentication; callback and signup destinations reject cross-origin and protocol-relative paths. All public “Find work” links now open the Supplier/Crew choice.
+- Added local username groundwork: normalized unique profile column/trigger migration, role-signup username field, a server-only Edge Function that resolves and validates credentials without returning email addresses to the browser, email-or-username sign-in, and a settings username editor. These local backend files must be reviewed and applied to `pactset-development` before username sign-in can work remotely; existing email sign-in remains intact.
+- Recovery screens now explain expired, invalid, missing, and already-used link behavior, generic account privacy, resend timing, and a clear return to sign-in. Actual confirmation/recovery email links remain unverified.
+- Mobile public navigation is now a viewport-safe modal panel with background lock, Escape handling, focus containment/return, outside dismissal, and close-on-navigation. Wallet popovers dismiss on Escape/outside click. A stacking defect found by browser QA was fixed.
+- The illustrative preparation sequence now plays once when entering view, sends a gold progress signal through all four checkpoints, leaves reached checkpoints illuminated, and provides Replay. Category selection remains independent. Reduced motion receives the complete static state.
+- Added truthful `/help`, `/privacy`, and `/terms` routes and replaced the inconsistent footer worker link. Legal pages explicitly identify owner-reviewed final text as still required.
+- Browser QA passed landing widths 360×740, 390×620, 430×844, 768×900, and 1440×1000 plus authenticated supplier/wallet pages at 390×844 and 1440×1000: dark theme, no horizontal overflow, no runtime errors, Lenis only on the landing. Evidence is in `docs/screenshots/glass-redesign/`; motion evidence is `docs/recordings/frontend-completion.webm`.
+- Automated checks: 16/16 product/security tests passed. TypeScript and lint passed before final evidence; the first production build correctly caught an invalid icon export and that defect was fixed before the final verification rerun.
+
+### Remaining manual/backend gates
+
+- Review and apply `20261009193000_profile_usernames.sql`, then deploy `account-auth` only to `pactset-development`; verify username collision, rate limits, generic invalid-credential responses, and existing-account username setup.
+- Actual first-time/locked/rejected Freighter extension approval and signing, mobile wallet behavior, and real confirmation/recovery email links still require private interaction. Automated fixture signing is not proof of those journeys.
+- This pass visually replayed supplier and wallet routes. Organizer, Crew, assigned-support, evidence, dispute, and payment signing regressions retain prior automated coverage but were not newly completed through private browser identities.
+- The floating black development control is the Next.js Dev Tools launcher, not a Pactset control. It was not removed from development mode and is absent from production builds.
+
 ## 2026-10-09 Lenis, GSAP, and glass-system redesign checkpoint
 
 - The existing Next.js 16 application, Supabase authorization, Stellar Testnet payment controls, and role routes were preserved. This checkpoint changes presentation and motion only; it adds no payment simulation or backend substitute.

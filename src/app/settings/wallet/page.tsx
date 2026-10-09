@@ -11,7 +11,7 @@ function paymentStatus(agreement: { status: string; agreement_escrows?: { status
 }
 
 export default async function WalletSettingsPage() {
-  const account = await requireAccount();
+  const account = await requireAccount(undefined, "/settings/wallet");
   const workspaceRole = await preferredWorkspaceRole(account);
   const supabase = await createClient();
   const [{ data: wallet }, { data: agreements }] = await Promise.all([

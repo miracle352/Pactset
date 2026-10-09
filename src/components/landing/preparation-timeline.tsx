@@ -1,9 +1,12 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import { Buildings, ForkKnife, HardHat, SpeakerHigh } from "@phosphor-icons/react";
+import { ArrowsClockwise, Buildings, ForkKnife, HardHat, SpeakerHigh } from "@phosphor-icons/react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState } from "react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const categories = [
   { id: "venue", label: "Venue", icon: Buildings, explanation: "Venue access unlocks every setup task. Confirm rooms, loading access, and the accountable contact first.", active: [0] },
@@ -22,13 +25,24 @@ const milestones = [
 export function PreparationTimeline() {
   const [selected, setSelected] = useState<(typeof categories)[number]["id"]>("equipment");
   const root = useRef<HTMLDivElement>(null);
+  const progress = useRef<gsap.core.Timeline | null>(null);
   const active = categories.find((category) => category.id === selected) ?? categories[0];
 
-  useGSAP(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    gsap.fromTo("[data-timeline-detail]", { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: .32, stagger: .04, ease: "power2.out", clearProps: "all" });
-    gsap.fromTo("[data-timeline-progress]", { scaleX: 0 }, { scaleX: 1, duration: .65, ease: "power3.out", transformOrigin: "left center" });
-  }, { scope: root, dependencies: [selected], revertOnUpdate: true });
+  const { contextSafe } = useGSAP(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) { gsap.set("[data-timeline-progress]", { scaleX: 1, scaleY: 1 }); gsap.set("[data-checkpoint]", { opacity: 1 }); return; }
+    const vertical = window.matchMedia("(max-width: 620px)").matches;
+    const timeline = gsap.timeline({ paused: true });
+    timeline.set("[data-timeline-progress]", { scaleX: vertical ? 1 : 0, scaleY: vertical ? 0 : 1, transformOrigin: vertical ? "top center" : "left center" })
+      .set("[data-checkpoint]", { opacity: .48 })
+      .to("[data-timeline-progress]", { scaleX: 1, scaleY: 1, duration: 1.8, ease: "none" });
+    root.current?.querySelectorAll("[data-checkpoint]").forEach((item, index) => { timeline.to(item, { opacity: 1, duration: .18, className: "+=is-complete", ease: "power2.out" }, .12 + index * .48); });
+    progress.current = timeline;
+    ScrollTrigger.create({ trigger: root.current, start: "top 78%", once: true, onEnter: () => timeline.play() });
+    return () => { progress.current = null; };
+  }, { scope: root });
+
+  const replay = contextSafe(() => progress.current?.restart());
 
   return <div ref={root} className="preparation-experience">
     <div className="preparation-selector" role="tablist" aria-label="Illustrative event preparation categories">
@@ -38,10 +52,10 @@ export function PreparationTimeline() {
       <div className="illustrative-label"><span>Illustrative event</span><strong>18 OCT</strong><small>Preparation deadline · 17 OCT<br />Food preparation · event morning</small></div>
       <ol className="milestone-track" aria-label="Venue access, equipment setup, crew checks, ready for guests">
         <span className="milestone-line" aria-hidden="true"><i data-timeline-progress /></span>
-        {milestones.map((milestone, index) => <li key={milestone.title} className={(active.active as readonly number[]).includes(index) ? "is-active" : ""} data-timeline-detail><span className="milestone-dot" aria-hidden="true" /><time>{milestone.date}</time><h3>{milestone.title}</h3><p>{milestone.detail}</p></li>)}
+        {milestones.map((milestone, index) => <li key={milestone.title} className={(active.active as readonly number[]).includes(index) ? "is-active" : ""} data-checkpoint><span className="milestone-dot" aria-hidden="true" /><time>{milestone.date}</time><h3>{milestone.title}</h3><p>{milestone.detail}</p></li>)}
       </ol>
       <p className="preparation-explanation" aria-live="polite"><strong>{active.label}</strong><span>{active.explanation}</span></p>
-      <p className="illustrative-note">Illustration only · not live booking or payment status.</p>
+      <div className="illustrative-note"><span>Illustration only · not live booking or payment status.</span><button type="button" className="text-button timeline-replay" onClick={replay}><ArrowsClockwise aria-hidden="true" /> Replay</button></div>
     </div>
   </div>;
 }

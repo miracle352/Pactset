@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { WalletConnection } from "@/components/payments/wallet-connection";
+import { DismissibleDetails } from "@/components/ui/dismissible-details";
 
 type SavedWallet = { public_key: string; network: string; wallet_provider: string; verified_at: string } | null;
 type RuntimeState = "idle" | "checking" | "ready" | "unavailable" | "locked" | "wrong-network" | "account-changed" | "disconnected" | "error";
@@ -65,7 +66,7 @@ export function HeaderWalletControl({ savedWallet }: { savedWallet: SavedWallet 
   }
 
   const status = !savedWallet ? "Not verified" : runtime === "ready" ? "Ready in browser" : runtime === "idle" || runtime === "checking" ? "Checking wallet" : "Attention needed";
-  return <details className="header-wallet-control">
+  return <DismissibleDetails className="header-wallet-control">
     <summary aria-label={`Wallet status: ${status}`}><CurrencyCircleDollar aria-hidden="true" /><span>{savedWallet ? shortAddress(savedWallet.public_key) : "Wallet"}</span><small>{status}</small></summary>
     <div className="header-wallet-panel financial-surface">
       <div className="compact-section-heading"><div><p className="kicker">Wallet &amp; payments</p><h2>{savedWallet ? shortAddress(savedWallet.public_key) : "No verified wallet"}</h2></div>{busy ? <SpinnerGap className="spinner" /> : runtime === "ready" ? <CheckCircle weight="fill" /> : <WarningCircle />}</div>
@@ -83,5 +84,5 @@ export function HeaderWalletControl({ savedWallet }: { savedWallet: SavedWallet 
       {runtime === "error" && <p className="form-message error"><WarningCircle /> Wallet status could not be refreshed. No transaction was submitted.</p>}
       {savedWallet && <Link className="text-link" href="/settings/wallet">Manage wallets</Link>}
     </div>
-  </details>;
+  </DismissibleDetails>;
 }

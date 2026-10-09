@@ -49,3 +49,15 @@ export async function saveSettings(_: FormState, formData: FormData): Promise<Fo
   revalidatePath("/settings"); revalidatePath("/workspace", "layout");
   return { status: "success", message: "Profile and role settings saved.", fields };
 }
+
+export async function saveUsername(_: FormState, formData: FormData): Promise<FormState> {
+  const account = await requireAccount();
+  const fields = formFields(formData);
+  const parsed = z.object({ username: z.string().trim().toLowerCase().regex(/^[a-z0-9][a-z0-9_]{2,29}$/) }).safeParse(fields);
+  if (!parsed.success) return { status: "error", message: "Use 3–30 lowercase letters, numbers, or underscores.", fields };
+  const supabase = await createClient();
+  const { error } = await supabase.from("profiles").update({ username: parsed.data.username }).eq("id", account.userId);
+  if (error) return { status: "error", message: error.code === "23505" ? "That username is already in use. Choose another." : "Username could not be saved. Your previous username is unchanged.", fields };
+  revalidatePath("/settings");
+  return { status: "success", message: "Username saved.", fields: { username: parsed.data.username } };
+}

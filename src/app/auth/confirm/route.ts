@@ -2,12 +2,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import { publicAccountRoles } from "@/lib/account";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { safeInternalPath } from "@/lib/navigation";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const nextValue = url.searchParams.get("next");
-  const next = nextValue?.startsWith("/") && !nextValue.startsWith("//") ? nextValue : "/workspace";
+  const next = safeInternalPath(nextValue, "/workspace");
   if (!isSupabaseConfigured() || !code) return NextResponse.redirect(new URL("/auth/sign-in?error=invalid-confirmation", url.origin));
   const supabase = await createClient();
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);

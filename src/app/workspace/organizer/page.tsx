@@ -21,7 +21,7 @@ function firstRelated<T>(value: T | T[] | null | undefined) {
 export default async function OrganizerWorkspace() {
   const account = await requireAccount("organizer");
   const supabase = await createClient();
-  const [{ data: events }, { data: requests }, { data: offers }, { data: agreements }, { count: draftCount }, { count: publishedCount }, { count: pendingOfferCount }] = await Promise.all([
+  const [eventResult, requestResult, offerResult, agreementResult, draftResult, publishedResult, pendingResult] = await Promise.all([
     supabase.from("events").select("id,name,event_type,status,city,timezone,starts_at,updated_at").order("updated_at", { ascending: false }).limit(8),
     supabase.from("requests").select("id,title,status,event_id,provider_role,updated_at").order("updated_at", { ascending: false }).limit(8),
     supabase.from("offers").select("id,status,current_version,request_id,updated_at,requests(title,events(name)),offer_versions(version,scope,amount,currency)").order("updated_at", { ascending: false }).limit(8),
@@ -30,6 +30,8 @@ export default async function OrganizerWorkspace() {
     supabase.from("requests").select("id", { count: "exact", head: true }).eq("status", "published"),
     supabase.from("offers").select("id", { count: "exact", head: true }).in("status", ["submitted", "countered"]),
   ]);
+  const events = eventResult.data, requests = requestResult.data, offers = offerResult.data, agreements = agreementResult.data;
+  const draftCount = draftResult.count, publishedCount = publishedResult.count, pendingOfferCount = pendingResult.count;
   const nav = [
     { label: "Overview", href: "/workspace/organizer" },
     { label: "Events", href: "/workspace/organizer/events" },

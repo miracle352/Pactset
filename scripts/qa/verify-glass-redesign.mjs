@@ -34,13 +34,13 @@ async function pageFacts(page) {
 
 async function signIn(page, account, next) {
   await page.goto(`${baseURL}/auth/sign-in?next=${encodeURIComponent(next)}`, { waitUntil: "networkidle" });
-  await page.getByLabel("Email", { exact: true }).fill(account.email);
+  await page.getByLabel("Email or username", { exact: true }).fill(account.email);
   await page.getByLabel("Password", { exact: true }).fill(account.password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.waitForURL((url) => url.pathname.startsWith("/workspace/"), { timeout: 30_000 });
 }
 
-for (const viewport of [{ width: 375, height: 812 }, { width: 390, height: 844 }, { width: 768, height: 900 }, { width: 1440, height: 1000 }]) {
+for (const viewport of [{ width: 360, height: 740 }, { width: 390, height: 620 }, { width: 430, height: 844 }, { width: 768, height: 900 }, { width: 1440, height: 1000 }]) {
   const context = await browser.newContext({ viewport, colorScheme: "dark", reducedMotion: "no-preference" });
   const page = await context.newPage();
   const errors = runtimeErrors(page);

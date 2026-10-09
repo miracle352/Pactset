@@ -39,10 +39,11 @@ export function RoleSignupPage({ signupRole, requestedNext }: { signupRole: keyo
       </div>
       <AuthForm action={signUp} submitLabel="Create account" next={next} fields={[
         { name: "displayName", label: "Your name", autoComplete: "name" },
+        { name: "username", label: "Unique username", autoComplete: "username" },
         { name: "email", label: "Email", type: "email", autoComplete: "email" },
         { name: "password", label: "Password (10 characters minimum)", type: "password", autoComplete: "new-password" },
         { name: "role", label: "Starting role", type: "hidden", defaultValue: signupRole },
-      ]} footnote={<span>Support access is assigned by Pactset. Already registered? <Link href={`/auth/sign-in?next=${encodeURIComponent(next)}`}>Sign in</Link></span>} />
+      ]} footnote={<><Link href={`/onboarding?next=${encodeURIComponent(next)}`}>Change role</Link><span>Support access is assigned by Pactset. Already registered? <Link href={`/auth/sign-in?next=${encodeURIComponent(next)}`}>Sign in</Link></span></>} />
     </div>
   </AuthLayout>;
 }

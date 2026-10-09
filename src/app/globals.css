@@ -148,12 +148,15 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 .landing-hero { min-height: max(760px, calc(100dvh - 24px)); width: min(1480px, calc(100% - 24px)); margin: 12px auto 0; padding: 16px; border: 1px solid var(--line); border-radius: 24px; position: relative; overflow: hidden; isolation: isolate; background: var(--surface-soft); }
 .site-header, .simple-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .site-header { position: relative; z-index: 20; padding: 8px 10px 8px 16px; border-radius: 14px; }
+html[data-menu-open="true"] .site-header { z-index:100; }
+html[data-menu-open="true"] .menu-button { position:relative; z-index:110; }
 .desktop-nav { display: flex; align-items: center; gap: 30px; font-size: .76rem; font-weight: 650; }
 .desktop-nav a { color: var(--muted); }
 .desktop-nav a:hover { color: var(--ink); }
 .header-actions { display: flex; align-items: center; gap: 8px; }
 .menu-button { display: none; width: 38px; height: 38px; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: var(--surface-dense); }
 .mobile-menu { position: absolute; left: 0; right: 0; top: calc(100% + 8px); display: grid; padding: 10px; border-radius: 14px; transform-origin: top right; }
+.mobile-menu-backdrop { display:none; }
 .mobile-menu a { padding: 13px 12px; border-radius: 9px; font-weight: 700; }
 .hero-content { min-height: calc(max(760px, 100dvh - 24px) - 90px); position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; padding: clamp(52px, 7vh, 84px) clamp(18px, 3.5vw, 54px) 14px; }
 .hero-copy { max-width: 650px; }
@@ -941,6 +944,17 @@ select { text-overflow: ellipsis; }
   .button:hover,.button-arrow:hover svg,.editorial-link:hover svg,.footer-top:hover svg,.faq-list details[open] summary span { transform:none; }
 }
 
+@media (max-width:620px) {
+  .mobile-menu-backdrop { position:fixed; inset:0; z-index:80; display:block; border:0; background:rgba(0,0,0,.58); }
+  .mobile-menu { position:fixed; z-index:90; top:calc(62px + env(safe-area-inset-top)); right:8px; bottom:8px; left:8px; align-content:start; max-height:calc(100dvh - 70px - env(safe-area-inset-top)); overflow:auto; padding:14px; border-radius:18px; }
+  .illustrative-note { align-items:flex-start; flex-direction:column; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .timeline-replay { display:none; }
+  .milestone-track li { opacity:1; }
+}
+
 /* Focused onboarding, preparation, and navigation pass. */
 .brand-word { text-transform: uppercase; }
 .site-header { width: min(1180px, calc(100% - 8px)); }
@@ -1005,6 +1019,15 @@ select { text-overflow: ellipsis; }
 .milestone-track li.is-active { opacity: 1; }
 .milestone-dot { position: absolute; z-index: 2; top: 6px; left: 0; width: 13px; height: 13px; border: 3px solid #0b3532; border-radius: 50%; background: rgba(243,245,239,.48); box-shadow: 0 0 0 1px rgba(209,231,224,.22); }
 .milestone-track li.is-active .milestone-dot { background: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 0 6px rgba(223,161,45,.08); }
+.milestone-track li.is-complete { opacity:1; }
+.milestone-track li.is-complete .milestone-dot { background:var(--gold); box-shadow:0 0 0 1px var(--gold),0 0 0 7px rgba(223,161,45,.1); }
+.timeline-replay { display:inline-flex; align-items:center; gap:6px; margin-left:auto; color:var(--gold); }
+.illustrative-note { display:flex; align-items:center; gap:12px; }
+.legal-page { min-height:100dvh; padding-bottom:80px; }
+.legal-document { max-width:850px; margin:70px auto; padding:clamp(24px,5vw,64px); }
+.legal-document h1 { max-width:720px; margin:12px 0 36px; font-size:clamp(2.4rem,6vw,5rem); line-height:.98; letter-spacing:-.05em; }
+.legal-document h2 { margin:32px 0 8px; font-size:1.15rem; }
+.legal-document p { max-width:700px; color:var(--muted); line-height:1.75; }
 .milestone-track time { color: var(--gold); font-size: .57rem; font-weight: 760; letter-spacing: .1em; }
 .milestone-track h3 { margin: 8px 0 6px; color: #f3f5ef; font-size: .9rem; }
 .milestone-track p { margin: 0; color: rgba(243,245,239,.55); font-size: .68rem; line-height: 1.5; }

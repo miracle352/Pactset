@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { safeInternalPath } from "@/lib/navigation";
 
 export const publicAccountRoles = ["organizer", "supplier", "crew"] as const;
 export type AccountRole = (typeof publicAccountRoles)[number] | "support";
@@ -20,9 +21,9 @@ export async function getAccount() {
   return { userId, email: typeof data?.claims?.email === "string" ? data.claims.email : "", profile, roles: (memberships ?? []).map((item) => item.role as AccountRole) };
 }
 
-export async function requireAccount(role?: AccountRole) {
+export async function requireAccount(role?: AccountRole, returnTo?: string) {
   const account = await getAccount();
-  if (!account) redirect(`/auth/sign-in?next=${encodeURIComponent(role ? `/workspace/${role}` : "/workspace")}`);
+  if (!account) redirect(`/auth/sign-in?next=${encodeURIComponent(safeInternalPath(returnTo, role ? `/workspace/${role}` : "/workspace"))}`);
   if (role && !account.roles.includes(role)) redirect("/workspace?error=role-required");
   return account;
 }
