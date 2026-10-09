@@ -1,6 +1,19 @@
 # Pactset Stage 2B handoff
 
-Last updated: 2026-10-07 (Africa/Lagos)
+Last updated: 2026-10-09 (Africa/Lagos)
+
+## 2026-10-09 dark-only usability repair checkpoint
+
+- The current owner direction is authoritative: Pactset is dark-only (`#061f1e`, `#103f3c`, `#dfa12d`, `#f3f5ef`), the pavilion is retired, and fictional demo entry points no longer compete with the real public journey. `MASTER.md`, `docs/design-standard.md`, and `docs/current-implementation-plan.md` record the visual thesis and ordered implementation phases.
+- Server markup now fixes `data-theme="dark"` and `color-scheme: dark`; theme scripts, controls, light selectors, and retired pavilion source/styles were removed. An automated browser test seeds an old light preference and emulates a light operating system, then verifies the app remains dark across reload.
+- The landing headline is “A thousand moving parts. One seamless experience.” with only the second sentence in gold italic serif. Public primary paths now lead to real organizer signup, worker onboarding, sign-in, or an authenticated workspace. The main journey contains no Explore demo action.
+- The observed How it works defect was a CSS cascade collision: the earlier `.journey-section` two-column grid overrode the new editorial section and stretched steps vertically. The current rule restores a block section, normal wrapping, and compact rail layout.
+- Role switching now rejects a `next` destination outside the selected, server-authorized role. Active navigation follows the current section. Settings and wallet routes use the same authenticated shell; mobile More exposes the remaining destinations.
+- A compact authenticated header wallet control distinguishes a saved ownership verification from Freighter availability, current address, Testnet network, current browser readiness, and individual transaction approval. Disconnect deactivates the application connection and suppresses automatic reconnection without claiming to revoke extension permission or rewriting historical escrow bindings.
+- Signup, sign-in, recovery, and password-update forms use an accessible non-submit Show/Hide password control. Workspace loading and error boundaries preserve the product shell.
+- Verification at this checkpoint: 13 product/security checks passed; TypeScript passed; Biome passed across 90 files; Next.js 16.3.8 production build passed; 19 responsive interaction tests passed on desktop/mobile with one expected mobile hover skip; four visual/route checks passed with two expected project-specific screenshot skips. Local screenshots are under `docs/screenshots/architectural-system/landing-dark-only-{1440,390}.png`.
+- No repository push, Vercel deployment, Supabase mutation, Stellar transaction, email request, or fixture payment occurred. Existing authentication, RLS, escrow, conversion, evidence, dispute, recipient conversion, and reconciliation implementations were preserved.
+- Still unverified: actual first-time Freighter extension approval/signing and real email confirmation/recovery links. Phase 2 practical workflow work and Pactset Go remain incomplete and must not be described as working.
 
 ## 2026-10-07 wallet, navigation, and cinematic checkpoint
 

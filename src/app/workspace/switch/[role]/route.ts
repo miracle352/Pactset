@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getAccount, type AccountRole } from "@/lib/account";
 
 function safeDestination(value: string | null, role: AccountRole) {
-  if (!value?.startsWith("/") || value.startsWith("//") || value.includes("\\")) return `/workspace/${role}`;
+  if (!value?.startsWith(`/workspace/${role}`) || value.startsWith("//") || value.includes("\\")) return `/workspace/${role}`;
   return value;
 }
 

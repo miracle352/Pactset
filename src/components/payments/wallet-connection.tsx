@@ -86,6 +86,7 @@ export function WalletConnection({ initialConnection }: { initialConnection: Con
       update("verifying");
       const { data: verified, error: verifyError } = await supabase.functions.invoke("wallet-auth", { body: { action: "verify", challengeId: challengeData.challengeId, publicKey: access.address, network: "TESTNET", walletProvider: "Freighter", signature: signatureString(signed.signedMessage) } });
       if (verifyError || !verified?.connection) { update("server-error", verified?.error || verifyError?.message); return; }
+      localStorage.removeItem("pactset-wallet-disconnected-v1");
       setConnection(verified.connection); update("confirmed"); router.refresh();
     } catch (error) {
       if (error instanceof Error && error.message === "WALLET_TIMEOUT") update("timeout");
@@ -100,6 +101,7 @@ export function WalletConnection({ initialConnection }: { initialConnection: Con
     const supabase = createClient();
     const { data, error } = await supabase.functions.invoke("wallet-auth", { body: { action: "disconnect", publicKey: connection.public_key, network: "TESTNET" } });
     if (error || !data?.disconnected) { update("server-error", data?.error || error?.message); return; }
+    localStorage.setItem("pactset-wallet-disconnected-v1", "true");
     setConnection(null); update("disconnected", "Wallet disconnected from new actions. Your Pactset account is still signed in and existing escrows are unchanged."); router.refresh();
   }
 

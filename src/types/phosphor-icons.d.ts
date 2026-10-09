@@ -6,7 +6,10 @@ declare module "@phosphor-icons/react" {
   export const ArrowSquareOut: Icon;
   export const CheckCircle: Icon;
   export const CurrencyCircleDollar: Icon;
+  export const Copy: Icon;
   export const Desktop: Icon;
+  export const Eye: Icon;
+  export const EyeSlash: Icon;
   export const FileArrowUp: Icon;
   export const GlobeHemisphereWest: Icon;
   export const Info: Icon;

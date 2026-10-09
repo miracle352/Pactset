@@ -4,6 +4,7 @@ import { ArchitecturalLines } from "@/components/landing/architectural-lines";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { RolePathSelector } from "@/components/landing/role-path-selector";
 import { SiteHeader } from "@/components/navigation/site-header";
+import { getAccount } from "@/lib/account";
 
 const journey = [
   { number: "01", title: "Book the right people", copy: "Publish a clear request, compare current offers, and accept one version of the scope, price, timing, and milestones." },
@@ -33,17 +34,17 @@ const faqs = [
   ["What happens when a plan changes?", "Current accepted terms remain active until affected parties accept a revision. Additional work or replacement funding stays separate from disputed or already-earned funds."],
 ];
 
-export default function Home() {
+export default async function Home() {
+  const account = await getAccount();
   return (
     <main className="pactset-landing" id="page-top">
       <section className="pactset-hero" aria-labelledby="landing-title">
-        <div className="hero-image" aria-hidden="true" /><div className="hero-overlay" aria-hidden="true" /><ArchitecturalLines variant="hero" /><SiteHeader />
+        <div className="hero-image" aria-hidden="true" /><div className="hero-overlay" aria-hidden="true" /><ArchitecturalLines variant="hero" /><SiteHeader authenticated={Boolean(account)} />
         <div className="pactset-hero-content page-width"><div className="pactset-hero-copy">
           <p className="editorial-kicker"><span />Global event operations · Stellar Testnet</p>
           <h1 id="landing-title">A thousand moving parts. <span>One seamless experience.</span></h1>
-          <p className="hero-signature">One <em>shared plan.</em></p>
           <p className="hero-description">Bring your venue, suppliers and crew together. Track preparations, review the work, and approve milestone payments on Stellar.</p>
-          <div className="hero-actions"><Link className="button button-primary button-arrow" href="/auth/sign-up?role=organizer">Plan an event <ArrowRight aria-hidden="true" /></Link><Link className="editorial-link" href="/demo">Explore demo <ArrowRight aria-hidden="true" /></Link></div>
+          <div className="hero-actions"><Link className="button button-primary button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link><Link className="editorial-link" href={account ? "/workspace" : "/onboarding"}>{account ? "Continue your work" : "Find work"} <ArrowRight aria-hidden="true" /></Link></div>
           <p className="hero-boundary">Stellar Testnet · Test assets have no monetary value.</p>
         </div></div>
       </section>
@@ -54,7 +55,7 @@ export default function Home() {
       </section>
 
       <section className="landing-section roles-section" id="roles" aria-labelledby="roles-title"><div className="page-width roles-layout">
-        <div className="roles-copy"><p className="kicker">A workspace shaped around your part</p><h2 id="roles-title">Different responsibilities. <em>One shared plan.</em></h2><p>Organizers make the decisions. Suppliers manage services and inventory. Crew see the timing and proof expected from them. Assigned support enters only when a case requires it.</p></div>
+        <div className="roles-copy"><p className="kicker">A workspace shaped around your part</p><h2 id="roles-title">Different responsibilities. <em>One coordinated event.</em></h2><p>Organizers make the decisions. Suppliers manage services and inventory. Crew see the timing and proof expected from them. Assigned support enters only when a case requires it.</p></div>
         <RolePathSelector />
       </div></section>
 
@@ -69,13 +70,13 @@ export default function Home() {
       </div></section>
 
       <section className="landing-section change-section page-width" aria-labelledby="change-title">
-        <div className="change-copy"><p className="kicker">When plans change</p><h2 id="change-title">Protect the work already done. Decide the next move visibly.</h2><p>Participants can open an assigned case with a reason and relevant evidence. Replacement discovery is planned; when available, it must match skill, area, availability, and budget—and use new approved funding rather than disputed funds.</p><div className="change-actions"><Link className="button button-secondary button-arrow" href="/support">See the support boundary <ArrowRight aria-hidden="true" /></Link><Link className="text-link" href="/demo">Try the sample event <ArrowRight aria-hidden="true" /></Link></div></div>
+        <div className="change-copy"><p className="kicker">When plans change</p><h2 id="change-title">Protect the work already done. Decide the next move visibly.</h2><p>Participants can open an assigned case with a reason and relevant evidence. Replacement discovery is planned; when available, it must match skill, area, availability, and budget—and use new approved funding rather than disputed funds.</p><div className="change-actions"><Link className="button button-secondary button-arrow" href={account ? "/workspace" : "/auth/sign-in"}>{account ? "Open your workspace" : "Sign in to continue"} <ArrowRight aria-hidden="true" /></Link></div></div>
         <ol className="support-sequence" aria-label="Support and replacement sequence"><li><CalendarCheck aria-hidden="true" /><strong>Record the change</strong><span>Reason, timing and affected terms</span></li><li><Headset aria-hidden="true" /><strong>Assign support</strong><span>Scoped access and an audit trail</span></li><li><LockSimple aria-hidden="true" /><strong>Resolve within the terms</strong><span>No reversal of completed transfers</span></li></ol>
       </section>
 
       <section className="landing-section faq-section page-width" aria-labelledby="faq-title"><header><p className="kicker">Practical answers</p><h2 id="faq-title">Know what Pactset does—and what it does not claim.</h2></header><div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
 
-      <section className="final-cta" aria-labelledby="final-cta-title"><ArchitecturalLines /><div><p className="kicker">Start with the plan</p><h2 id="final-cta-title">Bring the event into <em>one shared view.</em></h2><p>Create the event, invite the right work, and keep every decision attached to the terms people accepted.</p><Link className="button button-gold button-arrow" href="/auth/sign-up?role=organizer">Plan an event <ArrowRight aria-hidden="true" /></Link></div></section>
+      <section className="final-cta" aria-labelledby="final-cta-title"><ArchitecturalLines /><div><p className="kicker">Start with the plan</p><h2 id="final-cta-title">Bring every decision into <em>one accountable view.</em></h2><p>Create the event, invite the right work, and keep every decision attached to the terms people accepted.</p><Link className="button button-gold button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link></div></section>
       <LandingFooter />
     </main>
   );

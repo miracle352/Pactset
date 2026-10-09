@@ -1,7 +1,6 @@
 import { ArrowLeft, ArrowRight, LockSimple } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand/brand-mark";
-import { ThemeControl } from "@/components/theme/theme-control";
 import { type Role, roleContent } from "@/lib/product";
 import { getAccount } from "@/lib/account";
 
@@ -39,7 +38,7 @@ export async function RoleShell({ workspaceRole }: { workspaceRole: Role }) {
         <Link className="back-link" href="/demo"><ArrowLeft size={15} /> Demo index</Link>
       </aside>
       <div className="workspace-main">
-        <header className="workspace-topbar"><div><p className="kicker">{content.eyebrow}</p><span className="demo-chip">Sample data · not your account</span></div><div>{account ? <Link className="button button-secondary" href="/workspace">Return to my workspace</Link> : <Link className="text-link" href="/auth/sign-in">Sign in</Link>}<ThemeControl /></div></header>
+        <header className="workspace-topbar"><div><p className="kicker">{content.eyebrow}</p><span className="demo-chip">Sample data · not your account</span></div><div>{account ? <Link className="button button-secondary" href="/workspace">Return to my workspace</Link> : <Link className="text-link" href="/auth/sign-in">Sign in</Link>}</div></header>
         <section className="workspace-hero">
           <div><h1>{content.title}</h1><p>{content.description}</p></div>
           <article className="focus-card glass-panel"><span className="pulse-dot" aria-hidden="true" /><p>Sample next focus</p><strong>{content.focus}</strong><Link className="text-link" href={`/auth/sign-up?role=${workspaceRole === "support" ? "organizer" : workspaceRole}`}>{workspaceRole === "support" ? "Sign in with assigned access" : "Create an account"}<ArrowRight size={14} /></Link></article>

@@ -10,9 +10,9 @@ test("landing implements the Pactset architectural system without sample-brand c
   const styles = await read("src/app/globals.css");
   assert.match(page, /A thousand moving parts/);
   assert.match(page, /One seamless experience/);
-  assert.match(page, /shared plan/);
   assert.match(page, /Plan an event/);
-  assert.match(page, /Explore demo/);
+  assert.match(page, /Find work/);
+  assert.doesNotMatch(page, /shared plan|Explore demo/i);
   assert.match(styles, /photo-1519608487953-e999c86e7455/);
   assert.match(styles, /#061f1e/i);
   assert.match(styles, /#dfa12d/i);
@@ -26,9 +26,19 @@ test("public onboarding excludes support from selectable roles", async () => {
   const selectable = source.slice(source.indexOf("const choices"), source.indexOf("export default"));
   assert.doesNotMatch(selectable, /name: "Support"/);
   assert.match(source, /Support is assigned, not self-selected/);
-  assert.match(source, /Explore each role using sample event data\./);
-  assert.match(source, /Explore \{name\.toLowerCase\(\)\} demo/);
+  assert.match(source, /empty, private workspace/);
+  assert.match(source, /Start as \{name\.toLowerCase\(\)\}/);
+  assert.match(source, /\/auth\/sign-up\?role=organizer/);
   assert.doesNotMatch(source, /Preview \{name\.toLowerCase\(\)\} shell/);
+});
+
+test("the application is dark-only and does not expose obsolete theme controls", async () => {
+  const layout = await read("src/app/layout.tsx");
+  const header = await read("src/components/navigation/site-header.tsx");
+  const shell = await read("src/components/workspace/workspace-shell.tsx");
+  assert.match(layout, /data-theme="dark"/);
+  assert.match(layout, /colorScheme: "dark"/);
+  assert.doesNotMatch(`${layout}\n${header}\n${shell}`, /ThemeControl|ThemeScript|Light theme|System theme/);
 });
 
 test("the global test-currency catalogue stays separate from provisioned Stellar assets", async () => {
@@ -43,8 +53,27 @@ test("the global test-currency catalogue stays separate from provisioned Stellar
 
 test("the retired pavilion direction is not mounted on the landing page", async () => {
   const page = await read("src/app/page.tsx");
+  const styles = await read("src/app/globals.css");
   assert.doesNotMatch(page, /PavilionScene|pavilion-scene|from ["']three["']/i);
+  assert.doesNotMatch(styles, /pavilion-scene|pavilion-canvas|pavilion-narrative/i);
   assert.match(page, /ArchitecturalLines/);
+});
+
+test("account password fields expose accessible non-submit visibility controls", async () => {
+  const form = await read("src/components/auth/auth-form.tsx");
+  assert.match(form, /type=\{visible \? "text" : "password"\}/);
+  assert.match(form, /type="button"/);
+  assert.match(form, /aria-label=\{visible \? `Hide \$\{field\.label\.toLowerCase\(\)\}` : `Show \$\{field\.label\.toLowerCase\(\)\}`\}/);
+});
+
+test("authenticated header distinguishes a saved wallet from browser readiness", async () => {
+  const headerWallet = await read("src/components/payments/header-wallet-control.tsx");
+  assert.match(headerWallet, /isConnected\(\)/);
+  assert.match(headerWallet, /getAddress\(\)/);
+  assert.match(headerWallet, /getNetwork\(\)/);
+  assert.match(headerWallet, /Ownership<\/dt><dd>Verified/);
+  assert.match(headerWallet, /Ready in browser/);
+  assert.match(headerWallet, /pactset-wallet-disconnected-v1/);
 });
 
 test("Stage 2A migration enforces authorization and concurrency boundaries", async () => {

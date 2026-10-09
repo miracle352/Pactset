@@ -1,18 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { ThemeScript } from "@/components/theme/theme-script";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pactset.vercel.app"),
-  title: { default: "Pactset · One shared plan", template: "%s · Pactset" },
+  title: { default: "Pactset · Event operations on Stellar Testnet", template: "%s · Pactset" },
   description: "A staged event operations platform for organizers, suppliers, crew, and assigned support, built around Stellar Testnet.",
   applicationName: "Pactset",
   icons: { icon: "/favicon.svg" },
-  openGraph: { title: "Pactset", description: "Bring your venue, suppliers and crew into one shared plan.", type: "website" },
+  openGraph: { title: "Pactset", description: "Coordinate venues, suppliers and crew, then approve milestone payments on Stellar Testnet.", type: "website" },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: [{ media: "(prefers-color-scheme: light)", color: "#f3f5ef" }, { media: "(prefers-color-scheme: dark)", color: "#061f1e" }] };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#061f1e", colorScheme: "dark" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth"><head><ThemeScript /></head><body>{children}</body></html>;
+  return <html lang="en" data-theme="dark" data-scroll-behavior="smooth" style={{ colorScheme: "dark" }}><body>{children}</body></html>;
 }

@@ -13,7 +13,13 @@ function useLocationKey() {
   useEffect(() => {
     const update = () => setHash(globalThis.location.hash);
     update(); globalThis.addEventListener("hashchange", update);
-    return () => globalThis.removeEventListener("hashchange", update);
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("section[id]"));
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target.id) setHash(`#${visible.target.id}`);
+    }, { rootMargin: "-18% 0px -62%", threshold: [0, .25, .6] });
+    for (const section of sections) observer.observe(section);
+    return () => { globalThis.removeEventListener("hashchange", update); observer.disconnect(); };
   }, []);
   return `${pathname}${hash}`;
 }
@@ -31,5 +37,5 @@ export function WorkspaceNavigation({ nav, label }: { nav: Item[]; label: string
 export function MobileWorkspaceNavigation({ nav, label }: { nav: Item[]; label: string }) {
   const location = useLocationKey();
   const primary = nav.slice(0, 3); const remaining = nav.slice(3);
-  return <nav className="bottom-nav glass-panel" aria-label={label}>{primary.map((item) => <Link key={item.href} href={item.href} className={active(item, location) ? "active" : ""} aria-current={active(item, location) ? "page" : undefined}>{item.label}</Link>)}<details className="mobile-more"><summary><DotsThree /><span>More</span></summary><div className="mobile-more-menu">{remaining.map((item) => <Link key={item.href} href={item.href} className={active(item, location) ? "active" : ""}>{item.label}</Link>)}<Link href="/settings/wallet">Wallet & payments</Link><Link href="/settings">Profile & settings</Link><Link href="/demo">Help · try sample event</Link></div></details></nav>;
+  return <nav className="bottom-nav glass-panel" aria-label={label}>{primary.map((item) => <Link key={item.href} href={item.href} className={active(item, location) ? "active" : ""} aria-current={active(item, location) ? "page" : undefined}>{item.label}</Link>)}<details className="mobile-more"><summary><DotsThree /><span>More</span></summary><div className="mobile-more-menu">{remaining.map((item) => <Link key={item.href} href={item.href} className={active(item, location) ? "active" : ""} aria-current={active(item, location) ? "page" : undefined}>{item.label}</Link>)}<Link href="/settings/wallet">Wallet & payments</Link><Link href="/settings">Profile & settings</Link></div></details></nav>;
 }

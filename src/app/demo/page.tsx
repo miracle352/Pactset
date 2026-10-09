@@ -1,14 +1,13 @@
 import { ArrowLeft, ArrowRight, Flask, LockSimple, UsersThree } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand/brand-mark";
-import { ThemeControl } from "@/components/theme/theme-control";
 import { getAccount } from "@/lib/account";
 import { demoEvent, roleContent, roles } from "@/lib/product";
 
 export default async function DemoPage() {
   const account = await getAccount();
   return <main className="demo-page page-width">
-    <header className="simple-header"><BrandMark /><div className="header-actions">{account ? <Link className="button button-secondary" href="/workspace">Return to my workspace</Link> : <Link className="text-link" href="/auth/sign-in">Sign in</Link>}<ThemeControl /></div></header>
+    <header className="simple-header"><BrandMark /><div className="header-actions">{account ? <Link className="button button-secondary" href="/workspace">Return to my workspace</Link> : <Link className="text-link" href="/auth/sign-in">Sign in</Link>}</div></header>
     <Link href="/" className="back-link"><ArrowLeft size={15} /> Home</Link>
     <section className="demo-intro"><div><p className="kicker">Solo Test Lab · fictional fixtures</p><h1>Explore every seat at the table.</h1><p>This is a navigation demo, not a live event. No person, provider, wallet, payment, rating, or transaction shown here is real.</p></div><span className="network-badge"><Flask size={16} /> Stellar Testnet · no real value</span></section>
     <section className="demo-event glass-panel"><div><span className="fixture-label">Sample data · not your account</span><h2>{demoEvent.name}</h2><p>{demoEvent.location} · {demoEvent.date} · {demoEvent.attendees} attendees</p></div><div className="demo-event-currency"><small>Agreement preview</small><strong>{demoEvent.currency}</strong><span>Display only</span></div></section>

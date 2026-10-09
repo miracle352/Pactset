@@ -1,12 +1,12 @@
 # Pactset design standard
 
-Status: approved architectural event-operations direction, October 2026. This document makes the owner's Personal Web3 and DeFi Design Standard durable for Pactset.
+Status: approved dark-only architectural event-operations direction, 9 October 2026. `MASTER.md` is the token and component-state source of truth.
 
 ## Current visual authority
 
-The owner's 2026-10-08 adaptation brief is the primary visual direction. Its supplied reference is a source for color, typography, cinematic image treatment, architectural lines, gold signal motion, arrow controls and footer structure—not literal content or a two-section template.
+The owner's 2026-10-09 brief is the primary visual direction. Its supplied reference is a source for color, typography, cinematic image treatment, architectural lines, gold signal motion, arrow controls and footer structure—not literal content or a two-section template.
 
-The previous pavilion/3D-building direction is retired. It must not be mounted, combined with this system, or represented as current roadmap work. Old source and evidence may remain in Git history for recovery, but the active product uses editorial photography, SVG architecture and practical product surfaces.
+The previous pavilion/3D-building and light-theme directions are retired. They must not be mounted, combined with this system, or represented as current roadmap work. The active product uses dark editorial photography, SVG architecture and practical product surfaces.
 
 ## Creative thesis
 
@@ -19,9 +19,9 @@ The public experience is cinematic and editorial. Authenticated work is quieter,
 - Deep teal `#061f1e`: primary dark ground and high-trust financial context.
 - Dark green `#103f3c`: secondary dark sections, framing and footer surfaces.
 - Gold `#dfa12d`: decisions, controlled emphasis, current step and traveling line signals.
-- Off-white `#f3f5ef`: dark-theme foreground and light-theme ground.
-- Light mode uses off-white and pale botanical neutrals with dark teal ink. It is the same identity in daylight, not an unrelated palette.
-- Typography uses Inter/system sans-serif. Georgia/Times italic is reserved for a few editorial phrases such as “shared plan,” never routine labels or numbers.
+- Off-white `#f3f5ef`: foreground on the dark system.
+- Pactset is dark-only. Stored theme preferences and operating-system light mode cannot change the initial or hydrated rendering.
+- Typography uses Inter/system sans-serif. Georgia/Times italic is reserved for selected editorial emphasis such as “One seamless experience,” never routine labels or numbers.
 - Borders are fine and structural. Glass is selective framing; forms and financial data use dense, readable surfaces.
 - Radius is modest in controls and generous only for large architectural containers.
 
@@ -54,7 +54,7 @@ Motion personality is premium and restrained. The standard easing is `cubic-bezi
 
 ## Navigation and interaction
 
-- Public navigation has working How it works, For your role, Sign in, theme and Plan an event destinations.
+- Public navigation has working How it works, For your role, Sign in/Open workspace and Plan an event destinations. Find work leads to real supplier/crew onboarding. Demo tools remain isolated and do not compete in the main journey.
 - Authenticated navigation identifies the current role, validates role switching server-side, shows the active destination, exposes wallet/settings/account/sign-out and preserves safe parent links.
 - Fictional demonstrations carry persistent sample-data boundaries and a route back to the authenticated workspace.
 - Every enabled action works or explains its prerequisite. Empty and failed queries are distinct.
