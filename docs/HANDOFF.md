@@ -2,6 +2,22 @@
 
 Last updated: 2026-10-09 (Africa/Lagos)
 
+## 2026-10-09 Pactset Go Testnet checkpoint
+
+- Pactset Go v1 is implemented as a separate Soroban contract in `contracts/pactset-go`. It accepts 2–8 current, unfunded agreement escrows in one asset, records exact agreement hashes/versions, requires each bound provider wallet to consent, reserves the organizer's exact total, and funds all listed escrows through one Soroban invocation. A failed booking reverts the whole activation; no database sequence is described as atomic.
+- The optimized WASM was uploaded to Stellar Testnet with fixture signing. Public WASM hash: `94ffa39fafd6fca40fd21c128607eda25aabb26c8c80668fd16b243cacf9c245`. Uploading code does not create a bundle instance; each eligible organizer bundle deploys its own contract only after a wallet review/signature.
+- `20261009170000_pactset_go.sql` and `20261009171000_pactset_go_runtime_registration.sql` are applied only to `pactset-development`. The active registry is Testnet/v1/max 8. The authenticated `pactset-go` Edge Function is deployed there and its capability check returns available. Fieldwork and canary were untouched.
+- Remote migration `20261009054613` was the managed integration's earlier application of practical collaboration. Its two tables were verified through an authenticated client, a local history placeholder was added, and local version `20261009120000` was marked applied without rerunning SQL. A dry run then showed exactly the three expected pending migrations before they were applied.
+- Organizer event detail exposes a Pactset Go builder only when the runtime is active. Deadlines are entered in the event's named timezone. The signed flow covers contract creation, provider consent/revocation, reserve, activate, expire, refund and cancel; pending hashes persist, reconciliation verifies ledger success and the deployed contract instance, and retries reuse idempotency keys. `/workspace/go/[id]` is participant/RLS scoped.
+- Automated contract proof: 14/14 Rust tests pass (5 escrow, 9 bundle), including three-booking activation, missing/revoked consent, changed version, insufficient funds, expiry/refund, unauthorized action, duplicate/cross-bundle replay, cancellation, and one failing escrow leaving all unchanged. Application gate: 16/16 product tests, TypeScript, Biome (96 files), and Next production build pass.
+- This checkpoint has **not** created or activated a real bundle instance. `visibleBundleCount` is zero. Actual organizer/provider Freighter signing, fresh Testnet bundle transaction hashes, browser reconciliation, and separate-account/RLS bundle rehearsal remain unverified. The uploaded-WASM transaction used an ignored fixture key and is not browser-wallet proof.
+- Event-change schema is now applied to `pactset-development`, but its separate-account browser/RLS rehearsal remains outstanding. An accepted change remains acknowledgement only; changed financial terms still require a compatible amendment/new agreement and funding activation.
+- No website was pushed or deployed. Email confirmation and password recovery remain unverified. Translation provider, attachments, discovery/radar, replacements, rating eligibility, AI budgeting, readiness, avatar refinement, and the full multi-person browser rehearsal remain open.
+
+### Next exact step
+
+Create fresh compatible organizer, supplier, Crew A and Crew B agreements with new unfunded escrows in one provisioned asset. In separate browser profiles, verify distinct Freighter Testnet wallets, create one 3-booking bundle, collect exact consents, reserve, activate, refresh/reconcile, and compare every escrow's ledger state. Then exercise expiry/refund on a separate disposable bundle and confirm the unrelated account sees neither bundle. Never reuse a settled agreement or fixture key as proof of the browser flow.
+
 ## 2026-10-09 dark-only usability repair checkpoint
 
 - The current owner direction is authoritative: Pactset is dark-only (`#061f1e`, `#103f3c`, `#dfa12d`, `#f3f5ef`), the pavilion is retired, and fictional demo entry points no longer compete with the real public journey. `MASTER.md`, `docs/design-standard.md`, and `docs/current-implementation-plan.md` record the visual thesis and ordered implementation phases.

@@ -1,0 +1,20 @@
+import { readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { join } from "node:path";
+
+const secretsPath = new URL("../../.stellar-testnet.local.json", import.meta.url);
+const outputPath = new URL("../../.pactset-go-testnet.local.json", import.meta.url);
+const state = JSON.parse(await readFile(secretsPath, "utf8"));
+const source = state.accounts?.organizer;
+if (!source?.secret || !source?.publicKey) throw new Error("Ignored organizer Testnet fixture is unavailable");
+const cli = [process.env["STELLAR_CLI"], join(process.env["ProgramFiles(x86)"] ?? "", "Stellar CLI", "stellar.exe"), join(process.env["USERPROFILE"] ?? "", ".cargo", "bin", "stellar.exe")].find((candidate) => candidate && existsSync(candidate));
+if (!cli) throw new Error("Stellar CLI is unavailable");
+const wasm = join(process.cwd(), "contracts", "target", "wasm32v1-none", "release", "pactset_go.wasm");
+const result = spawnSync(cli, ["contract", "upload", "--wasm", wasm, "--source-account", source.secret, "--network", "testnet"], { cwd: process.cwd(), encoding: "utf8", windowsHide: true });
+if (result.status !== 0) throw new Error(`Stellar CLI exit ${result.status ?? "not-started"} at ${cli}: ${`${result.error?.message ?? ""}\n${result.stderr ?? ""}\n${result.stdout ?? ""}`.replaceAll(source.secret, "[REDACTED]").trim() || "no diagnostic output"}`);
+const hash = `${result.stdout}\n${result.stderr}`.match(/[0-9a-f]{64}/i)?.[0]?.toLowerCase();
+if (!hash) throw new Error("Stellar CLI did not return a WASM hash");
+const publicState = { network: "TESTNET", contractVersion: 1, wasmHash: hash, sourcePublicKey: source.publicKey, uploadedAt: new Date().toISOString(), secretsPrinted: false };
+await writeFile(outputPath, `${JSON.stringify(publicState, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+console.log(JSON.stringify(publicState, null, 2));

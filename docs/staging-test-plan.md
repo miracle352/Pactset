@@ -2,6 +2,21 @@
 
 A protected Preview is available for review. The public deployment and Production environment remain unchanged.
 
+## Pactset Go review (not on the current hosted Preview yet)
+
+The local checkpoint is connected to `pactset-development` and the Pactset Go v1 WASM is registered on Stellar Testnet, but the website changes have not been pushed or deployed. Do not expect the current protected Preview to expose this UI.
+
+After a future reviewed Preview update:
+
+1. Use fresh organizer, supplier, Crew A and Crew B agreements whose independent escrows are current, unfunded, and use the same provisioned Testnet asset.
+2. In the organizer event, select 2–8 essential bookings and enter the activation deadline in the displayed event timezone. Review the exact providers, amounts, asset and deadline before signing contract creation in Freighter.
+3. In separate browser profiles, each provider opens the same bundle and signs consent with the wallet already bound to that booking. Confirm that a missing or revoked consent prevents reservation.
+4. Organizer signs **Reserve exact total**, then signs **Activate all bookings**. One transaction must fund every listed escrow or none. Refresh and reconcile; compare each escrow, the bundle contract, and Stellar Testnet Explorer.
+5. On a separate disposable bundle, let the deadline pass, reconcile to expired/refundable, then sign one refund. Retry and confirm there is no duplicate refund.
+6. As an unrelated account, deep-link to both bundle IDs and confirm no bundle, booking or transaction data is returned. As support, confirm a database role alone does not provide an organizer/provider signing action.
+
+Automated fixture-key tests and WASM upload are not Freighter extension evidence. Record the fresh bundle contract ID and transaction hashes only after the private wallet rehearsal succeeds.
+
 ## First wallet rehearsal after the navigation repair
 
 1. Pass the Vercel Preview gate, then sign in to Pactset as the organizer; these are separate authentication steps.

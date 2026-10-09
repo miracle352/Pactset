@@ -206,3 +206,24 @@ test("event changes are version-bound and cannot silently rewrite accepted agree
   assert.match(workflow, /Accept change/);
   assert.match(workflow, /Propose adjustment/);
 });
+
+test("Pactset Go is a bounded on-chain bundle, not a database-only atomic claim", async () => {
+  const contract = await read("contracts/pactset-go/src/lib.rs");
+  const migration = await read("supabase/migrations/20261009170000_pactset_go.sql");
+  const edge = await read("supabase/functions/pactset-go/index.ts");
+  const boundary = await read("docs/pactset-go-contract.md");
+  assert.match(contract, /const MAX_BOOKINGS: u32 = 8/);
+  assert.match(contract, /item\.provider\.require_auth\(\)/);
+  assert.match(contract, /cfg\.organizer\.require_auth\(\)/);
+  assert.match(contract, /current\.agreement_version != item\.agreement_version/);
+  assert.match(contract, /EscrowClient::new\(env, &item\.escrow\)\.fund\(\)/);
+  assert.match(contract, /BundleState::Refundable/);
+  for (const table of ["pactset_go_runtime_registry", "pactset_go_bundles", "pactset_go_bookings", "pactset_go_transactions"]) assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  assert.match(migration, /current_user not in \('service_role','postgres'\)/);
+  assert.match(migration, /agreement_version integer not null/);
+  assert.match(edge, /Operation\.createCustomContract/);
+  assert.match(edge, /new Contract\(bundle\.contract_address\)\.call/);
+  assert.match(edge, /signed\.signatureBase\(\)/);
+  assert.match(boundary, /one failed check or escrow funding call reverts the complete activation/i);
+  assert.match(boundary, /does not retrofit funded legacy agreements/i);
+});

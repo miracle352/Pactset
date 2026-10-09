@@ -1,0 +1,6 @@
+-- Remote-history placeholder.
+--
+-- The practical-collaboration migration was applied to pactset-development by
+-- the managed Supabase integration before its repository migration was saved.
+-- Supabase recorded that operation as 20261009054613. The actual, reviewed SQL
+-- remains in 20261009120000_stage_3_practical_collaboration.sql.

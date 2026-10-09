@@ -14,12 +14,14 @@
     "payments:verify-api": "node scripts/stellar/verify-browser-payment-api.mjs",
     "payments:verify-failures": "node scripts/stellar/verify-isolated-payment-failures.mjs",
     "accounts:verify-development": "node scripts/admin/verify-development-identities.mjs",
+    "db:verify-stage3": "node scripts/admin/verify-stage3-schema.mjs",
     "payments:deploy-fixtures": "node scripts/stellar/deploy-browser-fixtures.mjs",
     "payments:verify-fresh": "node scripts/stellar/verify-fresh-browser-journey.mjs",
     "payments:verify-recipient": "node scripts/stellar/verify-recipient-payouts.mjs",
     "staging:prepare-wallet-agreement": "node scripts/staging/prepare-wallet-agreement.mjs",
     "staging:bind-support-resolver": "node scripts/staging/bind-support-resolver.mjs",
     "staging:verify-wallet-escrow": "node scripts/staging/verify-wallet-created-escrow.mjs",
+    "pactset-go:upload-testnet": "node scripts/stellar/upload-pactset-go.mjs",
     "db:types": "npx supabase@2.119.0 gen types typescript --linked > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
