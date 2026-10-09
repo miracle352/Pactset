@@ -2,6 +2,18 @@
 
 Last updated: 2026-10-09 (Africa/Lagos)
 
+## 2026-10-09 Lenis, GSAP, and glass-system redesign checkpoint
+
+- The existing Next.js 16 application, Supabase authorization, Stellar Testnet payment controls, and role routes were preserved. This checkpoint changes presentation and motion only; it adds no payment simulation or backend substitute.
+- Installed the owner-requested maintained packages `lenis@1.3.26`, `gsap@3.15.0`, and `@gsap/react@2.1.2`. Lenis keeps native scrolling and anchors, disables smoothing for reduced motion, and skips nested opt-out surfaces. GSAP provides the landing entrance, one-time section reveals, and restrained image parallax from the same ticker.
+- A hydration mismatch found by browser QA was fixed by keeping server content visible and deferring GSAP DOM mutation until after hydration. The final four-width run reported no application console errors.
+- Added a local `SpotlightSurface` adapted from the React Bits Spotlight Card interaction pattern. It is used only on the role selector and event-plan visual, uses CSS variables without React rerenders, and becomes static under reduced motion.
+- Refined the shared glass system across marketing, auth, role workspaces, wallet, and financial surfaces: layered readable teal glass, fine edge highlights, consistent elevation, tactile primary/secondary/quiet buttons, visible focus, pressed/pending/disabled states, improved form focus, and clearer record-row feedback.
+- The landing retains the approved image, teal/gold identity, honest Testnet boundary, real organizer/worker destinations, semantic HTML, and mobile composition. The supplier and wallet screens preserve real scoped data and existing actions.
+- Browser QA passed at 375, 390, 768, and 1440 CSS pixels with no horizontal overflow. Authenticated supplier and wallet routes passed at 390 and 1440. Captures are in `docs/screenshots/glass-redesign/`; the recorded scroll/motion pass is in `docs/recordings/glass-redesign/`.
+- Verification passed: 16/16 product/security tests, TypeScript, Biome across 98 files, the responsive browser harness, and the Next.js 16.3.8 production build with all 16 static pages generated. No push, deployment, Supabase mutation, Stellar transaction, or email request occurred.
+- Official resources reviewed: Lenis, React Bits, and GSAP repositories supplied by the owner. Applied local skills: `design-dna`, `motion-foundations` (principles adapted where the explicit GSAP requirement superseded its motion/react-only implementation rule), and `browser-qa`.
+
 ## 2026-10-09 account, navigation, and shell repair checkpoint
 
 - The visible Profile/Settings defect was a real nested-shell composition error: `settings/layout.tsx` supplied `WorkspaceShell` while both settings pages supplied a second shell. The page-level shells were removed; browser assertions now find exactly one `.account-workspace` and one sidebar in profile and wallet settings at 390 and 1440 CSS pixels.

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import "lenis/dist/lenis.css";
 import "./globals.css";
+import { ExperienceMotion } from "@/components/motion/experience-motion";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pactset.vercel.app"),
@@ -13,5 +15,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#061f1e", colorScheme: "dark" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" data-theme="dark" data-scroll-behavior="smooth" style={{ colorScheme: "dark" }}><body>{children}</body></html>;
+  return <html lang="en" data-theme="dark" data-scroll-behavior="smooth" style={{ colorScheme: "dark" }}><body><ExperienceMotion />{children}</body></html>;
 }

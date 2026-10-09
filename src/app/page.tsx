@@ -4,6 +4,7 @@ import { ArchitecturalLines } from "@/components/landing/architectural-lines";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { RolePathSelector } from "@/components/landing/role-path-selector";
 import { SiteHeader } from "@/components/navigation/site-header";
+import { SpotlightSurface } from "@/components/ui/spotlight-surface";
 import { getAccount } from "@/lib/account";
 
 const journey = [
@@ -40,40 +41,40 @@ export default async function Home() {
       <section className="pactset-hero" aria-labelledby="landing-title">
         <div className="hero-image" aria-hidden="true" /><div className="hero-overlay" aria-hidden="true" /><ArchitecturalLines variant="hero" /><SiteHeader authenticated={Boolean(account)} />
         <div className="pactset-hero-content page-width"><div className="pactset-hero-copy">
-          <p className="editorial-kicker"><span />Global event operations · Stellar Testnet</p>
-          <h1 id="landing-title">A thousand moving parts. <span>One seamless experience.</span></h1>
-          <p className="hero-description">Bring your venue, suppliers and crew together. Track preparations, review the work, and approve milestone payments on Stellar.</p>
-          <div className="hero-actions"><Link className="button button-primary button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer&next=%2Fworkspace%2Forganizer%2Fevents%2Fnew"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link><Link className="editorial-link" href={account ? "/workspace" : "/onboarding"}>{account ? "Continue your work" : "Find work"} <ArrowRight aria-hidden="true" /></Link></div>
-          <p className="hero-boundary">Stellar Testnet · Test assets have no monetary value.</p>
+          <p className="editorial-kicker" data-motion-hero><span />Global event operations · Stellar Testnet</p>
+          <h1 id="landing-title" data-motion-hero>A thousand moving parts. <span>One seamless experience.</span></h1>
+          <p className="hero-description" data-motion-hero>Bring your venue, suppliers and crew together. Track preparations, review the work, and approve milestone payments on Stellar.</p>
+          <div className="hero-actions" data-motion-hero><Link className="button button-primary button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer&next=%2Fworkspace%2Forganizer%2Fevents%2Fnew"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link><Link className="button button-quiet button-arrow" href={account ? "/workspace" : "/onboarding"}>{account ? "Continue your work" : "Find work"} <ArrowRight aria-hidden="true" /></Link></div>
+          <p className="hero-boundary" data-motion-hero>Stellar Testnet · Test assets have no monetary value.</p>
         </div></div>
       </section>
 
-      <section className="landing-section journey-section page-width" id="how-it-works" aria-labelledby="journey-title">
+      <section className="landing-section journey-section page-width" id="how-it-works" aria-labelledby="journey-title" data-motion-reveal>
         <header className="editorial-heading"><p className="kicker">From brief to release</p><h2 id="journey-title">One event story, without the hand-off gaps.</h2><p>Pactset keeps the booking, preparation record, private evidence, approval, and payment state connected without pretending they are the same action.</p></header>
         <ol className="journey-rail">{journey.map((step) => <li key={step.number}><span>{step.number}</span><div><h3>{step.title}</h3><p>{step.copy}</p></div></li>)}</ol>
       </section>
 
-      <section className="landing-section roles-section" id="roles" aria-labelledby="roles-title"><div className="page-width roles-layout">
+      <section className="landing-section roles-section" id="roles" aria-labelledby="roles-title" data-motion-reveal><div className="page-width roles-layout">
         <div className="roles-copy"><p className="kicker">A workspace shaped around your part</p><h2 id="roles-title">Different responsibilities. <em>One coordinated event.</em></h2><p id="organizers"><strong>Organizers</strong> shape the event brief, compare offers, and approve eligible work.</p><p id="providers"><strong>Suppliers and crew</strong> manage services, availability, bookings, preparation, and evidence. Assigned support enters only when a case requires it.</p></div>
-        <RolePathSelector />
+        <SpotlightSurface className="roles-spotlight"><RolePathSelector /></SpotlightSurface>
       </div></section>
 
-      <section className="landing-section coordination-section page-width" aria-labelledby="coordination-title">
-        <div className="coordination-visual" aria-hidden="true"><ArchitecturalLines /><span className="coordination-date">18<span>OCT</span></span><p>Event-local plan</p></div>
+      <section className="landing-section coordination-section page-width" aria-labelledby="coordination-title" data-motion-reveal>
+        <SpotlightSurface className="coordination-visual" color="rgba(115, 214, 173, .14)"><ArchitecturalLines /><span className="coordination-date" aria-hidden="true">18<span>OCT</span></span><p>Event-local plan</p></SpotlightSurface>
         <div className="coordination-copy"><p className="kicker">Event coordination</p><h2 id="coordination-title">See the dependencies before they become blockers.</h2><p>Small gatherings and large conferences both depend on clear capacity, ownership, timing, and accepted terms. Pactset keeps each operational detail attached to the event it affects.</p><div className="coordination-list">{coordination.map(({ icon: Icon, label, copy }) => <div key={label}><Icon aria-hidden="true" /><span><strong>{label}</strong><small>{copy}</small></span></div>)}</div></div>
       </section>
 
-      <section className="landing-section payment-story" id="payments" aria-labelledby="payments-title"><ArchitecturalLines /><div className="page-width payment-story-grid">
+      <section className="landing-section payment-story" id="payments" aria-labelledby="payments-title" data-motion-reveal><ArchitecturalLines /><div className="page-width payment-story-grid">
         <header><p className="kicker">Stellar, with the states made clear</p><h2 id="payments-title">The money moves only when the right person signs.</h2><p>The agreement currency never changes silently. Wallet connection, signature, submission, confirmation and release are shown as distinct states.</p><span className="network-badge"><CurrencyCircleDollar aria-hidden="true" /> Stellar Testnet · no real value</span></header>
         <ol>{paymentSteps.map(([title, copy], index) => <li key={title}><span>0{index + 1}</span><div><h3>{title}</h3><p>{copy}</p></div></li>)}</ol>
       </div></section>
 
-      <section className="landing-section change-section page-width" aria-labelledby="change-title">
+      <section className="landing-section change-section page-width" aria-labelledby="change-title" data-motion-reveal>
         <div className="change-copy"><p className="kicker">When plans change</p><h2 id="change-title">Protect the work already done. Decide the next move visibly.</h2><p>Participants can open an assigned case with a reason and relevant evidence. Replacement discovery is planned; when available, it must match skill, area, availability, and budget—and use new approved funding rather than disputed funds.</p><div className="change-actions"><Link className="button button-secondary button-arrow" href={account ? "/workspace" : "/auth/sign-in"}>{account ? "Open your workspace" : "Sign in to continue"} <ArrowRight aria-hidden="true" /></Link></div></div>
         <ol className="support-sequence" aria-label="Support and replacement sequence"><li><CalendarCheck aria-hidden="true" /><strong>Record the change</strong><span>Reason, timing and affected terms</span></li><li><Headset aria-hidden="true" /><strong>Assign support</strong><span>Scoped access and an audit trail</span></li><li><LockSimple aria-hidden="true" /><strong>Resolve within the terms</strong><span>No reversal of completed transfers</span></li></ol>
       </section>
 
-      <section className="landing-section faq-section page-width" aria-labelledby="faq-title"><header><p className="kicker">Practical answers</p><h2 id="faq-title">Know what Pactset does—and what it does not claim.</h2></header><div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
+      <section className="landing-section faq-section page-width" aria-labelledby="faq-title" data-motion-reveal><header><p className="kicker">Practical answers</p><h2 id="faq-title">Know what Pactset does—and what it does not claim.</h2></header><div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
 
       <section className="final-cta" aria-labelledby="final-cta-title"><ArchitecturalLines /><div><p className="kicker">Start with the plan</p><h2 id="final-cta-title">Bring every decision into <em>one accountable view.</em></h2><p>Create the event, invite the right work, and keep every decision attached to the terms people accepted.</p><Link className="button button-gold button-arrow" href={account ? "/workspace" : "/auth/sign-up?role=organizer&next=%2Fworkspace%2Forganizer%2Fevents%2Fnew"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link></div></section>
       <LandingFooter />
