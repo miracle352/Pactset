@@ -5,6 +5,8 @@ declare module "@phosphor-icons/react" {
   export const ArrowRight: Icon;
   export const ArrowSquareOut: Icon;
   export const ArrowsClockwise: Icon;
+  export const Buildings: Icon;
+  export const CaretDown: Icon;
   export const CheckCircle: Icon;
   export const ChatCircleDots: Icon;
   export const ClockCounterClockwise: Icon;
@@ -14,15 +16,20 @@ declare module "@phosphor-icons/react" {
   export const Eye: Icon;
   export const EyeSlash: Icon;
   export const FileArrowUp: Icon;
+  export const ForkKnife: Icon;
   export const GlobeHemisphereWest: Icon;
   export const Info: Icon;
+  export const HardHat: Icon;
   export const LinkBreak: Icon;
   export const List: Icon;
   export const Moon: Icon;
   export const SpinnerGap: Icon;
+  export const SpeakerHigh: Icon;
+  export const SignOut: Icon;
   export const Sun: Icon;
   export const Wallet: Icon;
   export const WarningCircle: Icon;
+  export const UserCircle: Icon;
   export const X: Icon;
 }
 

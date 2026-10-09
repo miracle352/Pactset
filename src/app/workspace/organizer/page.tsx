@@ -1,6 +1,7 @@
 import { ArrowRight, CalendarPlus } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { EmptyState, WorkspaceHeading, WorkspaceShell } from "@/components/workspace/workspace-shell";
+import { WorkspaceNextStep } from "@/components/workspace/next-step";
 import { requireAccount } from "@/lib/account";
 import { createClient } from "@/lib/supabase/server";
 
@@ -40,6 +41,7 @@ export default async function OrganizerWorkspace() {
   return (
     <WorkspaceShell workspaceRole="organizer" account={account} nav={nav}>
       <WorkspaceHeading eyebrow="Organizer" title="Your event desk" description="Resume plans, publish provider requests, and decide on current offers." action={<Link className="button button-primary" href="/workspace/organizer/events/new"><CalendarPlus /> New event</Link>} />
+      <WorkspaceNextStep accountRole="organizer" complete={Boolean(events?.length)} href={events?.length ? "/workspace/organizer/events" : "/workspace/organizer/events/new"} />
       <section className="workspace-summary" aria-label="Organizer summary">
         <article><span>Drafts</span><strong>{draftCount ?? "—"}</strong></article>
         <article><span>Published requests</span><strong>{publishedCount ?? "—"}</strong></article>

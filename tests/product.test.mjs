@@ -28,7 +28,7 @@ test("public onboarding excludes support from selectable roles", async () => {
   assert.match(source, /Support is assigned, not self-selected/);
   assert.match(source, /empty, private workspace/);
   assert.match(source, /Start as \{name\.toLowerCase\(\)\}/);
-  assert.match(source, /\/auth\/sign-up\?role=organizer/);
+  assert.match(source, /\/auth\/sign-up\/organizer/);
   assert.doesNotMatch(source, /Preview \{name\.toLowerCase\(\)\} shell/);
 });
 

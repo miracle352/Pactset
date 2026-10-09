@@ -1,4 +1,4 @@
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 
@@ -45,10 +45,20 @@ for (const viewport of [{ width: 375, height: 812 }, { width: 390, height: 844 }
   const page = await context.newPage();
   const errors = runtimeErrors(page);
   await page.goto(baseURL, { waitUntil: "networkidle" });
-  await page.waitForTimeout(900);
+  await page.waitForFunction(() => document.documentElement.dataset.smoothScroll === "lenis", undefined, { timeout: 5_000 });
+  await page.waitForTimeout(250);
   const facts = await pageFacts(page);
   if (facts.theme !== "dark" || facts.scrollWidth > facts.width + 1 || !facts.lenis || errors.length) throw new Error(`Landing ${viewport.width}: ${JSON.stringify({ facts, errors })}`);
   await page.getByRole("link", { name: "Plan an event", exact: true }).first().focus();
+  if (viewport.width === 390) {
+    await page.getByRole("button", { name: "Open menu" }).click();
+    for (const label of ["How it works", "For your role", "Payments", "Sign in", "Organize an event", "Offer services", "Join the crew"]) await page.getByRole("link", { name: label, exact: true }).last().waitFor();
+    await page.getByRole("button", { name: "Close menu" }).click();
+  }
+  if (viewport.width === 1440) {
+    await page.getByText("Get started", { exact: true }).click();
+    for (const label of ["Organize an event", "Offer services", "Join the crew"]) await page.getByRole("link", { name: label, exact: false }).waitFor();
+  }
   if (viewport.width === 390 || viewport.width === 1440) {
     for (const section of ["#how-it-works", "#roles", ".coordination-section", "#payments", ".change-section", ".faq-section"]) {
       await page.locator(section).scrollIntoViewIfNeeded();
@@ -60,7 +70,22 @@ for (const viewport of [{ width: 375, height: 812 }, { width: 390, height: 844 }
     if (hiddenSections) throw new Error(`Landing ${viewport.width} retained ${hiddenSections} hidden story sections after scrolling`);
     await page.screenshot({ path: shot(`landing-${viewport.width}.png`), fullPage: true });
   }
+  if (errors.length) throw new Error(`Landing ${viewport.width} runtime errors after interaction: ${JSON.stringify(errors)}`);
   results.push({ route: "/", viewport, facts, errors });
+  await context.close();
+}
+
+for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
+  const context = await browser.newContext({ viewport, colorScheme: "dark" });
+  const page = await context.newPage();
+  const errors = runtimeErrors(page);
+  await page.goto(`${baseURL}/auth/sign-up/supplier`, { waitUntil: "networkidle" });
+  await page.getByRole("heading", { name: /Turn your services/ }).waitFor();
+  await page.getByRole("button", { name: "Show password" }).click();
+  await page.getByRole("button", { name: "Hide password" }).waitFor();
+  const facts = await pageFacts(page);
+  if (facts.scrollWidth > facts.width + 1 || errors.length) throw new Error(`Supplier signup ${viewport.width}: ${JSON.stringify({ facts, errors })}`);
+  await page.screenshot({ path: shot(`supplier-signup-${viewport.width}.png`), fullPage: true });
   await context.close();
 }
 
@@ -88,6 +113,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000
     recordVideo: { dir: fileURLToPath(recordings), size: { width: 1440, height: 900 } },
   });
   const page = await context.newPage();
+  const video = page.video();
   const errors = runtimeErrors(page);
   await page.goto(baseURL, { waitUntil: "networkidle" });
   await page.waitForTimeout(900);
@@ -99,6 +125,11 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000
   await page.waitForTimeout(1200);
   if (errors.length) throw new Error(`Motion recording: ${JSON.stringify(errors)}`);
   await context.close();
+  if (video) {
+    const target = fileURLToPath(new URL("pactset-focused-experience.webm", recordings));
+    await rm(target, { force: true });
+    await rename(await video.path(), target);
+  }
 }
 
 await browser.close();

@@ -1,23 +1,18 @@
 "use client";
 
-import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
-gsap.registerPlugin(useGSAP);
 
 export function ExperienceMotion() {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
-
-  useGSAP(() => {
-    if (!mounted) return;
+  useEffect(() => {
+    if (pathname !== "/") return;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const lenis = new Lenis({
       anchors: { offset: -76 },
@@ -39,48 +34,44 @@ export function ExperienceMotion() {
     let context: gsap.Context | undefined;
     const animationTimer = window.setTimeout(() => {
       context = gsap.context(() => {
-        const heroTargets = gsap.utils.toArray<HTMLElement>("[data-motion-hero]");
         const revealTargets = gsap.utils.toArray<HTMLElement>("[data-motion-reveal]");
-        if (reduceMotion) {
-          if (heroTargets.length || revealTargets.length) gsap.set([...heroTargets, ...revealTargets], { clearProps: "all" });
-          return;
-        }
-
-        if (heroTargets.length) {
-          gsap.fromTo(
-            heroTargets,
-            { autoAlpha: 0, y: 24 },
-            { autoAlpha: 1, y: 0, duration: 0.82, stagger: 0.08, ease: "power3.out", clearProps: "transform" },
-          );
-        }
+        const splitTargets = gsap.utils.toArray<HTMLElement>("[data-split-reveal]");
+        const copyTargets = gsap.utils.toArray<HTMLElement>("[data-copy-reveal]");
+        if (reduceMotion) return;
 
         revealTargets.forEach((element) => {
-          gsap.fromTo(
-            element,
-            { autoAlpha: 0, y: 28 },
-            {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.72,
-              ease: "power3.out",
-              clearProps: "transform",
-              scrollTrigger: { trigger: element, start: "top 88%", once: true },
-            },
-          );
+          ScrollTrigger.create({
+            trigger: element,
+            start: "top 88%",
+            once: true,
+            onEnter: () => gsap.fromTo(element, { opacity: .32, y: 28 }, { opacity: 1, y: 0, duration: .72, ease: "power3.out", clearProps: "transform,opacity" }),
+          });
         });
 
-        const heroImage = document.querySelector<HTMLElement>(".hero-image");
-        if (heroImage) {
-          gsap.to(heroImage, {
-            yPercent: 7,
-            scale: 1.035,
-            ease: "none",
-            scrollTrigger: { trigger: ".pactset-hero", start: "top top", end: "bottom top", scrub: 0.5 },
+        splitTargets.forEach((heading) => {
+          if (heading.closest(".pactset-hero")) return;
+          const words = gsap.utils.toArray<HTMLElement>("[data-reveal-word]", heading);
+          if (!words.length) return;
+          ScrollTrigger.create({
+            trigger: heading,
+            start: "top 88%",
+            once: true,
+            onEnter: () => gsap.fromTo(words, { opacity: .2, y: 18 }, { opacity: 1, y: 0, duration: .52, stagger: .035, ease: "power3.out", clearProps: "transform,opacity" }),
           });
-        }
+        });
+
+        copyTargets.forEach((copy) => {
+          if (copy.closest(".pactset-hero")) return;
+          ScrollTrigger.create({
+            trigger: copy,
+            start: "top 91%",
+            once: true,
+            onEnter: () => gsap.fromTo(copy, { opacity: .35, y: 12 }, { opacity: 1, y: 0, duration: .45, delay: .08, ease: "power2.out", clearProps: "transform,opacity" }),
+          });
+        });
       });
       ScrollTrigger.refresh();
-    }, 350);
+    }, 1_200);
 
     return () => {
       window.clearTimeout(animationTimer);
@@ -89,7 +80,7 @@ export function ExperienceMotion() {
       lenis.destroy();
       delete document.documentElement.dataset.smoothScroll;
     };
-  }, { dependencies: [mounted, pathname], revertOnUpdate: true });
+  }, [pathname]);
 
   return null;
 }

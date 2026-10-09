@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { WalletConnection } from "@/components/payments/wallet-connection";
 
 type SavedWallet = { public_key: string; network: string; wallet_provider: string; verified_at: string } | null;
 type RuntimeState = "idle" | "checking" | "ready" | "unavailable" | "locked" | "wrong-network" | "account-changed" | "disconnected" | "error";
@@ -73,13 +74,14 @@ export function HeaderWalletControl({ savedWallet }: { savedWallet: SavedWallet 
         <button className="text-button" type="button" onClick={copyAddress}><Copy /> {copied ? "Copied" : "Copy full address"}</button>
         {balances.length ? <fieldset className="wallet-mini-balances"><legend>Wallet balances</legend>{balances.map((balance) => <span key={balance.asset}><strong>{balance.amount}</strong> {balance.asset}</span>)}</fieldset> : <p className="field-note">Balances appear after the saved address is available in this browser. They are read from Stellar Testnet.</p>}
         <p className="field-note">{refreshedAt ? `Last refreshed ${refreshedAt}.` : "Not refreshed in this browser."} A saved verification does not approve a transaction.</p>
-        <div className="wallet-compact-actions"><button className="button button-secondary" type="button" onClick={inspectBrowserWallet} disabled={busy}>Refresh browser status</button><Link className="button button-primary" href="/settings/wallet">Change wallet</Link><button className="button button-danger" type="button" onClick={disconnect} disabled={busy}>Disconnect</button></div>
-      </> : <><p>Your Pactset account is signed in. Verify a separate Stellar Testnet wallet only when you need to authorize payment actions.</p><Link className="button button-primary" href="/settings/wallet">Set up wallet</Link></>}
+        <div className="wallet-compact-actions"><button className="button button-secondary" type="button" onClick={inspectBrowserWallet} disabled={busy}>Refresh status</button><WalletConnection initialConnection={savedWallet} compact compactLabel={runtime === "ready" ? "Change wallet" : "Reconnect wallet"} /><button className="button button-danger" type="button" onClick={disconnect} disabled={busy}>Disconnect</button></div>
+      </> : <><p>Your Pactset account is signed in. Connect a separate Stellar Testnet wallet only when you need to authorize payment actions.</p><WalletConnection initialConnection={null} compact /><Link className="text-link" href="/settings/wallet">Manage wallets</Link></>}
       {runtime === "unavailable" && <p className="form-message error"><LinkBreak /> Freighter is unavailable in this browser.</p>}
       {runtime === "locked" && <p className="form-message error"><WarningCircle /> Freighter needs to be unlocked or access approved.</p>}
       {runtime === "wrong-network" && <p className="form-message error"><WarningCircle /> Switch Freighter to Stellar Testnet.</p>}
       {runtime === "account-changed" && <p className="form-message error"><WarningCircle /> The active Freighter account differs from the verified address. Existing escrows remain unchanged.</p>}
       {runtime === "error" && <p className="form-message error"><WarningCircle /> Wallet status could not be refreshed. No transaction was submitted.</p>}
+      {savedWallet && <Link className="text-link" href="/settings/wallet">Manage wallets</Link>}
     </div>
   </details>;
 }

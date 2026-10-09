@@ -1,6 +1,7 @@
 import { ArrowRight, Plus } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { DataError, EmptyState, WorkspaceHeading, WorkspaceShell } from "@/components/workspace/workspace-shell";
+import { WorkspaceNextStep } from "@/components/workspace/next-step";
 import { requireAccount } from "@/lib/account";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,16 +11,18 @@ function currentTerms(offer: OfferSummary) { return offer.offer_versions.find((t
 
 export default async function SupplierWorkspace() {
   const account = await requireAccount("supplier"); const supabase = await createClient();
-  const [inventoryResult, feedResult, offerResult, agreementResult] = await Promise.all([
+  const [inventoryResult, feedResult, offerResult, agreementResult, profileResult] = await Promise.all([
     supabase.from("inventory_items").select("id,name,category,total_quantity,unit,active").order("name"),
     supabase.rpc("list_eligible_requests"),
     supabase.from("offers").select("id,status,current_version,request_id,updated_at,requests(title),offer_versions(version,scope,amount,currency)").eq("provider_role", "supplier").order("updated_at", { ascending: false }),
     supabase.from("agreements").select("id,scope,status,amount,currency,starts_at,ends_at,quantity,agreement_escrows(status)").eq("provider_role", "supplier").order("starts_at"),
+    supabase.from("provider_profiles").select("services,pricing_units,availability_note").eq("user_id", account.userId).maybeSingle(),
   ]);
   const inventory = inventoryResult.data, feed = feedResult.data, offers = offerResult.data as OfferSummary[] | null, agreements = agreementResult.data;
   const nav = [{ label: "Overview", href: "/workspace/supplier" }, { label: "Inventory", href: "/workspace/supplier/inventory" }, { label: "Requests", href: "/workspace/supplier#opportunities" }, { label: "Offers", href: "/workspace/supplier#offers" }, { label: "Bookings", href: "/workspace/supplier#bookings" }];
   return <WorkspaceShell workspaceRole="supplier" account={account} nav={nav}>
     <WorkspaceHeading eyebrow="Supplier" title="Services and bookings" description="Set what you can provide, respond to matching work, and follow accepted bookings through payment." action={<Link className="button button-primary" href="/settings#provider"><Plus /> Add service</Link>} />
+    <WorkspaceNextStep accountRole="supplier" complete={Boolean(profileResult.data?.services?.length && profileResult.data?.pricing_units?.length && profileResult.data?.availability_note)} href={profileResult.data?.services?.length ? "/workspace/supplier#opportunities" : "/settings#provider"} />
     <section id="inventory" className="workspace-section"><div className="compact-section-heading"><h2>Inventory capacity</h2><Link href="/workspace/supplier/inventory">Manage</Link></div>{inventoryResult.error ? <DataError title="Inventory could not load" /> : inventory?.length ? <div className="capacity-grid">{inventory.map((item) => <article key={item.id}><div><strong>{item.name}</strong><p>{item.category}</p></div><span>{item.total_quantity} {item.unit}</span></article>)}</div> : <EmptyState title="Add bookable inventory" body="Quantities are checked across overlapping accepted bookings and temporary acceptance reservations." action={<Link href="/workspace/supplier/inventory">Add inventory</Link>} />}</section>
     <section id="opportunities" className="workspace-section"><div className="compact-section-heading"><div><h2>Relevant requests</h2><p>Only requests currently eligible for you appear here. Earlier offers remain in your history below.</p></div></div>{feedResult.error ? <DataError title="Relevant requests could not load" /> : feed?.length ? <div className="record-list">{feed.map((request: { id: string; title: string; category: string; quantity: number; quantity_unit: string }) => <Link href={`/workspace/requests/${request.id}`} key={request.id}><div><strong>{request.title}</strong><p>{request.category} · {request.quantity} {request.quantity_unit}</p></div><ArrowRight /></Link>)}</div> : <EmptyState title="No matching supplier requests" body="Complete your services and availability so matching published requests can appear here. Private organizer details stay hidden until an agreement allows access." action={<Link href="/settings#provider">Complete supplier profile</Link>} />}</section>
     <section id="offers" className="workspace-section"><div className="compact-section-heading"><h2>Your offers</h2></div>{offerResult.error ? <DataError title="Offers could not load" /> : offers?.length ? <div className="record-list">{offers.map((offer) => { const terms = currentTerms(offer); return <Link href={`/workspace/offers/${offer.id}`} key={offer.id}><div><strong>{offer.requests?.title ?? terms?.scope ?? "Service offer"}</strong><p>{terms ? `${terms.amount} ${terms.currency} · version ${terms.version}` : `Current version ${offer.current_version}`} · {offer.status === "submitted" || offer.status === "countered" ? "Open the current terms" : "View booking history"}</p></div><span>{offer.status}</span><ArrowRight /></Link>; })}</div> : <EmptyState title="No supplier offers" body="Open a relevant request to submit exact scope, quantity, price, and timing." />}</section>

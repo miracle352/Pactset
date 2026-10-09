@@ -120,6 +120,17 @@ npx next build --webpack
 
 Reviewers are not required to set up the project locally.
 
+## Local focused-experience review before the next Preview update
+
+This checkpoint is intentionally local. Before a future protected-Preview update, replay `node scripts/qa/verify-glass-redesign.mjs`, then privately verify:
+
+1. Signed out: Get started exposes exactly organizer, supplier, and crew routes; mobile exposes the same destinations.
+2. Signed in: the landing header shows one Open workspace action, one account menu, and a distinct Sign out action.
+3. Supplier: Requests → offer → accepted booking → wallet/payment remains the real-data path; no sample agreement is granted to a new account.
+4. Wallet: the compact header control opens the real picker; an unavailable or locked Freighter leaves ordinary workspace use available.
+5. Reduced motion: text is immediately visible, Lenis animation is disabled by preference, and preparation content remains understandable without movement.
+6. Do not mark username sign-in, confirmation email, recovery email, or real Freighter signing verified until their secure deployed/private flows pass.
+
 ## Wallet discovery and recipient payout review
 
 For a newly registered supplier, use the real authenticated workspace rather than **Solo Test Lab**:

@@ -41,7 +41,7 @@ Motion personality is premium and restrained. The standard easing is `cubic-bezi
 - Architectural SVGs carry tiny linear gold dash signals; entire paths never glow.
 - Buttons use small lift/press feedback and directional arrow travel. Financial confirmation controls keep stable dimensions.
 - Reduced motion removes line travel, entrance motion, smooth scrolling and positional hover changes while retaining color and border feedback.
-- Native CSS/SVG is preferred for this bounded motion. GSAP is reserved for a future sequence that genuinely requires timeline coordination; it must use scoped cleanup and transform/opacity animation.
+- Native CSS/SVG handles structural line signals and the hero settle. GSAP coordinates the one-time landing reveals and interactive preparation timeline; Lenis is limited to the public landing page. Both are cleaned up on navigation, leave content visible before initialization, and are disabled or flattened for reduced motion.
 
 ## Product and trust model
 

@@ -4,6 +4,15 @@ import Link from "next/link";
 
 type Role = "organizer" | "supplier" | "crew" | "support";
 
+export function WorkspaceNextStep({ accountRole, complete, href }: { accountRole: Exclude<Role, "support">; complete: boolean; href: string }) {
+  const copy = {
+    organizer: { title: complete ? "Continue your event plan" : "Create your first event", body: complete ? "Open the latest event to review its requests, bookings, deadlines, and next decisions." : "Set the date, place, timezone, attendance, requirements, and budget in a private saved draft.", action: complete ? "Open events" : "Create event" },
+    supplier: { title: complete ? "Review matching requests" : "Finish your service profile", body: complete ? "Your services and availability can now be matched with eligible published requests." : "Add the services, working area, pricing units, availability, and capacity organizers need to evaluate.", action: complete ? "Find requests" : "Complete profile" },
+    crew: { title: complete ? "Review eligible opportunities" : "Add your skills and availability", body: complete ? "Your saved skills and availability can now be matched with eligible event shifts." : "Add your working area, skills, rates, and availability before responding to work.", action: complete ? "Find opportunities" : "Complete profile" },
+  }[accountRole];
+  return <section className="next-step workspace-first-step" aria-labelledby={`workspace-next-${accountRole}`}><Compass aria-hidden="true" /><div><p>Your next step</p><h2 id={`workspace-next-${accountRole}`}>{copy.title}</h2><span>{copy.body}</span></div><Link href={href}>{copy.action} <ArrowRight aria-hidden="true" /></Link></section>;
+}
+
 export function AgreementNextStep({ role, agreementId, walletReady, escrowStatus, conversionConfirmed, milestoneStatuses }: { role: Role; agreementId: string; walletReady: boolean; escrowStatus?: string | null; conversionConfirmed: boolean; milestoneStatuses: string[] }) {
   let title = "Review this booking", body = "Check the accepted terms and current ledger state before taking action.", href = "#transactions", actor = "You";
   if (!walletReady && role !== "support") { title = "Connect your Testnet wallet"; body = "Verify ownership before creating an escrow, funding, submitting evidence, or receiving a release."; href = "/settings/wallet"; }

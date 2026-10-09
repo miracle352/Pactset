@@ -4,7 +4,7 @@ import { ArrowRight, CheckCircle, Eye, EyeSlash, WarningCircle } from "@phosphor
 import { useActionState, useState } from "react";
 import { initialFormState, type FormState } from "@/lib/form-state";
 
-type Field = { name: string; label: string; type?: string; autoComplete?: string; defaultValue?: string; options?: { value: string; label: string }[] };
+type Field = { name: string; label: string; type?: string; autoComplete?: string; defaultValue?: string; options?: { value: string; label: string }[]; required?: boolean };
 
 function PasswordField({ field, value }: { field: Field; value?: string }) {
   const [visible, setVisible] = useState(false);
@@ -17,13 +17,13 @@ export function AuthForm({ action, submitLabel, fields, next, footnote }: { acti
     <form className="auth-form glass-panel" action={formAction}>
       {next && <input type="hidden" name="next" value={next} />}
       {fields.map((field) => (
-        field.type === "password" ? <PasswordField key={field.name} field={field} value={state.fields?.[field.name]} /> : <label key={field.name} htmlFor={`auth-${field.name}`}>{field.label}
+        field.type === "hidden" ? <input key={field.name} type="hidden" name={field.name} value={field.defaultValue} /> : field.type === "password" ? <PasswordField key={field.name} field={field} value={state.fields?.[field.name]} /> : <label key={field.name} htmlFor={`auth-${field.name}`}>{field.label}
           {field.options ? (
             <select id={`auth-${field.name}`} name={field.name} defaultValue={state.fields?.[field.name] ?? field.defaultValue} required>
               {field.options.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
             </select>
           ) : (
-            <input id={`auth-${field.name}`} name={field.name} type={field.type ?? "text"} autoComplete={field.autoComplete} defaultValue={state.fields?.[field.name] ?? field.defaultValue} required />
+            <input id={`auth-${field.name}`} name={field.name} type={field.type ?? "text"} autoComplete={field.autoComplete} defaultValue={state.fields?.[field.name] ?? field.defaultValue} required={field.required ?? true} />
           )}
         </label>
       ))}

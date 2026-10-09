@@ -40,7 +40,7 @@ function walletCancelled(error: unknown) {
   return /reject|declin|cancel|denied/i.test(value);
 }
 
-export function WalletConnection({ initialConnection }: { initialConnection: Connection }) {
+export function WalletConnection({ initialConnection, compact = false, compactLabel }: { initialConnection: Connection; compact?: boolean; compactLabel?: string }) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const openerRef = useRef<HTMLButtonElement>(null);
@@ -107,18 +107,24 @@ export function WalletConnection({ initialConnection }: { initialConnection: Con
 
   const pending = ["checking", "approval-required", "signing", "verifying"].includes(state);
   const alert = ["wrong-network", "cancelled", "unavailable", "timeout", "server-error"].includes(state);
+  const picker = <dialog ref={dialogRef} className="wallet-dialog" aria-labelledby="wallet-dialog-title">
+    <div className="wallet-dialog-heading"><div><p className="kicker">Choose a wallet</p><h2 id="wallet-dialog-title">Connect on Stellar Testnet</h2></div><button type="button" className="icon-button" onClick={closePicker} aria-label="Close wallet selection"><X /></button></div>
+    <button type="button" className="wallet-choice" onClick={connectFreighter}><span className="freighter-mark" aria-hidden="true"><Image src="https://www.freighter.app/favicon.ico" alt="" width={44} height={44} unoptimized /></span><span><strong>Freighter <em>Recommended</em></strong><small>Complete access, ownership verification, and transaction signing</small></span><span className="wallet-availability">Desktop extension</span></button>
+    <div className="wallet-choice is-disabled" aria-disabled="true"><span className="wallet-placeholder" aria-hidden="true">WC</span><span><strong>Mobile and WalletConnect</strong><small>Not enabled until message signing and Pactset verification are implemented end to end</small></span><span className="wallet-availability">Unsupported</span></div>
+    <p className="wallet-mobile-note">On a phone, use Pactset to review bookings; the verified wallet flow currently requires Freighter in a desktop browser.</p>
+    <a className="text-link" href="https://www.freighter.app/" target="_blank" rel="noreferrer">Install Freighter from its official site <ArrowSquareOut /></a>
+  </dialog>;
+  if (compact) return <div className="compact-wallet-launcher">
+    <button ref={openerRef} className="button button-secondary" type="button" onClick={openPicker} disabled={pending}>{pending ? "Waiting for wallet…" : compactLabel ?? (connection ? "Change wallet" : "Connect wallet")}</button>
+    {(pending || alert || state === "confirmed") && <p className={`wallet-message compact ${state}`} role={alert ? "alert" : "status"}>{pending ? <SpinnerGap className="spinner" /> : state === "confirmed" ? <CheckCircle /> : <WarningCircle />}{message}</p>}
+    {picker}
+  </div>;
   return <section className="wallet-card glass-panel" aria-labelledby="wallet-title">
     <div className="wallet-card-heading"><span className="section-icon"><Wallet /></span><div><p className="kicker">Transaction authorization</p><h2 id="wallet-title">Stellar Testnet wallet</h2></div></div>
     {connection ? <div className="wallet-identity"><CheckCircle weight="fill" /><div><strong>{abbreviated(connection.public_key)}</strong><span>{connection.wallet_provider} · verified for new Testnet actions</span></div></div> : <div className="wallet-identity is-disconnected"><LinkBreak /><div><strong>Not connected</strong><span>Your Pactset account remains signed in independently.</span></div></div>}
     <p className={`wallet-message ${state}`} role={alert ? "alert" : "status"}>{pending ? <SpinnerGap className="spinner" /> : state === "confirmed" ? <CheckCircle /> : <WarningCircle />}{message}</p>
     <div className="wallet-button-row"><button ref={openerRef} className={`button ${connection ? "button-secondary" : "button-primary"}`} type="button" onClick={openPicker} disabled={pending}>{connection ? "Verify a different wallet" : "Select wallet"}</button>{connection && <button className="text-button" type="button" onClick={disconnectWallet} disabled={pending}>Disconnect wallet</button>}</div>
     <p className="field-note">Pactset never asks for a seed phrase. A newly verified wallet becomes active for new actions; existing escrows keep their original participant keys.</p>
-    <dialog ref={dialogRef} className="wallet-dialog" aria-labelledby="wallet-dialog-title">
-      <div className="wallet-dialog-heading"><div><p className="kicker">Choose a wallet</p><h2 id="wallet-dialog-title">Connect on Stellar Testnet</h2></div><button type="button" className="icon-button" onClick={closePicker} aria-label="Close wallet selection"><X /></button></div>
-      <button type="button" className="wallet-choice" onClick={connectFreighter}><span className="freighter-mark" aria-hidden="true"><Image src="https://www.freighter.app/favicon.ico" alt="" width={44} height={44} unoptimized /></span><span><strong>Freighter <em>Recommended</em></strong><small>Complete access, ownership verification, and transaction signing</small></span><span className="wallet-availability">Desktop extension</span></button>
-      <div className="wallet-choice is-disabled" aria-disabled="true"><span className="wallet-placeholder" aria-hidden="true">WC</span><span><strong>Mobile and WalletConnect</strong><small>Not enabled until message signing and Pactset verification are implemented end to end</small></span><span className="wallet-availability">Unsupported</span></div>
-      <p className="wallet-mobile-note">On a phone, use Pactset to review bookings; the verified wallet flow currently requires Freighter in a desktop browser.</p>
-      <a className="text-link" href="https://www.freighter.app/" target="_blank" rel="noreferrer">Install Freighter from its official site <ArrowSquareOut /></a>
-    </dialog>
+    {picker}
   </section>;
 }
