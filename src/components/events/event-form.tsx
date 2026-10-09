@@ -5,13 +5,12 @@ import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import Link from "next/link";
 import { useActionState } from "react";
 import { initialFormState } from "@/lib/form-state";
-import { testCurrencies } from "@/lib/regions";
+import type { TestCurrency } from "@/lib/regions";
 import { saveEvent } from "@/app/workspace/organizer/events/actions";
 
 const localValue = (value?: string | null, timezone = "UTC") => value ? formatInTimeZone(value, timezone, "yyyy-MM-dd'T'HH:mm") : "";
 
-export function EventForm({ event, countries, timezones }: { event?: Record<string, unknown>; countries: readonly (readonly [string, string])[]; timezones: string[] }) {
-  const currencies = testCurrencies();
+export function EventForm({ event, countries, timezones, currencies }: { event?: Record<string, unknown>; countries: readonly (readonly [string, string])[]; timezones: string[]; currencies: TestCurrency[] }) {
   const bound = saveEvent.bind(null, typeof event?.id === "string" ? event.id : null); const [state, action, pending] = useActionState(bound, initialFormState);
   const get = (key: string, fallback = "") => state.fields?.[key] ?? (event?.[key] == null ? fallback : String(event[key]));
   const equipment = event?.equipment_requirements as { rental?: string[]; purchase?: string[] } | undefined;
