@@ -123,6 +123,15 @@ Perform the real Freighter rehearsal in separate browser profiles against fresh 
 - Verification at this checkpoint: TypeScript passed, Biome passed across 93 files, 14/14 product/security tests passed, and the Next.js 16 production build passed all routes. The new authenticated collaboration screens still require a separate-account browser rehearsal.
 - Next: commit this bounded practical-workflow slice, then implement versioned material event changes. Remaining Phase 2 items—automatic translation, attachments, discovery/radar, replacements, rating eligibility, fuller evidence correction UX, and assisted/manual budget refinement—remain explicit work, not implied by these screens.
 
+## 2026-10-09 acknowledged-change checkpoint
+
+- Local migration `20261009143000_stage_3_event_change_requests.sql` adds versioned event-change proposals and agreement-version-bound impact responses. The organizer records previous/proposed venue, schedule, attendance, preparation-deadline, scope, or price context; every current accepted provider is captured as an affected participant.
+- Providers can accept, decline, or propose a work/price/timing adjustment from the related agreement. Only the affected provider can respond. A changed agreement version makes the proposal stale, assigned support sees it only through an active assigned case, and every proposal/response/cancellation writes an audit event.
+- This deliberately does **not** mutate `agreements`, escrow participants, assets, amounts, or completed work. An accepted event-change request is an acknowledgement record, not a funded agreement amendment. A separate compatible amendment/new-agreement and additional-funding activation path is still required before changed financial terms become active.
+- The organizer can close an open or adjustment-requested proposal and issue a later version. The UI compares previous/proposed values and states that existing terms remain active.
+- Local verification: TypeScript and Biome passed; 15/15 product/security assertions passed; a clean production build passed after removing only the verified generated `.next` directory following a OneDrive `EPERM` lock. The migration is not applied remotely because the Supabase connector became unavailable at the account usage gate. Browser/RLS rehearsal remains unverified.
+- Next bounded phase: design and implement Pactset Go as a separate Soroban contract and disabled-by-default application capability. Do not present independent agreement escrows or this acknowledgement layer as atomic package booking.
+
 ## 2026-10-05 continuation checkpoint
 
 - Crew B and support were created through the `pactset-development` Auth dashboard only after a duplicate check. Their actual strong credentials and UUIDs are stored only in ignored `.stage2a-test-state.local.json`. `crew` and `support` memberships were assigned through the authorized database administration connection and recorded in `audit_events`; `raw_user_meta_data` contains no role or privilege claim. Dashboard inspection confirms global **Confirm email** remains enabled. Fixture auto-confirm did not exercise the real email flow.

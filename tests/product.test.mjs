@@ -189,3 +189,20 @@ test("agreement collaboration is scoped, immutable, and auditable", async () => 
   assert.match(interfaceSource, /Original shown · translation/);
   assert.match(interfaceSource, /neutral human review/i);
 });
+
+test("event changes are version-bound and cannot silently rewrite accepted agreements", async () => {
+  const migration = await read("supabase/migrations/20261009143000_stage_3_event_change_requests.sql");
+  const workflow = await read("src/components/events/event-change-workflow.tsx");
+  for (const table of ["event_change_requests", "event_change_impacts"]) {
+    assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  }
+  assert.match(migration, /agreement_version integer not null/);
+  assert.match(migration, /v_agreement\.offer_version <> v_impact\.agreement_version/);
+  assert.match(migration, /Agreement terms changed; this request is stale/);
+  assert.match(migration, /assigned_support_id = \(select auth\.uid\(\)\)/);
+  assert.match(migration, /security definer\s+set search_path = ''/i);
+  assert.doesNotMatch(migration, /update public\.agreements\s+set/i);
+  assert.match(workflow, /does not rewrite accepted terms, move escrow funds, or imply provider consent/i);
+  assert.match(workflow, /Accept change/);
+  assert.match(workflow, /Propose adjustment/);
+});

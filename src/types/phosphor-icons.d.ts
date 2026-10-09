@@ -4,6 +4,7 @@ declare module "@phosphor-icons/react" {
   type Icon = ComponentType<IconProps>;
   export const ArrowRight: Icon;
   export const ArrowSquareOut: Icon;
+  export const ArrowsClockwise: Icon;
   export const CheckCircle: Icon;
   export const ChatCircleDots: Icon;
   export const ClockCounterClockwise: Icon;

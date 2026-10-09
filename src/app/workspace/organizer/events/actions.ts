@@ -61,3 +61,57 @@ export async function createRequest(eventId: string, _: FormState, formData: For
   revalidatePath("/workspace/organizer"); revalidatePath(`/workspace/organizer/events/${eventId}`);
   return { status: "success", message: formData.get("intent") === "publish" ? "Request published to eligible providers." : "Request saved privately.", fields, entityId: data.id };
 }
+
+export async function proposeEventChange(eventId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await requireAccount("organizer");
+  const fields = formFields(formData);
+  const parsed = z.object({
+    changeType: z.enum(["venue", "schedule", "attendance", "scope", "price", "deadline"]),
+    reason: z.string().trim().min(10).max(2000),
+    timezone: z.string().refine((value) => timezones().includes(value)),
+    venueAddress: z.string().trim().max(240).optional(),
+    startsAt: z.string().optional(), endsAt: z.string().optional(), preparationDeadline: z.string().optional(),
+    attendeeCount: z.string().optional(), venueCapacity: z.string().optional(),
+    impactNote: z.string().trim().max(2000).optional(),
+  }).safeParse(fields);
+  if (!parsed.success) return { status: "error", message: "Describe the proposed value and why the event is changing.", fields };
+  const value = parsed.data;
+  let proposedValues: Record<string, string | number>;
+  try {
+    if (value.changeType === "venue") proposedValues = { venue_address: z.string().min(3).parse(value.venueAddress) };
+    else if (value.changeType === "schedule") proposedValues = { starts_at: fromZonedTime(z.string().min(10).parse(value.startsAt), value.timezone).toISOString(), ends_at: fromZonedTime(z.string().min(10).parse(value.endsAt), value.timezone).toISOString() };
+    else if (value.changeType === "attendance") proposedValues = { attendee_count: z.coerce.number().int().positive().parse(value.attendeeCount), venue_capacity: z.coerce.number().int().positive().parse(value.venueCapacity) };
+    else if (value.changeType === "deadline") proposedValues = { preparation_deadline: fromZonedTime(z.string().min(10).parse(value.preparationDeadline), value.timezone).toISOString() };
+    else proposedValues = { [value.changeType === "scope" ? "scope_note" : "price_note"]: z.string().min(5).parse(value.impactNote) };
+  } catch { return { status: "error", message: "Complete the proposed values for this type of change.", fields }; }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("propose_event_change", { p_event_id: eventId, p_change_type: value.changeType, p_reason: value.reason, p_proposed_values: proposedValues });
+  if (error) return { status: "error", message: error.message.includes("awaiting") ? "Another event change is still awaiting participant responses." : "The change request could not be saved. Existing event and agreement terms are unchanged.", fields };
+  revalidatePath(`/workspace/organizer/events/${eventId}`);
+  return { status: "success", message: "Change proposed. Existing agreement terms remain active while affected providers respond." };
+}
+
+export async function respondEventChange(agreementId: string, impactId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await requireAccount();
+  const fields = formFields(formData);
+  const parsed = z.object({ response: z.enum(["accepted", "adjustment_requested", "declined"]), reason: z.string().trim().min(3).max(2000), adjustmentNote: z.string().trim().max(2000).optional() }).safeParse(fields);
+  if (!parsed.success) return { status: "error", message: "Choose a response and record your reason.", fields };
+  if (parsed.data.response === "adjustment_requested" && (parsed.data.adjustmentNote?.length ?? 0) < 5) return { status: "error", message: "Describe the work, price, or timing adjustment you need.", fields };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("respond_event_change", { p_impact_id: impactId, p_response: parsed.data.response, p_reason: parsed.data.reason, p_proposed_implications: parsed.data.adjustmentNote ? { note: parsed.data.adjustmentNote } : {} });
+  if (error) return { status: "error", message: "The response was not saved. Refresh to confirm that the agreement version is still current.", fields };
+  revalidatePath(`/workspace/agreements/${agreementId}/payment`);
+  return { status: "success", message: parsed.data.response === "accepted" ? "Acknowledgement recorded. Your accepted agreement remains unchanged until a compatible amendment is separately accepted and funded." : "Your response was recorded without changing the existing agreement." };
+}
+
+export async function cancelEventChange(eventId: string, changeId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await requireAccount("organizer");
+  const fields = formFields(formData);
+  const parsed = z.object({ reason: z.string().trim().min(3).max(2000) }).safeParse(fields);
+  if (!parsed.success) return { status: "error", message: "Record why this proposal is being closed.", fields };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("cancel_event_change", { p_change_id: changeId, p_reason: parsed.data.reason });
+  if (error) return { status: "error", message: "The proposal could not be closed. Refresh to check its current status.", fields };
+  revalidatePath(`/workspace/organizer/events/${eventId}`);
+  return { status: "success", message: "Proposal closed. Existing event and agreement terms were not changed." };
+}
