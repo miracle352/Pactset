@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const evidenceDir = "docs/screenshots";
+const evidenceDir = "docs/screenshots/architectural-system";
 
 test("capture desktop light and dark evidence", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium", "desktop evidence only");
@@ -9,15 +9,16 @@ test("capture desktop light and dark evidence", async ({ page }, testInfo) => {
   page.on("pageerror", (error) => errors.push(error.message));
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Every detail/ })).toBeVisible();
-  await page.screenshot({ path: `${evidenceDir}/stage-1-light-desktop.png`, fullPage: true });
+  await expect(page.getByRole("heading", { name: /A thousand moving parts/ })).toBeVisible();
+  await page.screenshot({ path: `${evidenceDir}/landing-light-1440.png`, fullPage: true });
   await page.getByRole("button", { name: "Dark theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.screenshot({ path: `${evidenceDir}/stage-1-dark-desktop.png`, fullPage: true });
+  await page.screenshot({ path: `${evidenceDir}/landing-dark-1440.png`, fullPage: true });
   expect(errors).toEqual([]);
 });
 
 test("capture mobile light and dark evidence", async ({ page }, testInfo) => {
+  test.setTimeout(60_000);
   test.skip(testInfo.project.name !== "mobile-chromium", "mobile evidence only");
   const failed: string[] = [];
   page.on("requestfailed", (request) => {
@@ -27,11 +28,11 @@ test("capture mobile light and dark evidence", async ({ page }, testInfo) => {
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Every detail/ })).toBeVisible();
-  await page.screenshot({ path: `${evidenceDir}/stage-1-light-mobile.png`, fullPage: true });
+  await expect(page.getByRole("heading", { name: /A thousand moving parts/ })).toBeVisible();
+  await page.screenshot({ path: `${evidenceDir}/landing-light-390.png`, fullPage: true });
   await page.getByRole("button", { name: "Dark theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await page.screenshot({ path: `${evidenceDir}/stage-1-dark-mobile.png`, fullPage: true });
+  await page.screenshot({ path: `${evidenceDir}/landing-dark-390.png`, fullPage: true });
   expect(failed).toEqual([]);
 });
 

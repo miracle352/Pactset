@@ -4,19 +4,21 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("landing implements the approved architectural hero and footer without external icon packages", async () => {
+test("landing implements the Pactset architectural system without sample-brand copy", async () => {
   const page = await read("src/app/page.tsx");
-  const source = await read("src/components/landing/architectural-landing.tsx");
-  assert.match(page, /ArchitecturalLanding/);
-  assert.match(source, /Build ideas people/);
-  assert.match(source, /remember\./);
-  assert.match(source, /DIGITAL CREATIVE PLATFORM/);
-  assert.match(source, /EXPLORE FOOTER/);
-  assert.match(source, /VELORA/);
-  assert.match(source, /premium_photo-1665426465884-d2361b53a866/);
-  assert.match(source, /Copyright © \{year\} Velora Studio/);
-  assert.match(source, /prefers-reduced-motion:reduce/);
-  assert.doesNotMatch(source, /lucide|framer-motion|font-awesome/i);
+  const footer = await read("src/components/landing/landing-footer.tsx");
+  const styles = await read("src/app/globals.css");
+  assert.match(page, /A thousand moving parts/);
+  assert.match(page, /One seamless experience/);
+  assert.match(page, /shared plan/);
+  assert.match(page, /Plan an event/);
+  assert.match(page, /Explore demo/);
+  assert.match(styles, /photo-1519608487953-e999c86e7455/);
+  assert.match(styles, /#061f1e/i);
+  assert.match(styles, /#dfa12d/i);
+  assert.match(styles, /prefers-reduced-motion:reduce/);
+  assert.match(footer, /Copyright © \{new Date\(\)\.getFullYear\(\)\} Pactset/);
+  assert.doesNotMatch(`${page}\n${footer}`, /VELORA|creative platform/i);
 });
 
 test("public onboarding excludes support from selectable roles", async () => {
@@ -39,11 +41,10 @@ test("the global test-currency catalogue stays separate from provisioned Stellar
   assert.match(preferences, /never changes the settlement currency of an existing agreement/);
 });
 
-test("pavilion fallback is scenery-only and not represented as interactive 3D", async () => {
-  const source = await read("src/components/pavilion/pavilion-scene.tsx");
-  assert.match(source, /pavilion-light\.webp/);
-  assert.match(source, /pavilion-dark\.webp/);
-  assert.doesNotMatch(source, /interactive 3D|temporary label|browser frame/i);
+test("the retired pavilion direction is not mounted on the landing page", async () => {
+  const page = await read("src/app/page.tsx");
+  assert.doesNotMatch(page, /PavilionScene|pavilion-scene|from ["']three["']/i);
+  assert.match(page, /ArchitecturalLines/);
 });
 
 test("Stage 2A migration enforces authorization and concurrency boundaries", async () => {

@@ -2,9 +2,9 @@ import { expect, test } from "@playwright/test";
 
 test("landing navigation and demo boundary are honest", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Every detail/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /A thousand moving parts/ })).toBeVisible();
   await expect(page.getByText(/Stage 1|interactive 3D arrives|working brand/i)).toHaveCount(0);
-  await expect(page.locator(".pavilion-scene img")).toHaveCount(2);
+  await expect(page.locator(".pavilion-scene, canvas")).toHaveCount(0);
   await page.getByRole("link", { name: "Explore demo" }).first().click();
   await expect(page).toHaveURL(/\/demo$/);
   await expect(page.getByText(/No person, provider, wallet, payment, rating, or transaction/)).toBeVisible();
@@ -33,7 +33,7 @@ test("landing remains usable at required widths and enlarged text", async ({ pag
   for (const viewport of viewports) {
     await page.setViewportSize(viewport);
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: /Every detail/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /A thousand moving parts/ })).toBeVisible();
     await expect(page.getByRole("link", { name: "Plan an event", exact: true }).first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.getByRole("button", { name: "Dark theme" }).click();
@@ -44,20 +44,19 @@ test("landing remains usable at required widths and enlarged text", async ({ pag
   await page.setViewportSize({ width: 390, height: 650 });
   await page.goto("/");
   await page.addStyleTag({ content: "html { font-size: 125% !important; }" });
-  await expect(page.getByRole("heading", { name: /Every detail/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /A thousand moving parts/ })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-test("mobile menu and deferred planning action do not compete", async ({ page }) => {
+test("mobile menu exposes real landing destinations", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 650 });
   await page.goto("/");
-  const stickyAction = page.locator(".mobile-plan-bar");
-  await expect(stickyAction).toHaveAttribute("data-visible", "false");
-  await page.locator(".journey-section").scrollIntoViewIfNeeded();
-  await expect(stickyAction).toHaveAttribute("data-visible", "true");
   await page.getByRole("button", { name: "Open menu" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-menu-open", "true");
-  await expect(stickyAction).toHaveCSS("pointer-events", "none");
+  const menu = page.getByRole("navigation", { name: "Mobile navigation" });
+  await expect(menu.getByRole("link", { name: "How it works" })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "For your role" })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Plan an event" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "Open menu" })).toBeVisible();
 });
@@ -124,18 +123,25 @@ test("desktop role-card hover lifts without affecting layout", async ({ page }, 
   test.skip(testInfo.project.name !== "desktop-chromium", "fine-pointer hover check");
   await page.goto("/onboarding");
   const card = page.getByRole("link", { name: /Explore organizer demo/i });
-  const boxBefore = await card.boundingBox();
+  await expect(card).toBeVisible();
+  await card.scrollIntoViewIfNeeded();
+  const sizeBefore = await card.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    return { width: box.width, height: box.height };
+  });
   await card.hover();
   await expect(card).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -4)");
   await expect(card.locator(".role-choice-arrow")).toHaveCSS("transform", "matrix(1, 0, 0, 1, 4, 0)");
-  const boxAfter = await card.boundingBox();
-  expect(boxAfter?.height).toBe(boxBefore?.height);
-  expect(boxAfter?.width).toBe(boxBefore?.width);
+  const sizeAfter = await card.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    return { width: box.width, height: box.height };
+  });
+  expect(sizeAfter).toEqual(sizeBefore);
 });
 
 test("role shells stay fixture-only", async ({ page }) => {
   await page.goto("/organizer");
-  await expect(page.getByText("Fictional fixtures")).toBeVisible();
+  await expect(page.getByText("Sample data · not your account")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Events and drafts" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Create an account" })).toHaveAttribute("href", "/auth/sign-up?role=organizer");
   await expect(page.getByText("Awaiting Testnet funding")).toBeVisible();

@@ -1,69 +1,72 @@
 # Pactset design standard
 
-Status: approved landing checkpoint direction, October 2026. This document makes the task-level Personal Web3 and DeFi Design Standard durable and applies it specifically to Pactset.
+Status: approved architectural event-operations direction, October 2026. This document makes the owner's Personal Web3 and DeFi Design Standard durable for Pactset.
 
-## Current landing authority — 2026-10-08
+## Current visual authority
 
-The owner's latest detailed landing prompt supersedes conflicting earlier landing composition and content instructions. The current `/` checkpoint is deliberately limited to exactly two connected sections: a cinematic editorial hero and an overlapping architectural footer. It has no navigation bar or additional product sections. Its visible copy is the supplied Velora copy, its palette is deep teal `#061f1e` / `#103f3c`, off-white `#f3f5ef`, and architectural gold `#dfa12d`, and its only image is the exact owner-supplied Unsplash URL.
+The owner's 2026-10-08 adaptation brief is the primary visual direction. Its supplied reference is a source for color, typography, cinematic image treatment, architectural lines, gold signal motion, arrow controls and footer structure—not literal content or a two-section template.
 
-The hero/footer uses real semantic HTML, inline SVG geometry/icons, native scroll behavior, and CSS/SVG motion. It adds no runtime package. Gold line signals, the restrained logo float, hover depth and smooth in-page movement stop or become effectively static under `prefers-reduced-motion`. Mobile is a one-column editorial composition rather than a compressed desktop grid.
-
-This checkpoint does not rename Pactset's application, alter metadata, or replace authenticated routes. The older pavilion narrative below remains preserved as product history and an explicitly superseded landing direction, not as a concurrent requirement for the current `/` route. Authentication, role, wallet, payment and support design rules remain authoritative for the rest of the frontend. Extending the new teal/gold language beyond the landing requires a separate route-by-route review so practical financial surfaces do not become decorative.
-
-## Superseded pavilion reference and adaptation boundary
-
-The single visual reference for this checkpoint is [Integrated Biosciences](https://integratedbio.com/). Pactset adapts its principles: an immediately usable editorial entrance, one substantial evolving backdrop, a compact floating navigation frame, numbered full-viewport story beats, strong typography, and a shorter portrait mobile composition. Pactset does not copy its branding, scientific objects, media, wording, or distinctive compositions.
-
-The reference is a pacing and hierarchy guide, not page content. The Pactset object remains an original event pavilion whose physical venue, equipment, crew dependencies, and payment path change with the product story.
+The previous pavilion/3D-building direction is retired. It must not be mounted, combined with this system, or represented as current roadmap work. Old source and evidence may remain in Git history for recovery, but the active product uses editorial photography, SVG architecture and practical product surfaces.
 
 ## Creative thesis
 
-Pactset is an illuminated pavilion: many independent rooms, people, deadlines, and payments become one legible shared structure. The venue is the central visual object. Warm interior light represents accountable work moving from plan to release; it must never be used to imply that an unconfirmed payment or incomplete task is ready.
+Pactset is an event blueprint in motion. Fine architectural lines represent dependencies among venue, suppliers, crew, evidence and payment. Small gold signals identify a decision or responsibility moving through that plan. The signal is illustrative navigation language, never a claim that work or money is confirmed.
 
-The public story is cinematic and architectural. Authenticated work is calmer, denser, and operational. The product must not look like a generic SaaS dashboard or stereotypical neon crypto interface.
+The public experience is cinematic and editorial. Authenticated work is quieter, denser and operational. Financial pages prioritize exact amounts, assets, participants and state over spectacle.
 
-## Visual system
+## Visual tokens
 
-- Dark mode begins with deep black and smoked navy, warm architectural light, restrained indigo/periwinkle signals, opal reflections, and readable near-white type.
-- Light mode is the same world in pearl daylight: cool white surfaces, quiet lavender/icy-blue reflections, dark ink, and solid financial panels.
-- Display typography is wide and editorial with deliberate line breaks. Interface and numeric type stay compact and highly readable.
-- Landing composition may be spacious; operational pages use tighter rhythm and role-specific hierarchy. Financial information uses dense, solid-backed surfaces inside the glass system.
-- Glass communicates enclosure and layering. It is not a decorative effect for every card. Avoid interchangeable card grids, glowing spheres, random crypto imagery, and excessive purple gradients.
-- Controls use stable dimensions, visible focus, generous touch targets, and semantic status color. Back/navigation controls keep an always-visible arrow, raised edge, hover lift, pressed depth, and reduced-motion color-only feedback.
+- Deep teal `#061f1e`: primary dark ground and high-trust financial context.
+- Dark green `#103f3c`: secondary dark sections, framing and footer surfaces.
+- Gold `#dfa12d`: decisions, controlled emphasis, current step and traveling line signals.
+- Off-white `#f3f5ef`: dark-theme foreground and light-theme ground.
+- Light mode uses off-white and pale botanical neutrals with dark teal ink. It is the same identity in daylight, not an unrelated palette.
+- Typography uses Inter/system sans-serif. Georgia/Times italic is reserved for a few editorial phrases such as “shared plan,” never routine labels or numbers.
+- Borders are fine and structural. Glass is selective framing; forms and financial data use dense, readable surfaces.
+- Radius is modest in controls and generous only for large architectural containers.
 
-## Landing narrative and motion
+## Composition and responsive behavior
 
-The real interactive pavilion is a progressively enhanced Three.js scene, never a screenshot of a website. It must use real scene lights and reflective materials so the warm interior visibly affects the floor, glass, and metal.
+- Landing sections vary: editorial split, numbered rail, role selector, architectural date composition, payment sequence, support sequence, FAQ and final CTA.
+- The landing hero uses the owner-supplied Unsplash image with layered teal overlays and real HTML content. It contains no embedded website screenshot or 3D scene.
+- Mobile is composed vertically with shorter line lengths, a complete menu, stacked role selector, one-column dependencies and reachable actions. It is never a cropped desktop canvas.
+- Workspaces remain role-specific: organizer readiness/budget/decisions; supplier services/requests/bookings/earnings; crew jobs/timing/evidence/earnings; support assigned cases/evidence/authorized decisions.
+- Forms, tables, wallet dialogs and transaction reviews never place decorative imagery behind decision-critical text.
 
-The pavilion is a grounded, framed glass-and-metal event structure rather than an abstract tunnel. Its foundation, structural bays, pitched roof panels, glass walls, stage, tables, chairs, equipment cases, and small crew figures form one readable architectural object. On first entry those parts complete one short foundation-to-prepared-event assembly, then settle. Scroll may adjust camera and lighting emphasis, but must not restart the build, spin the venue, or add floating labels and wires.
+## Motion language
 
-1. Introduce the venue with a gentle entrance while the headline and actions are immediately usable.
-2. **Plan and book:** reveal venue, equipment, suppliers, and crew dependencies.
-3. **Prepare and review evidence:** assemble essential bookings and show the idea of accountable preparation.
-4. **Approve milestone payments:** trace approval and Testnet release without presenting illustrative light as live state.
+Motion personality is premium and restrained. The standard easing is `cubic-bezier(.22, 1, .36, 1)` with a quick/standard/slow duration palette around 160/280/700ms.
 
-Pointer depth is restrained; there is no continuous toy-like spin or scroll hijacking. Theme changes transition scene lighting from pearl daylight to warm evening. Mobile gets portrait framing and shorter sections. Reduced motion, data-saving devices, and missing WebGL receive a polished static pavilion fallback. Rendering pauses offscreen and device pixel ratio is capped.
+- Hero photography settles once with scale and opacity while the headline remains immediately usable.
+- Architectural SVGs carry tiny linear gold dash signals; entire paths never glow.
+- Buttons use small lift/press feedback and directional arrow travel. Financial confirmation controls keep stable dimensions.
+- Reduced motion removes line travel, entrance motion, smooth scrolling and positional hover changes while retaining color and border feedback.
+- Native CSS/SVG is preferred for this bounded motion. GSAP is reserved for a future sequence that genuinely requires timeline coordination; it must use scoped cleanup and transform/opacity animation.
 
 ## Product and trust model
 
 - Account sign-in controls identity and database permissions. Wallet access and ownership verification are separate.
-- Wallet states distinguish unavailable, approval required, cancelled, wrong network, rejected signature, server failure, timeout, account change, pending, confirmed, reverted, and expired.
-- “Pay with”, agreement settlement asset, and “receive as” are separate concepts.
-- Estimated quotes, signed requests, submitted transactions, confirmed ledger results, simulated withdrawals, and final released funds are labelled distinctly.
+- Wallet states distinguish unavailable, approval required, cancelled, wrong network, rejected signature, server failure, timeout, account change, pending, confirmed, reverted and expired.
+- “Pay with”, agreement settlement asset and “receive as” are separate concepts.
+- Estimated quotes, signed requests, submitted transactions, confirmed ledger results, simulated withdrawals and final released funds are labelled distinctly.
 - Test assets have no monetary value. Sandbox withdrawal is a rehearsal, not a bank or anchor payout.
-- AI may assist planning, translation, and review; it never authorizes payments or resolves fraud/disputes.
+- AI may assist planning, translation and review; it never authorizes payments or resolves fraud/disputes.
+
+## Navigation and interaction
+
+- Public navigation has working How it works, For your role, Sign in, theme and Plan an event destinations.
+- Authenticated navigation identifies the current role, validates role switching server-side, shows the active destination, exposes wallet/settings/account/sign-out and preserves safe parent links.
+- Fictional demonstrations carry persistent sample-data boundaries and a route back to the authenticated workspace.
+- Every enabled action works or explains its prerequisite. Empty and failed queries are distinct.
+- Focus is visible, touch targets are at least 44px where practical, dialogs support keyboard use, and content remains usable with enlarged text.
 
 ## Role composition
 
-- Organizer: readiness, budget, decisions, requests, offers, agreements, funding, and approval.
-- Supplier: services/inventory, relevant requests, offers, bookings, evidence, and earnings.
-- Crew: skills, shifts, schedule conflicts, preparation countdowns, evidence, and earnings.
-- Support: assigned cases only, authorized evidence, decision reasons, timestamps, and audited actions. A database role alone never authorizes on-chain movement.
-
-## Responsive and accessibility rules
-
-Mobile is an intentional composition, not a cropped desktop view. Every destination remains reachable through compact primary navigation plus More. All interactive UI supports keyboard use, visible focus, Escape and focus return for dialogs, enlarged text, reduced motion, and at least 44px touch targets. No essential information or action is hover-only.
+- Organizer: event readiness, budget, decisions, requests, offers, agreements, funding and approval.
+- Supplier: services/inventory, relevant requests, offers, bookings, evidence and earnings.
+- Crew: skills, shifts, conflicts, preparation countdowns, evidence and earnings.
+- Support: assigned cases only, authorized evidence, decision reasons, timestamps and audited actions. A database role alone never authorizes on-chain movement.
 
 ## Deferred contract direction: Pactset Go
 
-Pactset Go is the next bounded contract milestone after the repaired wallet/payment journey. It will cover exact versioned bundle terms, authorized participants, funding and expiry checks, and atomic all-or-none activation within an actual transaction boundary. Existing independent escrows do not provide atomic package booking. Earned payments and disputed funds remain protected; organizer-approved replacements require separate funding.
+Pactset Go remains a later bounded contract milestone. It will cover exact versioned bundle terms, authorized participants, funding and expiry checks, and atomic all-or-none activation within an actual transaction boundary. Existing independent escrows do not provide atomic package booking. Earned payments and disputed funds remain protected; organizer-approved replacements require separate funding.

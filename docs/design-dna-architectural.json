@@ -1,0 +1,47 @@
+{
+  "name": "Pactset architectural event operations",
+  "version": "2026-10-08",
+  "design_system": {
+    "color": {
+      "background_dark": "#061f1e",
+      "surface_dark": "#103f3c",
+      "accent": "#dfa12d",
+      "foreground_dark": "#f3f5ef",
+      "background_light": "#f3f5ef",
+      "foreground_light": "#092826",
+      "semantic_usage": "Gold marks decisions and movement; teal carries trust and structure; status colors remain semantic."
+    },
+    "typography": {
+      "interface": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+      "editorial_emphasis": "Georgia, Times New Roman, serif italic",
+      "numerical": "Interface family with tabular numerals"
+    },
+    "shape": {
+      "control_radius": "4px to 12px",
+      "panel_radius": "20px",
+      "architectural_container_radius": "28px",
+      "border": "1px structural teal/off-white alpha"
+    },
+    "motion": {
+      "personality": "premium, restrained, directional",
+      "easing": "cubic-bezier(.22, 1, .36, 1)",
+      "durations_ms": [160, 280, 700],
+      "reduced_motion": "No line travel, entrance movement, smooth scrolling, or positional hover feedback"
+    }
+  },
+  "design_style": {
+    "metaphor": "An event blueprint in motion",
+    "public_mood": "cinematic, editorial, composed",
+    "product_mood": "calm, exact, operational",
+    "composition": "asymmetric editorial sections and role-specific workspaces rather than repeated generic cards",
+    "imagery": "owner-supplied night architecture/city image with layered teal treatment",
+    "trust_rule": "Illustrative gold signals never imply readiness, approval, funding, or ledger confirmation"
+  },
+  "visual_effects": {
+    "webgl": { "enabled": false, "reason": "The previous pavilion/3D-building direction is retired" },
+    "svg_lines": { "enabled": true, "behavior": "Fine architectural paths with short traveling gold dash signals" },
+    "image_treatment": { "enabled": true, "behavior": "Cover image, teal left/bottom overlays, restrained gold radial warmth, subtle grain" },
+    "scroll_hijacking": { "enabled": false },
+    "performance_tier": "lightweight CSS and SVG"
+  }
+}
