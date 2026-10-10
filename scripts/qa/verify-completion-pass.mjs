@@ -33,9 +33,12 @@ async function signIn(page, account, next) {
   const menuButton = page.getByRole("button", { name: "Open menu" });
   await menuButton.click();
   await page.getByRole("navigation", { name: "Mobile navigation" }).waitFor();
+  const menuHeight = await page.getByRole("navigation", { name: "Mobile navigation" }).evaluate((menu) => menu.getBoundingClientRect().height);
+  if (menuHeight < 400) throw new Error(`Mobile navigation is only ${menuHeight}px tall`);
   const roleHrefs = await page.getByRole("navigation", { name: "Mobile navigation" }).getByRole("link").evaluateAll((links) => links.filter((link) => ["Organize an event", "Offer services", "Join the crew"].includes(link.textContent?.trim() ?? "")).map((link) => link.getAttribute("href")));
   if (roleHrefs.length !== 3 || !roleHrefs.every((href) => href?.startsWith("/auth/sign-up/"))) throw new Error(`Mobile role destinations are incomplete: ${JSON.stringify(roleHrefs)}`);
   if (await page.evaluate(() => document.body.style.overflow) !== "hidden") throw new Error("Mobile navigation did not lock background scrolling");
+  await page.screenshot({ path: shot("landing-mobile-menu-open.png"), fullPage: false });
   await page.keyboard.press("Escape");
   if (await page.getByRole("navigation", { name: "Mobile navigation" }).count()) throw new Error("Escape did not close mobile navigation");
   if (!(await menuButton.evaluate((button) => button === document.activeElement))) throw new Error("Mobile menu focus did not return to its trigger");

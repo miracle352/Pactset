@@ -1089,8 +1089,10 @@ button, input, select, textarea { font-family: var(--font-sans); }
   position: fixed;
   z-index: 120;
   top: max(10px, env(safe-area-inset-top));
-  left: 50%;
+  right: 0;
+  left: 0;
   width: min(1180px, calc(100% - 24px));
+  margin-inline: auto;
   min-height: 58px;
   padding: 8px 10px 8px 16px;
   color: #f3f5ef;
@@ -1099,7 +1101,6 @@ button, input, select, textarea { font-family: var(--font-sans); }
   background: rgba(6,31,30,.78);
   box-shadow: 0 18px 60px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08);
   backdrop-filter: blur(20px) saturate(130%);
-  transform: translateX(-50%);
 }
 .pactset-landing > .site-header .brand-word,
 .pactset-landing > .site-header .desktop-nav a,
@@ -1178,7 +1179,7 @@ button, input, select, textarea { font-family: var(--font-sans); }
 @media (max-width:1000px) {
   .pactset-landing > .site-header .desktop-nav,.pactset-landing > .site-header .header-sign-in,.pactset-landing > .site-header .header-plan { display:none; }
   .pactset-landing > .site-header .menu-button { display:grid; }
-  .pactset-landing > .site-header .mobile-menu { color:var(--ink); background:var(--surface-dense); }
+  .pactset-landing > .mobile-menu { color:var(--ink); background:var(--surface-dense); }
   .journey-stage-panel,.evidence-story { grid-template-columns:1fr; }
   .journey-stage-panel { min-height:0; }
 }
@@ -1186,7 +1187,7 @@ button, input, select, textarea { font-family: var(--font-sans); }
 @media (max-width:620px) {
   html { scroll-padding-top:112px; }
   .pactset-landing > .site-header { top:max(6px,env(safe-area-inset-top)); width:calc(100% - 12px); min-height:54px; border-radius:13px; }
-  .pactset-landing > .site-header .mobile-menu { top:calc(66px + env(safe-area-inset-top)); }
+  .pactset-landing > .mobile-menu { top:calc(66px + env(safe-area-inset-top)); }
   .landing-chapters { top:calc(max(6px,env(safe-area-inset-top)) + 62px); width:calc(100% - 24px); overflow-x:auto; scrollbar-width:none; }
   .landing-chapters ol { min-width:470px; }
   .landing-chapters a { justify-content:flex-start; padding-inline:8px; }

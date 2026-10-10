@@ -57,7 +57,7 @@ export function SiteHeader({ authenticated = false }: { authenticated?: boolean 
   }, [open]);
 
   return (
-    <header ref={headerRef} className="site-header glass-panel">
+    <><header ref={headerRef} className="site-header glass-panel">
       <BrandMark />
       <nav className="desktop-nav" aria-label="Primary navigation">
         {links.map((link) => (
@@ -90,12 +90,11 @@ export function SiteHeader({ authenticated = false }: { authenticated?: boolean 
           {open ? <X size={21} /> : <List size={21} />}
         </button>
       </div>
-      {open && (
-        <><button className="mobile-menu-backdrop" type="button" aria-label="Close navigation" onClick={() => { setOpen(false); menuButtonRef.current?.focus(); }} /><nav ref={menuRef} id="mobile-menu" className="mobile-menu glass-panel" aria-label="Mobile navigation">
-          {links.map((link) => <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}</Link>)}
-          {authenticated ? <><Link href="/workspace" onClick={() => setOpen(false)}>Open workspace</Link><Link href="/settings" onClick={() => setOpen(false)}>Profile and settings</Link><Link href="/settings/wallet" onClick={() => setOpen(false)}>Wallet &amp; payments</Link><form action={signOut}><button type="submit">Sign out</button></form></> : <><Link href="/auth/sign-in" onClick={() => setOpen(false)}>Sign in</Link><p className="mobile-menu-label">Get started</p>{signupPaths.map((path) => <Link key={path.href} href={path.href} onClick={() => setOpen(false)}>{path.label}</Link>)}</>}
-        </nav></>
-      )}
-    </header>
+    </header>{open && (
+      <><button className="mobile-menu-backdrop" type="button" aria-label="Close navigation" onClick={() => { setOpen(false); menuButtonRef.current?.focus(); }} /><nav ref={menuRef} id="mobile-menu" className="mobile-menu glass-panel" aria-label="Mobile navigation">
+        {links.map((link) => <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}</Link>)}
+        {authenticated ? <><Link href="/workspace" onClick={() => setOpen(false)}>Open workspace</Link><Link href="/settings" onClick={() => setOpen(false)}>Profile and settings</Link><Link href="/settings/wallet" onClick={() => setOpen(false)}>Wallet &amp; payments</Link><form action={signOut}><button type="submit">Sign out</button></form></> : <><Link href="/auth/sign-in" onClick={() => setOpen(false)}>Sign in</Link><p className="mobile-menu-label">Get started</p>{signupPaths.map((path) => <Link key={path.href} href={path.href} onClick={() => setOpen(false)}>{path.label}</Link>)}</>}
+      </nav></>
+    )}</>
   );
 }
