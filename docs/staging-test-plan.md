@@ -120,6 +120,15 @@ npx next build --webpack
 
 Reviewers are not required to set up the project locally.
 
+## 2026-10-10 frontend Preview verification
+
+- Branch-only delivery: `codex/stage-2b-preview`; Production/main/custom domains were not changed.
+- Stable review URL: `https://pactset-git-codex-stage-2b-preview-miracle352.vercel.app`.
+- Unauthenticated HTTP inspection returned Vercel SSO `302`, `Cache-Control: no-store`, and `X-Robots-Tag: noindex` before the push. The authenticated in-app browser then loaded the new chapter navigation, connected event story, evidence section, preparation countdown and footer from the same URL.
+- A deployed 390×844 interaction opened the viewport-level navigation drawer at 770px high with organizer, supplier and crew choices, six chapter links, dark-only rendering, a split-flap display and `scrollWidth === clientWidth`. A deployed 1440px visual inspection confirmed the compact desktop header, hero actions, photograph and architectural lines.
+- The circular black side control visible in the protected deployed capture belongs to the Vercel Preview toolbar. The black **N** visible in local development captures is the Next.js dev indicator. Neither is Pactset navigation and neither ships as ordinary Production application UI.
+- Real Freighter extension signing, mobile-wallet handoff, confirmation email and recovery email remain private manual checks; fixture signing is not counted as extension evidence.
+
 ## Local focused-experience review before the next Preview update
 
 This checkpoint is intentionally local. Before a future protected-Preview update, replay `node scripts/qa/verify-glass-redesign.mjs`, then privately verify:
