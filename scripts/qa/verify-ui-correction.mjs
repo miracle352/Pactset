@@ -33,6 +33,8 @@ async function verifyLanding(browser, width, height) {
   const page = await context.newPage();
   const errors = watch(page);
   await page.goto(baseURL, { waitUntil: "networkidle" });
+  if (width === 390) await page.screenshot({ path: shot("landing-mobile-390.png"), fullPage: true });
+  if (width === 1440) await page.screenshot({ path: shot("landing-desktop-1440.png"), fullPage: true });
   const geometry = await page.evaluate(() => ({ width: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth }));
   if (geometry.scrollWidth > geometry.width + 1) throw new Error(`Landing ${width} has horizontal overflow: ${JSON.stringify(geometry)}`);
 
@@ -43,8 +45,7 @@ async function verifyLanding(browser, width, height) {
     const menu = page.getByRole("navigation", { name: "Mobile navigation" });
     const menuBox = await menu.boundingBox();
     if (!menuBox || menuBox.y < 54 || menuBox.y + menuBox.height >= height - 8) throw new Error(`Mobile menu ${width} is not content-sized within the viewport: ${JSON.stringify(menuBox)}`);
-    const chapterVisibility = await page.locator(".landing-chapters").evaluate((element) => getComputedStyle(element).visibility);
-    if (chapterVisibility !== "hidden") throw new Error(`Chapter navigation remained ${chapterVisibility} over the ${width}px mobile menu`);
+    if (await page.locator(".landing-chapters").count()) throw new Error("Duplicate sticky chapter navigation is still rendered");
     if ((await page.evaluate(() => document.body.style.overflow)) !== "hidden") throw new Error("Mobile menu did not lock the document");
     if (width === 390) await page.screenshot({ path: shot("mobile-menu-390.png") });
     await page.keyboard.press("Escape");
@@ -52,15 +53,35 @@ async function verifyLanding(browser, width, height) {
     if (!(await trigger.evaluate((element) => element === document.activeElement))) throw new Error("Mobile menu focus did not return to the trigger");
   }
 
-  await page.locator("#preparation").scrollIntoViewIfNeeded();
-  await page.locator(".flap-character.is-flipping").first().waitFor({ state: "visible", timeout: 4_000 });
-  await page.waitForTimeout(1_900);
-  if ((await page.locator("[data-checkpoint].is-complete").count()) !== 4) throw new Error(`Preparation sequence did not complete at ${width}`);
-  await page.getByRole("button", { name: "Replay" }).click();
-  await page.locator(".flap-character.is-flipping").first().waitFor({ state: "visible", timeout: 2_000 });
+  if (await page.getByRole("button", { name: "Replay" }).count()) throw new Error("Replay remains on the landing page");
+  await page.evaluate(() => {
+    window.__pactsetFlapObserved = false;
+    const observer = new MutationObserver(() => {
+      if (document.querySelector(".flap-character.is-flipping")) window.__pactsetFlapObserved = true;
+    });
+    observer.observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ["class"] });
+  });
+  const preparationBounds = await page.locator("#preparation").evaluate((element) => ({ top: element.getBoundingClientRect().top + scrollY, height: element.getBoundingClientRect().height }));
+  await page.locator(".split-flap-countdown").scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => window.__pactsetFlapObserved === true, undefined, { timeout: 4_000 });
+  const earlyReached = await page.locator("[data-checkpoint].is-reached").count();
+  await page.mouse.wheel(0, Math.max(height, preparationBounds.height));
+  await page.waitForTimeout(950);
+  const laterReached = await page.locator("[data-checkpoint].is-reached").count();
+  if (laterReached <= earlyReached) throw new Error(`Preparation progress did not advance with scroll at ${width}: ${earlyReached} -> ${laterReached}`);
+  await page.locator("#review").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(180);
+  if ((await page.locator("[data-checkpoint].is-reached").count()) !== 4) throw new Error(`Preparation scroll progress did not complete at ${width}`);
   if (width === 390) {
     await page.locator(".split-flap-countdown").screenshot({ path: shot("split-flap-mobile-390.png") });
+    await page.evaluate(({ top }) => scrollTo({ top: Math.max(0, top - 84), behavior: "instant" }), preparationBounds);
+    await page.waitForTimeout(240);
     await page.screenshot({ path: shot("preparation-motion-390.png") });
+  }
+  if (width === 1440) {
+    await page.evaluate(({ top }) => scrollTo({ top: Math.max(0, top - 98), behavior: "instant" }), preparationBounds);
+    await page.waitForTimeout(240);
+    await page.screenshot({ path: shot("preparation-motion-desktop-1440.png") });
   }
   if (errors.length) throw new Error(`Landing ${width} runtime errors: ${JSON.stringify(errors)}`);
   results.push({ page: "landing", viewport: `${width}x${height}`, overflow: 0, menu: width <= 430 ? "passed" : "desktop", motion: "observed" });
@@ -94,6 +115,7 @@ for (const viewport of [[360, 740], [390, 620], [430, 844], [768, 900], [1440, 1
   if (!accountBox || accountBox.y < 8 || accountBox.y + accountBox.height > 620) throw new Error(`Account sheet is clipped: ${JSON.stringify(accountBox)}`);
   await page.screenshot({ path: shot("account-sheet-mobile-390.png") });
   await page.getByRole("button", { name: "Close", exact: true }).click();
+  await page.waitForFunction(() => document.body.style.overflow === "");
   if (await page.evaluate(() => document.body.style.overflow)) throw new Error("Account sheet did not restore document scrolling");
 
   await page.locator(".header-wallet-control summary").click();
@@ -137,7 +159,7 @@ for (const viewport of [[360, 740], [390, 620], [430, 844], [768, 900], [1440, 1
   const page = await context.newPage();
   await page.goto(`${baseURL}/#preparation`, { waitUntil: "networkidle" });
   await page.locator("#preparation").scrollIntoViewIfNeeded();
-  if ((await page.locator("[data-checkpoint].is-complete").count()) !== 4) throw new Error("Reduced-motion timeline is not statically complete");
+  if ((await page.locator("[data-checkpoint].is-reached").count()) !== 4) throw new Error("Reduced-motion timeline is not statically complete");
   if (await page.locator(".flap-character.is-flipping").count()) throw new Error("Reduced-motion split flap still animates");
   results.push({ page: "preparation", viewport: "390x844", reducedMotion: "static and complete" });
   await context.close();

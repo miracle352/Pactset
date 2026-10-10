@@ -2,6 +2,27 @@
 
 Last updated: 2026-10-10 (Africa/Lagos)
 
+## 2026-10-10 local landing-motion and deadline correction
+
+- This checkpoint is local only. It was not pushed or deployed, and the existing protected Vercel Preview remains on its prior commit.
+- Removed the second sticky Plan / Book / Prepare / Review / Pay / Ready navigation rail. The compact primary navbar is now the only public navigation; the six-stage story remains inside How it works. Landing anchors have explicit desktop/mobile header offsets.
+- Simplified the public escrow and change/support copy without weakening the Testnet boundary. The landing continues to separate conversion, funding, human evidence review, approval and release.
+- Rebuilt preparation progress as one scroll-linked GSAP sequence. The gold line and leading signal advance and reverse with the visitor, reached checkpoints stay illuminated while progress is beyond them, and category changes animate only the explanation. There is no Replay control. Reduced motion renders the complete static sequence.
+- The illustrative split-flap now starts only when its own panel enters view, flips once from the example start value to the example deadline, and never resets on reverse scroll. Missing, overdue, completed and cancelled real states stay separate, and all real countdowns derive from an absolute instant rather than a drifting decrement.
+- Evidence illustration motion now reveals the submitted evidence, its connection, and the organizer decision in that order; it does not animate an automatic approval or payment release.
+- Agreement deadline history now records who requested/responded and displays the response in the event timezone. The agreement payment view, crew Today/Jobs, and supplier bookings derive their current deadline from the latest accepted extension while preserving the immutable original agreement value. A browser run found and fixed a legacy booking with no joined request row; it now uses a safe UTC fallback rather than crashing.
+- Browser QA passed 360×740, 390×620, 430×844, 768×900 and 1440×1000 in Chromium, plus a 390×620 authenticated supplier workspace and 1440×900 wallet overlay. It verified one navbar, no Replay, scroll advancement/completion, one-time split-flap motion, no horizontal overflow, mobile menu focus return, short-screen account/wallet/More sheets, and a complete reduced-motion state. WebKit is not installed, so real iPhone Safari remains unverified.
+- Evidence is under `docs/screenshots/ui-correction/after/`; the current motion recordings are `docs/recordings/ui-correction/landing-motion-desktop.webm` and `landing-motion-mobile.webm`.
+- Automated gates passed: 16/16 application/security tests, 14/14 Soroban contract tests, TypeScript, Biome, and the Next.js 16.3.8 production build (22 static pages generated). No Supabase migration, email request, wallet signature, Stellar transaction or website deployment was performed.
+- Skills used for this correction: `C:/Users/IYANUOLUWA/.agents/skills/motion-design/SKILL.md`, `gsap-react/SKILL.md`, `gsap-scrolltrigger/SKILL.md`, `design-dna/SKILL.md`, `genjutsu/SKILL.md` with Cast, plus ECC browser-QA and accessibility guidance.
+
+### Still blocked or unfinished
+
+- A fresh organizer-to-supplier Testnet payment needs private first-time Freighter access and transaction signatures. Existing automated contract/fixture proof was not misrepresented as browser-wallet proof, so this checkpoint has no new transaction hash.
+- Confirmation and recovery email links remain unverified; no additional email was requested while delivery/rate-limit status is unknown.
+- The smallest complete replacement workflow is still absent. Implementing it safely requires a reviewed versioned schema/RLS/RPC migration and participant rehearsal in `pactset-development`; no polished local control was added on top of a missing backend.
+- Real accepted-extension persistence across two participant browser profiles, timezone/DST edges, and event-page aggregation remain manual/remote verification work. The local rendering and immutable selection logic are implemented.
+
 ## 2026-10-10 focused overlay and motion correction
 
 - Reproduced the screenshot defects against branch/deployed tip `2703e7c`: public mobile navigation was stretched by simultaneous `top`/`bottom` anchoring, the sticky chapter rail remained independently visible above it, and authenticated mobile sheets were fixed descendants of a blurred header that created the wrong containing block.

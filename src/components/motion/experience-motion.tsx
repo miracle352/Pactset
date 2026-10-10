@@ -32,7 +32,10 @@ export function ExperienceMotion() {
     gsap.ticker.lagSmoothing(0);
 
     let context: gsap.Context | undefined;
-    const animationTimer = window.setTimeout(() => {
+    let cancelled = false;
+    let animationFrame = 0;
+    const initialize = () => {
+      if (cancelled) return;
       context = gsap.context(() => {
         const revealTargets = gsap.utils.toArray<HTMLElement>("[data-motion-reveal]");
         const splitTargets = gsap.utils.toArray<HTMLElement>("[data-split-reveal]");
@@ -69,12 +72,35 @@ export function ExperienceMotion() {
             onEnter: () => gsap.fromTo(copy, { opacity: .35, y: 12 }, { opacity: 1, y: 0, duration: .45, delay: .08, ease: "power2.out", clearProps: "transform,opacity" }),
           });
         });
+
+        const evidence = document.querySelector<HTMLElement>(".evidence-story-visual");
+        if (evidence) {
+          const submission = evidence.querySelector<HTMLElement>("[data-evidence-step='submission']");
+          const connection = evidence.querySelector<HTMLElement>("[data-evidence-connection]");
+          const decision = evidence.querySelector<HTMLElement>("[data-evidence-step='decision']");
+          ScrollTrigger.create({
+            trigger: evidence,
+            start: "top 82%",
+            once: true,
+            onEnter: () => {
+              const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+              if (submission) timeline.fromTo(submission, { opacity: .35, y: 16 }, { opacity: 1, y: 0, duration: .48, clearProps: "transform,opacity" });
+              if (connection) timeline.fromTo(connection, { scaleY: 0, opacity: .2 }, { scaleY: 1, opacity: 1, duration: .36, transformOrigin: "top center", clearProps: "transform,opacity" }, "-=.08");
+              if (decision) timeline.fromTo(decision, { opacity: .35, y: 16 }, { opacity: 1, y: 0, duration: .48, clearProps: "transform,opacity" }, "-=.1");
+            },
+          });
+        }
       });
       ScrollTrigger.refresh();
-    }, 1_200);
+    };
+
+    void document.fonts.ready.then(() => {
+      animationFrame = window.requestAnimationFrame(() => { animationFrame = window.requestAnimationFrame(initialize); });
+    });
 
     return () => {
-      window.clearTimeout(animationTimer);
+      cancelled = true;
+      window.cancelAnimationFrame(animationFrame);
       context?.revert();
       gsap.ticker.remove(update);
       lenis.destroy();

@@ -3,7 +3,6 @@ import { FileImage } from "@phosphor-icons/react/dist/ssr/FileImage";
 import Link from "next/link";
 import { ArchitecturalLines } from "@/components/landing/architectural-lines";
 import { ConnectedJourney } from "@/components/landing/connected-journey";
-import { LandingChapterNav } from "@/components/landing/landing-chapter-nav";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { PreparationTimeline } from "@/components/landing/preparation-timeline";
 import { RolePathSelector } from "@/components/landing/role-path-selector";
@@ -14,7 +13,7 @@ import { getAccount } from "@/lib/account";
 
 const paymentSteps = [
   ["Convert", "Review the exact local test asset, XLM maximum spend, illustrative rate, fee, slippage and quote expiry before signing."],
-  ["Fund", "Move the agreed asset into an agreement-bound Soroban escrow. Conversion and funding remain separate, recoverable steps."],
+  ["Fund", "Move the agreed test asset into the booking’s protected payment account. Conversion and funding remain separate, recoverable steps."],
   ["Approve", "Review submitted evidence or request a correction. A submission checkmark is not payment approval."],
   ["Release", "Release the accepted milestone once. Confirmed hashes link to the Stellar Testnet explorer."],
 ];
@@ -31,7 +30,6 @@ export default async function Home() {
   return (
     <main className="pactset-landing" id="page-top">
       <SiteHeader authenticated={Boolean(account)} />
-      <LandingChapterNav />
       <section className="pactset-hero" aria-labelledby="landing-title">
         <div className="hero-image" aria-hidden="true" /><div className="hero-overlay" aria-hidden="true" /><ArchitecturalLines variant="hero" />
         <div className="pactset-hero-content page-width"><div className="pactset-hero-copy">
@@ -44,7 +42,7 @@ export default async function Home() {
       </section>
 
       <section className="landing-section journey-section page-width" id="story" aria-labelledby="journey-title" data-motion-reveal>
-        <header className="editorial-heading"><p className="kicker">How it works</p><SplitTextReveal id="journey-title" text="Plan. Book. Review work. Release payment." /><p data-copy-reveal>Pactset keeps the booking, preparation record, private evidence, approval, and payment state connected without pretending they are the same action.</p></header>
+        <header className="editorial-heading"><p className="kicker">How it works</p><SplitTextReveal id="journey-title" text="Plan. Book. Review work. Release payment." /><p data-copy-reveal>Pactset keeps the booking, preparation record, private evidence, approval, and payment history connected from the first brief to the final decision.</p></header>
         <ConnectedJourney />
       </section>
 
@@ -60,7 +58,7 @@ export default async function Home() {
 
       <section className="landing-section evidence-story page-width" id="review" aria-labelledby="review-title" data-motion-reveal>
         <div className="evidence-story-copy"><p className="kicker">Evidence review</p><SplitTextReveal id="review-title" text="See the work." emphasis="Keep approval human." /><p data-copy-reveal>Suppliers and crew submit a note with optional private photo or video evidence. The organizer can request a correction or approve an eligible milestone; an upload alone never releases payment.</p></div>
-        <figure className="evidence-story-visual glass-panel" aria-label="Illustrative evidence review sequence"><div><FileImage aria-hidden="true" /><span><small>Submitted evidence</small><strong>Setup photos and hand-off note</strong></span><em>Private</em></div><div><CheckCircle aria-hidden="true" /><span><small>Organizer decision</small><strong>Review, request correction, or approve</strong></span><em>Human action</em></div><p>Illustration only · no real evidence or payment status.</p></figure>
+        <figure className="evidence-story-visual glass-panel" aria-label="Illustrative evidence review sequence"><div data-evidence-step="submission"><FileImage aria-hidden="true" /><span><small>Submitted evidence</small><strong>Setup photos and hand-off note</strong></span><em>Private</em></div><span className="evidence-connection" data-evidence-connection aria-hidden="true" /><div data-evidence-step="decision"><CheckCircle aria-hidden="true" /><span><small>Organizer decision</small><strong>Review, request correction, or approve</strong></span><em>Human action</em></div><p>Illustration only · no real evidence or payment status.</p></figure>
       </section>
 
       <section className="landing-section payment-story" id="payments" aria-labelledby="payments-title" data-motion-reveal><ArchitecturalLines /><div className="page-width payment-story-grid">

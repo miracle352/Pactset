@@ -3,10 +3,11 @@
 import { ChatCircleDots, CheckCircle, ClockCounterClockwise, WarningCircle } from "@phosphor-icons/react";
 import { useActionState } from "react";
 import { requestDeadlineExtension, respondDeadlineExtension, sendAgreementMessage } from "@/app/workspace/agreements/actions";
+import { SplitFlapCountdown } from "@/components/time/split-flap-countdown";
 import { initialFormState } from "@/lib/form-state";
 
 export type AgreementMessage = { id: string; author_id: string; body_original: string; language_code: string; translated_body: string | null; translated_language_code: string | null; translation_status: string; support_reminder: boolean; created_at: string };
-export type DeadlineRequest = { id: string; requested_by: string; original_deadline: string | null; proposed_deadline: string; reason: string; status: string; response_reason: string | null; created_at: string };
+export type DeadlineRequest = { id: string; requested_by: string; original_deadline: string | null; proposed_deadline: string; reason: string; status: string; response_reason: string | null; responded_by?: string | null; responded_at?: string | null; created_at: string };
 
 function FormMessage({ state }: { state: typeof initialFormState }) {
   return state.message ? <p className={`form-message ${state.status}`} role={state.status === "error" ? "alert" : "status"}>{state.status === "error" ? <WarningCircle /> : <CheckCircle />}{state.message}</p> : null;
@@ -20,11 +21,13 @@ export function AgreementConversation({ agreementId, currentUserId, messages }: 
   </section>;
 }
 
-export function DeadlineExtensions({ agreementId, currentUserId, timezone, originalDeadline, requests }: { agreementId: string; currentUserId: string; timezone: string; originalDeadline: string | null; requests: DeadlineRequest[] }) {
+export function DeadlineExtensions({ agreementId, currentUserId, timezone, originalDeadline, requests, agreementStatus }: { agreementId: string; currentUserId: string; timezone: string; originalDeadline: string | null; requests: DeadlineRequest[]; agreementStatus?: string }) {
   const [state, action, pending] = useActionState(requestDeadlineExtension.bind(null, agreementId), initialFormState);
   const latest = requests[0];
-  return <section className="agreement-collaboration financial-surface"><div className="compact-section-heading"><div><p className="kicker">Preparation deadline</p><h2>Changes require acknowledgement</h2></div><ClockCounterClockwise /></div><p>The accepted deadline remains {originalDeadline ? new Date(originalDeadline).toLocaleString("en", { timeZone: timezone, timeZoneName: "short" }) : "not set"} until both sides acknowledge a later exception.</p>
-    {requests.length ? <ol className="deadline-history">{requests.map((request) => <li key={request.id}><div><strong>{request.status.replaceAll("_", " ")}</strong><span>{new Date(request.proposed_deadline).toLocaleString("en", { timeZone: timezone, timeZoneName: "short" })}</span></div><p>{request.reason}</p>{request.response_reason && <small>Response: {request.response_reason}</small>}{request.status === "pending" && request.requested_by !== currentUserId && <DeadlineResponse agreementId={agreementId} requestId={request.id} />}</li>)}</ol> : null}
+  const accepted = requests.find((request) => request.status === "accepted");
+  const effectiveDeadline = accepted?.proposed_deadline ?? originalDeadline;
+  return <section className="agreement-collaboration financial-surface"><div className="compact-section-heading"><div><p className="kicker">Preparation deadline</p><h2>Changes require acknowledgement</h2></div><ClockCounterClockwise /></div><SplitFlapCountdown targetIso={effectiveDeadline} timezone={timezone} complete={agreementStatus === "completed"} cancelled={agreementStatus === "cancelled"} /><p>The accepted deadline remains: {effectiveDeadline ? new Date(effectiveDeadline).toLocaleString("en", { timeZone: timezone, timeZoneName: "short" }) : "not set"}. {accepted ? "Both participants acknowledged this extension." : "A pending request does not change it."}</p>
+    {requests.length ? <ol className="deadline-history">{requests.map((request) => <li key={request.id}><div><strong>{request.status.replaceAll("_", " ")}</strong><span>{new Date(request.proposed_deadline).toLocaleString("en", { timeZone: timezone, timeZoneName: "short" })}</span></div><p><strong>{request.requested_by === currentUserId ? "You requested" : "The other participant requested"}:</strong> {request.reason}</p>{request.response_reason && <small>{request.responded_by === currentUserId ? "Your response" : "Participant response"}: {request.response_reason}{request.responded_at ? ` · ${new Date(request.responded_at).toLocaleString("en", { timeZone: timezone, timeZoneName: "short" })}` : ""}</small>}{request.status === "pending" && request.requested_by !== currentUserId && <DeadlineResponse agreementId={agreementId} requestId={request.id} />}</li>)}</ol> : null}
     {latest?.status !== "pending" && <form action={action} className="deadline-request-form"><input type="hidden" name="timezone" value={timezone} /><label>Proposed event-local deadline<input type="datetime-local" name="proposedDeadline" defaultValue={state.fields?.proposedDeadline} required /></label><label>Reason and work impact<textarea name="reason" defaultValue={state.fields?.reason} required minLength={10} maxLength={2000} /></label><FormMessage state={state} /><button className="button button-secondary" type="submit" disabled={pending}>{pending ? "Requesting…" : "Request deadline change"}</button></form>}
   </section>;
 }
