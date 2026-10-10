@@ -1228,6 +1228,14 @@ button, input, select, textarea { font-family: var(--font-sans); }
   backdrop-filter: none;
 }
 .sheet-close { display: none; }
+.account-menu > .account-menu-panel,
+.role-switcher details > .role-switcher-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  bottom: auto;
+  left: auto;
+}
 .header-wallet-panel {
   position: absolute !important;
   top: calc(100% + 9px) !important;
