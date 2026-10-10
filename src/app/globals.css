@@ -27,6 +27,17 @@
   --ease-in-out: cubic-bezier(.4, 0, .2, 1);
 }
 
+.replacement-form { padding: 0; overflow: hidden; }
+.replacement-form > summary { cursor: pointer; min-height: 48px; display: flex; align-items: center; padding: 14px 18px; font-weight: 760; }
+.replacement-form > form { padding: 0 18px 18px; }
+.replacement-summary { display: grid; gap: 18px; }
+.replacement-summary > p { display: flex; gap: 9px; align-items: center; color: var(--muted); }
+.candidate-list { display: grid; gap: 12px; }
+.candidate-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .7fr) auto; align-items: center; gap: 14px; padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.025); }
+.candidate-row p { margin: 5px 0 0; color: var(--muted); font-size: .78rem; }
+.candidate-row input { width: 100%; min-height: 44px; padding: 10px 12px; color: var(--ink); background: var(--surface-dense); border: 1px solid var(--line); border-radius: 10px; }
+@media (max-width: 760px) { .candidate-row { grid-template-columns: 1fr; } .candidate-row .button { width: 100%; } }
+
 html[data-theme="dark"] {
   --bg: #061f1e;
   --bg-deep: #031716;

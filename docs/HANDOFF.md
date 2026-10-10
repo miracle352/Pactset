@@ -2,6 +2,26 @@
 
 Last updated: 2026-10-10 (Africa/Lagos)
 
+## 2026-10-10 replacement-booking backend milestone
+
+- Continued from `ca066d8` on `codex/stage-2b-preview`; work remains local and was not pushed or deployed.
+- Applied `replacement_bookings_and_capacity_guards` plus three narrow corrective migrations (diagnostics, original-provider exclusion, and trigger-RPC hardening) to Supabase project `pactset-development` (`lvpsemqalftvcqkrjsyu`). Fieldwork, canary, Vercel and Production were not touched.
+- Added scoped replacement requests, append-only replacement audit events, owner-only in-app notifications, private invited-provider request access, and explicit organizer/invited-provider/assigned-support read boundaries. Ordinary accounts cannot list replacements, audits, original agreements, or invitations belonging to others.
+- Organizers can start **Find a replacement** from an accepted booking, record reason/affected tasks, set a same-asset funding ceiling and setup/teardown buffers, inspect eligible candidates, and invite one provider. The original booking, escrow, dispute, owed funds and expected refunds remain separate.
+- Supplier/crew invitations reuse the real offer and versioned mutual-acceptance flow. Replacement offer revisions cannot change currency or exceed the organizer-approved ceiling. Agreement creation links a separate replacement agreement and writes notifications/audit events; it does not create or fund an escrow automatically.
+- Acceptance now includes setup and teardown in crew conflict and supplier capacity intervals. Provider-scoped advisory locking, expiring reservations and locked inventory rows serialize competing acceptance attempts; replacement acceptance uses the same server function.
+- A rollback-only remote integration transaction verified: organizer creates a replacement for Crew A, Crew B is selected by skill/location/availability, receives a private invitation, submits terms, both parties accept version 1, a distinct agreement is created, and the unrelated `miracle3` account reads zero replacement/agreement/audit rows. The test-created agreement ID existed only inside the rolled-back transaction.
+- The existing development identity verifier passed 24/24 checks when run with network access: six distinct Auth identities restored, expected roles matched, self-assigned support was rejected, unassigned support/unrelated/Crew B private-record reads returned zero, and organizer/supplier/Crew A saw only their participant agreements. There is still no assigned support-case fixture in that script, so assigned-case browser access was not inferred from this result.
+- Application gates: 18/18 source/security tests, TypeScript, and Biome pass. Next.js compiled and typechecked, but final static output failed on Windows `EPERM` while creating `.next/server/app/*.segments` under the OneDrive workspace; webpack reproduced the same host-filesystem permission failure. This is a build-environment blocker, not a reported successful production build.
+- Host-local Playwright verification signed in with the ignored development credentials and passed the organizer replacement route at 1440×950 and Crew B private invitation at 390×844. Both routes returned 200, showed the expected replacement heading, and had no horizontal overflow. Evidence is `docs/screenshots/replacement/organizer-desktop.png` and `crew-mobile.png`; the reusable capture is `scripts/qa/capture-replacement.mjs` and never prints credentials.
+
+### Still blocked or unverified after this milestone
+
+- Real confirmation-email and password-recovery links still require mailbox interaction. Verification remains enabled; no rate-limited resend was attempted.
+- Fresh Freighter ownership, conversion, escrow funding, evidence, release, TUSD/TEUR and failure cases were not repeated because this milestone did not alter payment code. Existing automated/Testnet evidence remains valid, but it is not a new browser-wallet signature.
+- A true two-client simultaneous race was not run. The remote rollback rehearsal exercised the exact advisory-lock/reservation acceptance path; a parallel-client concurrency rehearsal remains required for complete double-booking evidence.
+- Deadline extension two-browser persistence, DST boundaries, assigned-support replacement visibility, and Pactset Go’s full organizer/supplier/two-crew browser rehearsal remain unverified.
+
 ## 2026-10-10 local landing-motion and deadline correction
 
 - This checkpoint is local only. It was not pushed or deployed, and the existing protected Vercel Preview remains on its prior commit.
