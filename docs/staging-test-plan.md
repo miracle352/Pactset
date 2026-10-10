@@ -129,6 +129,19 @@ Reviewers are not required to set up the project locally.
 - The circular black side control visible in the protected deployed capture belongs to the Vercel Preview toolbar. The black **N** visible in local development captures is the Next.js dev indicator. Neither is Pactset navigation and neither ships as ordinary Production application UI.
 - Real Freighter extension signing, mobile-wallet handoff, confirmation email and recovery email remain private manual checks; fixture signing is not counted as extension evidence.
 
+## 2026-10-10 correction-pass deployment checks
+
+After the correction commit reaches the protected Preview:
+
+1. At 390×620, open public navigation at the top and after scrolling. Confirm the chapter rail is hidden, the menu ends before the viewport bottom, direct role links work, Escape restores focus and background scrolling returns.
+2. Sign in as the development supplier. While scrolled, open Account, Wallet, role and More separately. Confirm every sheet is fully in the viewport, Close works, lower wallet controls are reachable by internal scrolling and dismissed sheets do not intercept taps.
+3. At 1440×900, open the wallet dropdown and confirm the authenticated header remains 64px high; use Manage wallets for balances/full detail.
+4. Open supplier signup at 390×844. Confirm the role, compact wallet boundary, Back to home button, form fields, password control and submit action are reachable without horizontal overflow.
+5. Scroll naturally to Event preparation. Observe the illustrative split flap change, all four checkpoint arrivals and the persistent final state; Replay must restart both. With reduced motion enabled, the complete static explanation must remain visible without flipping.
+6. The black Vercel side control is Preview tooling. Do not treat it as Pactset UI or remove application accessibility features to hide it.
+
+Current automated scope is Chromium touch emulation, not physical iPhone Safari. Playwright WebKit is not installed on this host. Real Freighter, mobile wallet, confirmation email and recovery email remain manual/private gates.
+
 ## Local focused-experience review before the next Preview update
 
 This checkpoint is intentionally local. Before a future protected-Preview update, replay `node scripts/qa/verify-glass-redesign.mjs`, then privately verify:

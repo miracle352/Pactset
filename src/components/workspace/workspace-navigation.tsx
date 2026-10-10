@@ -8,6 +8,7 @@ import { Folder } from "@phosphor-icons/react/dist/csr/Folder";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CloseIcon } from "@/components/icons/close-icon";
 import { DismissibleDetails } from "@/components/ui/dismissible-details";
 
 type Item = { label: string; href: string };
@@ -52,5 +53,5 @@ export function WorkspaceNavigation({ nav, label }: { nav: Item[]; label: string
 export function MobileWorkspaceNavigation({ nav, label }: { nav: Item[]; label: string }) {
   const location = useLocationKey();
   const primary = nav.slice(0, 3); const remaining = nav.slice(3);
-  return <nav className="bottom-nav glass-panel" aria-label={label}>{primary.map((item) => <Link key={item.href} href={item.href} className={active(item, location) ? "active" : ""} aria-current={active(item, location) ? "page" : undefined}><NavIcon label={item.label} /><span>{item.label}</span></Link>)}<DismissibleDetails className="mobile-more"><summary><DotsThree /><span>More</span></summary><div className="mobile-more-menu" data-lenis-prevent>{remaining.map((item) => <Link key={item.href} href={item.href} className={active(item, location) ? "active" : ""} aria-current={active(item, location) ? "page" : undefined}><NavIcon label={item.label} />{item.label}</Link>)}<Link href="/settings/wallet">Wallet &amp; payments</Link><Link href="/settings">Profile &amp; settings</Link></div></DismissibleDetails></nav>;
+  return <nav className="bottom-nav glass-panel" aria-label={label}>{primary.map((item) => <Link key={item.href} href={item.href} className={active(item, location) ? "active" : ""} aria-current={active(item, location) ? "page" : undefined}><NavIcon label={item.label} /><span>{item.label}</span></Link>)}<DismissibleDetails className="mobile-more" mobileModal><summary><DotsThree /><span>More</span></summary><div className="mobile-more-menu" data-lenis-prevent data-sheet-panel role="dialog" aria-label="More workspace destinations"><button className="sheet-close" type="button" data-close-details><CloseIcon /> Close</button>{remaining.map((item) => <Link key={item.href} href={item.href} className={active(item, location) ? "active" : ""} aria-current={active(item, location) ? "page" : undefined}><NavIcon label={item.label} />{item.label}</Link>)}<Link href="/settings/wallet">Wallet &amp; payments</Link><Link href="/settings">Profile &amp; settings</Link></div></DismissibleDetails></nav>;
 }

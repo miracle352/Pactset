@@ -25,6 +25,7 @@ const milestones = [
 
 export function PreparationTimeline() {
   const [selected, setSelected] = useState<(typeof categories)[number]["id"]>("equipment");
+  const [flapRun, setFlapRun] = useState(0);
   const root = useRef<HTMLDivElement>(null);
   const progress = useRef<gsap.core.Timeline | null>(null);
   const active = categories.find((category) => category.id === selected) ?? categories[0];
@@ -48,14 +49,14 @@ export function PreparationTimeline() {
       timeline.to(item, { opacity: 1, duration: .18, ease: "power2.out", onStart: () => item.classList.add("is-complete") }, .12 + index * .48);
     });
     progress.current = timeline;
-    ScrollTrigger.create({ trigger: root.current, start: "top 78%", once: true, onEnter: () => timeline.play() });
+    ScrollTrigger.create({ trigger: root.current, start: "top 78%", once: true, onEnter: () => { setFlapRun((run) => run + 1); timeline.play(); } });
     return () => { progress.current = null; };
   }, { scope: root });
 
-  const replay = contextSafe(() => progress.current?.restart());
+  const replay = contextSafe(() => { setFlapRun((run) => run + 1); progress.current?.restart(); });
 
   return <div ref={root} className="preparation-experience">
-    <SplitFlapCountdown illustrative timezone="Africa/Lagos" label="Preparation deadline" />
+    <SplitFlapCountdown illustrative illustrativeRun={flapRun} timezone="Africa/Lagos" label="Preparation deadline" />
     <div className="preparation-selector" role="tablist" aria-label="Illustrative event preparation categories">
       {categories.map(({ id, label, icon: Icon }) => <button key={id} id={`prep-tab-${id}`} type="button" role="tab" aria-selected={selected === id} aria-controls="preparation-panel" onClick={() => setSelected(id)}><Icon aria-hidden="true" /><span>{label}</span></button>)}
     </div>

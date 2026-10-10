@@ -29,19 +29,24 @@ function FlapPair({ value, label }: { value: string; label: string }) {
   return <div className="flap-unit"><span className="flap-pair"><FlapCharacter value={value[0] ?? "-"} /><FlapCharacter value={value[1] ?? "-"} /></span><small>{label}</small></div>;
 }
 
-export function SplitFlapCountdown({ targetIso, timezone, illustrative = false, complete = false, label = "Preparation deadline" }: { targetIso?: string | null; timezone: string; illustrative?: boolean; complete?: boolean; label?: string }) {
+export function SplitFlapCountdown({ targetIso, timezone, illustrative = false, illustrativeRun = 0, complete = false, label = "Preparation deadline" }: { targetIso?: string | null; timezone: string; illustrative?: boolean; illustrativeRun?: number; complete?: boolean; label?: string }) {
   const initial = useMemo<CountdownValue>(() => illustrative ? { days: "07", hours: "12", minutes: "30", status: "active" } : calculate(targetIso, complete), [illustrative, targetIso, complete]);
   const [value, setValue] = useState(initial);
 
   useEffect(() => {
-    if (illustrative) return;
+    if (illustrative) {
+      if (!illustrativeRun || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      setValue({ days: "08", hours: "00", minutes: "00", status: "active" });
+      const illustrativeTimer = window.setTimeout(() => setValue({ days: "07", hours: "12", minutes: "30", status: "active" }), 420);
+      return () => window.clearTimeout(illustrativeTimer);
+    }
     const update = () => setValue(calculate(targetIso, complete));
     update();
     const timer = window.setInterval(update, 30_000);
     const resume = () => { if (document.visibilityState === "visible") update(); };
     document.addEventListener("visibilitychange", resume);
     return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", resume); };
-  }, [illustrative, targetIso, complete]);
+  }, [illustrative, illustrativeRun, targetIso, complete]);
 
   const statusText = value.status === "complete" ? "Preparation marked complete" : value.status === "overdue" ? "Deadline passed; preparation still needs confirmation" : value.status === "missing" ? "Preparation deadline not set" : `${value.days} days, ${value.hours} hours, ${value.minutes} minutes remaining`;
   return <section className={`split-flap-countdown is-${value.status}`} aria-label={`${label}. ${statusText}. Timezone ${timezone}.`}>

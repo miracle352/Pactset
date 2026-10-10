@@ -4,6 +4,11 @@
 
 | ID | Requirement | Evidence | Status |
 |---|---|---|---|
+| UX-OVERLAY-01 | Public mobile navigation must not overlap the chapter rail or leave excessive unused height | Content-sized `.mobile-menu`; chapter suppression while open; 360/390/430 touch-emulated browser assertions | Implemented and verified locally; real iPhone Safari unverified |
+| UX-OVERLAY-02 | Account, wallet, role and More panels must remain fully visible when scrolled and on short phones | Shared `mobileModal` focus/body-scroll behavior; 390×620 sheet bounds and internal-scroll assertions | Implemented and verified locally in Chromium; WebKit unavailable |
+| UX-WALLET-02 | Desktop wallet dropdown overlays without changing header height and keeps full detail in settings | 64px header before/after; 430px panel; `/settings/wallet` retained | Implemented and browser-verified locally |
+| UX-AUTH-03 | Mobile role signup keeps context but brings the form forward with compact wallet help and a proper home action | Supplier signup capture; form top 567px at 390×844 | Implemented and browser-verified locally |
+| UX-MOTION-02 | Illustrative split-flap digits visibly change on entry/replay without changing saved event records | Controlled `08:00:00 → 07:12:30` transition; flipping-class browser assertion and recording | Implemented and browser-verified locally; reduced motion stays static |
 | UX-NAV-01 | Consistent Find work choice and safe auth return destinations | `/onboarding`; `safeInternalPath`; wallet return-path browser/source review | Implemented and browser-verified locally |
 | UX-HDR-01 | Compact, overlaying desktop/mobile menus with Escape, outside click, focus return, and viewport safety | `SiteHeader`, `DismissibleDetails`; 360/390/430/768/1440 QA plus organizer/supplier/crew/support mobile menu replay | Verified locally across public and four authenticated roles |
 | UX-AUTH-01 | Email or unique username sign-in without email enumeration | local migration, `account-auth`, auth action, settings editor | Implemented locally; backend not applied and end-to-end username sign-in unverified |

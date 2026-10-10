@@ -1043,7 +1043,7 @@ select { text-overflow: ellipsis; }
 .role-signup-context svg { flex: 0 0 auto; color: var(--gold); font-size: 18px; }
 .workspace-first-step { margin: 0 0 18px; }
 .compact-wallet-launcher { display: grid; gap: 8px; }
-.wallet-compact-actions .compact-wallet-launcher { display: block; }
+.wallet-compact-actions .compact-wallet-launcher { display: contents; }
 .wallet-compact-actions .compact-wallet-launcher .button { width: auto; }
 .wallet-message.compact { margin: 8px 0 0; padding: 9px; font-size: .66rem; }
 .header-wallet-panel > .text-link { margin-top: 14px; }
@@ -1217,3 +1217,111 @@ button, input, select, textarea { font-family: var(--font-sans); }
 .bottom-nav > a svg { color:currentColor; font-size:18px; }
 .mobile-more-menu a { display:flex; align-items:center; justify-content:flex-start; gap:9px; }
 .mobile-more-menu a svg { color:var(--gold); font-size:18px; }
+
+/* 2026-10-10 focused overlay and motion correction pass. */
+.workspace-topbar {
+  position: relative;
+  z-index: 30;
+  /* Backdrop blur creates a containing block for fixed mobile sheets. The
+     dense translucent fill keeps the glass material without trapping them. */
+  background: rgba(6,31,30,.88);
+  backdrop-filter: none;
+}
+.sheet-close { display: none; }
+.header-wallet-panel {
+  position: absolute !important;
+  top: calc(100% + 9px) !important;
+  right: 0 !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: min(370px, calc(100vw - 28px));
+  max-height: min(68dvh, 560px);
+  padding: 18px;
+}
+.wallet-runtime-summary { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.wallet-compact-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.wallet-compact-actions .button,
+.wallet-compact-actions .compact-wallet-launcher .button { width: 100%; min-height: 40px; padding-inline: 9px; font-size: .63rem; }
+.wallet-compact-actions > .button:first-child { order: 1; }
+.wallet-compact-actions .compact-wallet-launcher .button { order: 2; }
+.wallet-compact-actions > .button:last-child { order: 3; }
+.wallet-compact-actions .wallet-message.compact { order: 4; grid-column: 1 / -1; margin: 0; }
+.manage-wallets-link { width: 100%; min-height: 42px; margin-top: 12px; }
+.auth-back { width: fit-content; min-height: 42px; padding: 0 14px; }
+.account-boundary {
+  margin-top: 32px;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb,var(--gold) 30%,var(--line));
+  border-radius: 16px;
+  background: linear-gradient(145deg,rgba(223,161,45,.08),transparent 55%),rgba(8,42,40,.64);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+.account-boundary p { margin: 8px 0 0; }
+.account-boundary summary { cursor: pointer; font-size: .78rem; font-weight: 760; line-height: 1.45; }
+.account-boundary summary::marker { color: var(--gold); }
+html[data-menu-open="true"] .landing-chapters,
+.pactset-landing:has(> .mobile-menu) .landing-chapters {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.landing-chapters { transition: opacity 180ms ease; }
+
+@media (max-width:620px) {
+  .mobile-menu {
+    bottom: auto;
+    max-height: calc(100dvh - 78px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+  }
+  .auth-grid { gap: 22px; padding: 30px 0 54px; }
+  .auth-intro h1 { margin: 20px 0 12px; font-size: clamp(2.25rem,10.5vw,3.25rem); line-height: 1; }
+  .auth-intro > p { margin: 0; font-size: .9rem; line-height: 1.58; }
+  .auth-back { min-height: 42px; }
+  .account-boundary { margin-top: 16px; padding: 14px 16px; }
+  .account-boundary:not([open]) p { display: none; }
+  .role-signup-context { padding: 15px; }
+  .auth-form { padding: 20px 16px; }
+
+  .mobile-sheet[open] [data-sheet-panel] {
+    position: fixed !important;
+    z-index: 220;
+    top: auto !important;
+    right: 10px !important;
+    bottom: calc(82px + env(safe-area-inset-bottom)) !important;
+    left: 10px !important;
+    width: auto;
+    max-height: calc(100dvh - 104px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 18px;
+    background: rgba(5,31,30,.985);
+    box-shadow: 0 0 0 100vmax rgba(0,0,0,.58), 0 24px 70px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.06);
+    backdrop-filter: none;
+  }
+  .mobile-sheet[open] .sheet-close {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin: 0 0 10px auto;
+    padding: 0 11px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--ink);
+    background: rgba(243,245,239,.055);
+    font: inherit;
+    font-size: .7rem;
+    cursor: pointer;
+  }
+  .mobile-sheet[open] .sheet-close:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .header-wallet-panel .compact-section-heading { margin-bottom: 10px; }
+  .wallet-runtime-summary { grid-template-columns: 1fr 1fr; }
+  .wallet-compact-actions { grid-template-columns: 1fr; }
+  .wallet-compact-actions .button,
+  .wallet-compact-actions .compact-wallet-launcher .button { min-height: 46px; }
+  .flap-character { width: clamp(30px,9vw,42px); height: clamp(46px,13vw,60px); }
+}

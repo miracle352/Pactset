@@ -1,6 +1,23 @@
 # Pactset Stage 2B handoff
 
-Last updated: 2026-10-09 (Africa/Lagos)
+Last updated: 2026-10-10 (Africa/Lagos)
+
+## 2026-10-10 focused overlay and motion correction
+
+- Reproduced the screenshot defects against branch/deployed tip `2703e7c`: public mobile navigation was stretched by simultaneous `top`/`bottom` anchoring, the sticky chapter rail remained independently visible above it, and authenticated mobile sheets were fixed descendants of a blurred header that created the wrong containing block.
+- Public navigation is now content-sized with a viewport maximum, hides the chapter rail while open, locks only background scrolling, contains focus, closes on Escape/outside/navigation, and restores focus. Organizer, Supplier and Crew remain direct one-tap choices.
+- Account, wallet, role and More menus opt into a shared mobile-sheet behavior with a visible Close action, focus containment/return, safe-area spacing, short-screen internal scrolling and no tap-through after outside dismissal. Removing header backdrop blur prevents viewport-fixed sheets from being clipped; dense translucent color retains the glass material.
+- The desktop wallet panel is explicitly overlay-positioned and reduced to network, saved ownership, current browser state, connection controls and Manage wallets. Full balances/details remain in `/settings/wallet`. Browser measurement holds the header at 64px with the 430px panel open.
+- Mobile signup uses a smaller introduction, a proper Back to home button and collapsed account/wallet help. The form top moved from 664px to 567px at 390×844 without removing username, password visibility, Change role or role context.
+- The illustrative split flap now changes from `08:00:00` to `07:12:30` when the preparation sequence enters view and on Replay. The real deadline path remains timestamp-derived. Checkpoint completion/replay and independent category selection are unchanged; reduced motion stays static and complete.
+- Focused browser QA passed 360×740, 390×620, 430×844, 768×900 and 1440×1000 with no horizontal overflow. Account, wallet and More sheets passed while scrolled in a 390×620 viewport; lower wallet actions were reached by internal scrolling. Chromium touch emulation passed. Playwright WebKit is not installed, so this is not real-iPhone Safari evidence.
+- Evidence: `docs/screenshots/ui-correction/after/` and `docs/recordings/ui-correction/landing-motion-mobile.webm`. The black **N** in local screenshots is the Next.js development launcher; the deployed black side control is the Vercel Preview toolbar, not Pactset UI.
+- Verification: 16/16 product/security tests, TypeScript, Biome and Next.js 16.3.8 production build pass. No Supabase migration, Stellar transaction, email request or Production deployment was performed in this correction.
+
+### Still manual or deferred
+
+- Real first-time/rejected/locked Freighter extension interaction and signing, real mobile-wallet handoff, confirmation email and password-recovery email links remain unverified.
+- Username migration/function deployment, owner-reviewed Privacy/Terms text, translated chat, replacement discovery, AI budgeting, rating eligibility and the full multi-person Pactset Go rehearsal remain unchanged backend/product work.
 
 ## 2026-10-09 focused frontend completion checkpoint
 

@@ -1,0 +1,25 @@
+import { copyFile, mkdir } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { chromium } from "@playwright/test";
+
+const baseURL = process.env.PACTSET_QA_URL ?? "http://localhost:3100";
+const output = new URL("../../docs/recordings/ui-correction/", import.meta.url);
+await mkdir(output, { recursive: true });
+const browser = await chromium.launch({ headless: true, executablePath: process.env.PACTSET_QA_BROWSER ?? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" });
+const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, recordVideo: { dir: fileURLToPath(output), size: { width: 390, height: 844 } } });
+const page = await context.newPage();
+await page.goto(baseURL, { waitUntil: "networkidle" });
+await page.locator("#story").scrollIntoViewIfNeeded();
+await page.waitForTimeout(900);
+await page.locator("#preparation").scrollIntoViewIfNeeded();
+await page.waitForTimeout(2_400);
+await page.getByRole("button", { name: "Replay" }).click();
+await page.waitForTimeout(2_400);
+await page.locator("#review").scrollIntoViewIfNeeded();
+await page.waitForTimeout(900);
+const video = page.video();
+await context.close();
+if (!video) throw new Error("Playwright video recording was unavailable");
+await copyFile(await video.path(), fileURLToPath(new URL("landing-motion-mobile.webm", output)));
+await browser.close();
+console.log(fileURLToPath(new URL("landing-motion-mobile.webm", output)));

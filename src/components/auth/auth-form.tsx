@@ -35,5 +35,5 @@ export function AuthForm({ action, submitLabel, fields, next, footnote }: { acti
 }
 
 export function AccountWalletBoundary() {
-  return <aside className="account-boundary"><strong>Your account is separate from your wallet.</strong><p>Sign in to plan and coordinate work. Connect a wallet only when a Stellar Testnet action needs your signature.</p></aside>;
+  return <details className="account-boundary glass-panel"><summary>Your account is separate from your wallet.</summary><p>Plan and coordinate work without a wallet. Connect one only when a Stellar Testnet action needs your signature.</p></details>;
 }
