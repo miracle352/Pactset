@@ -60,7 +60,7 @@ for (const viewport of [{ width: 360, height: 740 }, { width: 390, height: 620 }
     for (const label of ["Organize an event", "Offer services", "Join the crew"]) await page.getByRole("link", { name: label, exact: false }).waitFor();
   }
   if (viewport.width === 390 || viewport.width === 1440) {
-    for (const section of ["#how-it-works", "#roles", ".coordination-section", "#payments", ".change-section", ".faq-section"]) {
+    for (const section of ["#story", "#roles", "#preparation", "#review", "#payments", ".change-section", ".faq-section", "#ready"]) {
       await page.locator(section).scrollIntoViewIfNeeded();
       await page.waitForTimeout(220);
     }
@@ -117,7 +117,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000
   const errors = runtimeErrors(page);
   await page.goto(baseURL, { waitUntil: "networkidle" });
   await page.waitForTimeout(900);
-  for (const selector of ["#how-it-works", "#roles", "#payments", ".final-cta"]) {
+  for (const selector of ["#story", "#preparation", "#review", "#payments", "#ready"]) {
     await page.locator(selector).scrollIntoViewIfNeeded();
     await page.waitForTimeout(850);
   }

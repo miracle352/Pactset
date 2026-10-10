@@ -21,7 +21,7 @@ The public experience is cinematic and editorial. Authenticated work is quieter,
 - Gold `#dfa12d`: decisions, controlled emphasis, current step and traveling line signals.
 - Off-white `#f3f5ef`: foreground on the dark system.
 - Pactset is dark-only. Stored theme preferences and operating-system light mode cannot change the initial or hydrated rendering.
-- Typography uses Inter/system sans-serif. Georgia/Times italic is reserved for selected editorial emphasis such as “One seamless experience,” never routine labels or numbers.
+- Typography uses self-hosted Manrope Variable with system sans-serif fallbacks. Georgia/Times italic is reserved for selected editorial emphasis such as “One seamless experience,” never routine labels or numbers. A restrained system monospace stack is limited to the illustrative split-flap countdown and technical identifiers.
 - Borders are fine and structural. Glass is selective framing; forms and financial data use dense, readable surfaces.
 - Radius is modest in controls and generous only for large architectural containers.
 

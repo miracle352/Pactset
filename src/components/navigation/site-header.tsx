@@ -9,7 +9,7 @@ import { BrandMark } from "@/components/brand/brand-mark";
 import { DismissibleDetails } from "@/components/ui/dismissible-details";
 
 const links = [
-  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#story", label: "How it works" },
   { href: "/#roles", label: "For your role" },
   { href: "/#payments", label: "Payments" },
 ];

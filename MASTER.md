@@ -22,7 +22,7 @@ Routine actions respond within 160–220ms using `cubic-bezier(.22, 1, .36, 1)`.
 - Decision gold: `#dfa12d`; hover gold: `#edb64e`; focus gold: `#f2c66d`.
 - Success: `#73d6ad`; warning: `#f0c46f`; failure/destructive foreground: `#ff91a8`.
 - Fine border: `rgba(209, 231, 224, .15)`; strong border: `rgba(209, 231, 224, .28)`.
-- Font: Inter, `ui-sans-serif`, system UI fallbacks. Georgia/Times italic is used only for selected public editorial emphasis.
+- Font: self-hosted Manrope Variable, `ui-sans-serif`, system UI fallbacks. Georgia/Times italic is used only for selected public editorial emphasis; a restrained system monospace stack is limited to split-flap characters and technical identifiers.
 - Radius: 4px controls, 10–16px menus and panels, 20–28px only for major architectural containers.
 - Duration: 160ms quick, 200ms standard, 700ms slow/ambient. Linear motion is limited to progress and the tiny SVG path signal.
 

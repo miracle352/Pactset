@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/manrope";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { ExperienceMotion } from "@/components/motion/experience-motion";

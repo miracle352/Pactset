@@ -5,6 +5,7 @@ import { ArrowsClockwise, Buildings, ForkKnife, HardHat, SpeakerHigh } from "@ph
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState } from "react";
+import { SplitFlapCountdown } from "@/components/time/split-flap-countdown";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -30,13 +31,22 @@ export function PreparationTimeline() {
 
   const { contextSafe } = useGSAP(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) { gsap.set("[data-timeline-progress]", { scaleX: 1, scaleY: 1 }); gsap.set("[data-checkpoint]", { opacity: 1 }); return; }
+    const checkpoints = gsap.utils.toArray<HTMLElement>("[data-checkpoint]");
+    if (reduced) {
+      gsap.set("[data-timeline-progress]", { scaleX: 1, scaleY: 1 });
+      gsap.set(checkpoints, { opacity: 1 });
+      for (const checkpoint of checkpoints) checkpoint.classList.add("is-complete");
+      return;
+    }
     const vertical = window.matchMedia("(max-width: 620px)").matches;
     const timeline = gsap.timeline({ paused: true });
-    timeline.set("[data-timeline-progress]", { scaleX: vertical ? 1 : 0, scaleY: vertical ? 0 : 1, transformOrigin: vertical ? "top center" : "left center" })
-      .set("[data-checkpoint]", { opacity: .48 })
+    timeline.call(() => { for (const checkpoint of checkpoints) checkpoint.classList.remove("is-complete"); }, [], 0)
+      .set("[data-timeline-progress]", { scaleX: vertical ? 1 : 0, scaleY: vertical ? 0 : 1, transformOrigin: vertical ? "top center" : "left center" })
+      .set(checkpoints, { opacity: .48 })
       .to("[data-timeline-progress]", { scaleX: 1, scaleY: 1, duration: 1.8, ease: "none" });
-    root.current?.querySelectorAll("[data-checkpoint]").forEach((item, index) => { timeline.to(item, { opacity: 1, duration: .18, className: "+=is-complete", ease: "power2.out" }, .12 + index * .48); });
+    checkpoints.forEach((item, index) => {
+      timeline.to(item, { opacity: 1, duration: .18, ease: "power2.out", onStart: () => item.classList.add("is-complete") }, .12 + index * .48);
+    });
     progress.current = timeline;
     ScrollTrigger.create({ trigger: root.current, start: "top 78%", once: true, onEnter: () => timeline.play() });
     return () => { progress.current = null; };
@@ -45,6 +55,7 @@ export function PreparationTimeline() {
   const replay = contextSafe(() => progress.current?.restart());
 
   return <div ref={root} className="preparation-experience">
+    <SplitFlapCountdown illustrative timezone="Africa/Lagos" label="Preparation deadline" />
     <div className="preparation-selector" role="tablist" aria-label="Illustrative event preparation categories">
       {categories.map(({ id, label, icon: Icon }) => <button key={id} id={`prep-tab-${id}`} type="button" role="tab" aria-selected={selected === id} aria-controls="preparation-panel" onClick={() => setSelected(id)}><Icon aria-hidden="true" /><span>{label}</span></button>)}
     </div>

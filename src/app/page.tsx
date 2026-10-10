@@ -1,6 +1,9 @@
-import { ArrowRight, CalendarCheck, CurrencyCircleDollar, Headset, LockSimple } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, CalendarCheck, CheckCircle, CurrencyCircleDollar, Headset, LockSimple } from "@phosphor-icons/react/dist/ssr";
+import { FileImage } from "@phosphor-icons/react/dist/ssr/FileImage";
 import Link from "next/link";
 import { ArchitecturalLines } from "@/components/landing/architectural-lines";
+import { ConnectedJourney } from "@/components/landing/connected-journey";
+import { LandingChapterNav } from "@/components/landing/landing-chapter-nav";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { PreparationTimeline } from "@/components/landing/preparation-timeline";
 import { RolePathSelector } from "@/components/landing/role-path-selector";
@@ -8,13 +11,6 @@ import { SplitTextReveal } from "@/components/motion/split-text-reveal";
 import { SiteHeader } from "@/components/navigation/site-header";
 import { SpotlightSurface } from "@/components/ui/spotlight-surface";
 import { getAccount } from "@/lib/account";
-
-const journey = [
-  { number: "01", title: "Plan", copy: "Set the event context, schedule, budget, venue, equipment, food, and people needed." },
-  { number: "02", title: "Book", copy: "Publish requests, compare offers, and accept one current version of scope, price, timing, and milestones." },
-  { number: "03", title: "Review work", copy: "Track preparation, review private evidence, and request corrections without erasing earlier submissions." },
-  { number: "04", title: "Release payment", copy: "Approve an eligible milestone explicitly. The confirmed Stellar Testnet ledger result becomes the payment record." },
-];
 
 const paymentSteps = [
   ["Convert", "Review the exact local test asset, XLM maximum spend, illustrative rate, fee, slippage and quote expiry before signing."],
@@ -34,8 +30,10 @@ export default async function Home() {
   const account = await getAccount();
   return (
     <main className="pactset-landing" id="page-top">
+      <SiteHeader authenticated={Boolean(account)} />
+      <LandingChapterNav />
       <section className="pactset-hero" aria-labelledby="landing-title">
-        <div className="hero-image" aria-hidden="true" /><div className="hero-overlay" aria-hidden="true" /><ArchitecturalLines variant="hero" /><SiteHeader authenticated={Boolean(account)} />
+        <div className="hero-image" aria-hidden="true" /><div className="hero-overlay" aria-hidden="true" /><ArchitecturalLines variant="hero" />
         <div className="pactset-hero-content page-width"><div className="pactset-hero-copy">
           <p className="editorial-kicker" data-motion-hero><span />Global event operations · Stellar Testnet</p>
           <SplitTextReveal as="h1" id="landing-title" text="A thousand moving parts." emphasis="One seamless experience." />
@@ -45,9 +43,9 @@ export default async function Home() {
         </div></div>
       </section>
 
-      <section className="landing-section journey-section page-width" id="how-it-works" aria-labelledby="journey-title" data-motion-reveal>
+      <section className="landing-section journey-section page-width" id="story" aria-labelledby="journey-title" data-motion-reveal>
         <header className="editorial-heading"><p className="kicker">How it works</p><SplitTextReveal id="journey-title" text="Plan. Book. Review work. Release payment." /><p data-copy-reveal>Pactset keeps the booking, preparation record, private evidence, approval, and payment state connected without pretending they are the same action.</p></header>
-        <ol className="journey-rail">{journey.map((step) => <li key={step.number}><span>{step.number}</span><div><h3>{step.title}</h3><p>{step.copy}</p></div></li>)}</ol>
+        <ConnectedJourney />
       </section>
 
       <section className="landing-section roles-section" id="roles" aria-labelledby="roles-title" data-motion-reveal><div className="page-width roles-layout">
@@ -58,6 +56,11 @@ export default async function Home() {
       <section className="landing-section coordination-section page-width" id="preparation" aria-labelledby="coordination-title" data-motion-reveal>
         <div className="coordination-copy"><p className="kicker">Event preparation</p><SplitTextReveal id="coordination-title" text="Keep every preparation connected." /><p data-copy-reveal>See who is doing what, when it is due, and what needs to happen first.</p></div>
         <SpotlightSurface className="coordination-visual" color="rgba(223, 161, 45, .12)"><PreparationTimeline /></SpotlightSurface>
+      </section>
+
+      <section className="landing-section evidence-story page-width" id="review" aria-labelledby="review-title" data-motion-reveal>
+        <div className="evidence-story-copy"><p className="kicker">Evidence review</p><SplitTextReveal id="review-title" text="See the work." emphasis="Keep approval human." /><p data-copy-reveal>Suppliers and crew submit a note with optional private photo or video evidence. The organizer can request a correction or approve an eligible milestone; an upload alone never releases payment.</p></div>
+        <figure className="evidence-story-visual glass-panel" aria-label="Illustrative evidence review sequence"><div><FileImage aria-hidden="true" /><span><small>Submitted evidence</small><strong>Setup photos and hand-off note</strong></span><em>Private</em></div><div><CheckCircle aria-hidden="true" /><span><small>Organizer decision</small><strong>Review, request correction, or approve</strong></span><em>Human action</em></div><p>Illustration only · no real evidence or payment status.</p></figure>
       </section>
 
       <section className="landing-section payment-story" id="payments" aria-labelledby="payments-title" data-motion-reveal><ArchitecturalLines /><div className="page-width payment-story-grid">
@@ -72,7 +75,7 @@ export default async function Home() {
 
       <section className="landing-section faq-section page-width" aria-labelledby="faq-title" data-motion-reveal><header><p className="kicker">Practical answers</p><SplitTextReveal id="faq-title" text="Know what Pactset does—and what it does not claim." /></header><div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
 
-      <section className="final-cta" aria-labelledby="final-cta-title"><ArchitecturalLines /><div><p className="kicker">Start with the plan</p><SplitTextReveal id="final-cta-title" text="Bring every decision into" emphasis="one accountable view." /><p data-copy-reveal>Create the event, invite the right work, and keep every decision attached to the terms people accepted.</p><Link className="button button-gold button-arrow" href={account ? "/workspace" : "/auth/sign-up/organizer?next=%2Fworkspace%2Forganizer%2Fevents%2Fnew"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link></div></section>
+      <section className="final-cta" id="ready" aria-labelledby="final-cta-title"><ArchitecturalLines /><div><p className="kicker">Ready for the next decision</p><SplitTextReveal id="final-cta-title" text="Bring every decision into" emphasis="one accountable view." /><p data-copy-reveal>Create the event, invite the right work, and keep every decision attached to the terms people accepted.</p><Link className="button button-gold button-arrow" href={account ? "/workspace" : "/auth/sign-up/organizer?next=%2Fworkspace%2Forganizer%2Fevents%2Fnew"}>{account ? "Open workspace" : "Plan an event"} <ArrowRight aria-hidden="true" /></Link></div></section>
       <LandingFooter />
     </main>
   );
