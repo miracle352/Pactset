@@ -191,6 +191,23 @@ test("agreement collaboration is scoped, immutable, and auditable", async () => 
   assert.match(interfaceSource, /neutral review/i);
 });
 
+test("chat attachments stay private and separate from milestone evidence", async () => {
+  const migration = await read("supabase/migrations/20261011170000_private_chat_attachments_and_language_detection.sql");
+  const guard = await read("supabase/migrations/20261011173000_chat_attachment_upload_guard.sql");
+  const edge = await read("supabase/functions/conversation-attachments/index.ts");
+  const composer = await read("src/components/agreements/chat-attachments.tsx");
+  assert.match(migration, /conversation-attachments/);
+  assert.match(migration, /false,26214400/);
+  assert.doesNotMatch(migration, /image\/svg\+xml|text\/html/);
+  assert.match(migration, /can_access_agreement_conversation/);
+  assert.match(guard, /uploaded_by=\(select auth\.uid\(\)\)/);
+  assert.match(edge, /createSignedUrl\(attachment\.object_path, 60/);
+  assert.match(edge, /status", "pending"/);
+  assert.doesNotMatch(edge, /milestone-evidence/);
+  assert.match(composer, /Upload cancelled/);
+  assert.match(composer, /Files are private and links expire/);
+});
+
 test("event changes are version-bound and cannot silently rewrite accepted agreements", async () => {
   const migration = await read("supabase/migrations/20261009143000_stage_3_event_change_requests.sql");
   const workflow = await read("src/components/events/event-change-workflow.tsx");

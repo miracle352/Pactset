@@ -162,6 +162,8 @@ Reviewers are not required to set up the project locally.
 5. Send a message containing `@support`. Confirm the existing active case is linked (not duplicated), participants see pending/assigned status, and only the assigned support identity can enter the related private record.
 6. Sign in as the unrelated account and confirm the agreement, messages, translation rows, case and notifications are not visible. A soft not-found/denial is expected.
 7. Repeat at 390px with the software keyboard visible: the composer, notification sheet and send action must remain reachable without horizontal overflow.
+8. Attach a permitted small image or PDF. Confirm upload progress, remove/cancel before sending once, then send it. The other participant and assigned support can open a 60-second private link; the unrelated profile cannot list the metadata or mint a link. HTML and SVG must be rejected.
+9. Open Notifications on desktop and mobile. Confirm the desktop popover does not change header height, the list scrolls independently, mobile focus stays in the sheet, Escape/Close returns focus, and opening the panel alone leaves unread state unchanged.
 
 ## 2026-10-10 frontend Preview verification
 

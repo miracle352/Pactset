@@ -10,10 +10,11 @@ import { createClient } from "@/lib/supabase/server";
 export async function sendAgreementMessage(agreementId: string, _: FormState, formData: FormData): Promise<FormState> {
   await requireAccount();
   const fields = formFields(formData);
-  const parsed = z.object({ body: z.string().trim().min(1).max(4000), languageCode: z.string().trim().min(2).max(16), idempotencyKey: z.string().uuid() }).safeParse(fields);
+  const attachmentIds = formData.getAll("attachmentIds").filter((value): value is string => typeof value === "string" && value.length > 0);
+  const parsed = z.object({ body: z.string().trim().min(1).max(4000), languageCode: z.string().trim().min(2).max(16), idempotencyKey: z.string().uuid(), attachmentIds: z.array(z.string().uuid()).max(5) }).safeParse({ ...fields, attachmentIds });
   if (!parsed.success) return { status: "error", message: "Write a message and choose its original language.", fields };
   const supabase = await createClient();
-  const { error } = await supabase.rpc("send_agreement_message", { p_agreement_id: agreementId, p_body: parsed.data.body, p_language_code: parsed.data.languageCode, p_idempotency_key: parsed.data.idempotencyKey });
+  const { error } = await supabase.rpc("send_agreement_message_with_attachments", { p_agreement_id: agreementId, p_body: parsed.data.body, p_language_code: parsed.data.languageCode, p_idempotency_key: parsed.data.idempotencyKey, p_attachment_ids: parsed.data.attachmentIds });
   if (error) return { status: "error", message: "The message was not saved. Your text remains in this form.", fields };
   revalidatePath(`/workspace/agreements/${agreementId}/payment`);
   return { status: "success", message: "Message saved to this agreement.", fields: { languageCode: parsed.data.languageCode } };

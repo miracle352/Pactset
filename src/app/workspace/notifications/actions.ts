@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAccount } from "@/lib/account";
 import { safeInternalPath } from "@/lib/navigation";
@@ -14,4 +15,11 @@ export async function openNotification(formData: FormData) {
   const supabase = await createClient();
   await supabase.from("account_notifications").update({ read_at: new Date().toISOString() }).eq("id", parsed.data.id).eq("user_id", account.userId);
   redirect(safeInternalPath(parsed.data.href, `/workspace/${workspace}`));
+}
+
+export async function markAllNotificationsRead() {
+  const account = await requireAccount();
+  const supabase = await createClient();
+  await supabase.from("account_notifications").update({ read_at: new Date().toISOString() }).eq("user_id", account.userId).is("read_at", null);
+  revalidatePath("/workspace", "layout");
 }

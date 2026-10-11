@@ -56,8 +56,10 @@ Deno.serve(async (request) => {
     const providerBody = await providerResponse.json().catch(() => ({})) as { translatedText?: unknown; detectedLanguage?: unknown };
     const translatedText = typeof providerBody.translatedText === "string" ? providerBody.translatedText.trim() : "";
     if (!providerResponse.ok || !translatedText || translatedText.length > 8000) throw new Error("provider_failed");
+    const detectedLanguage = typeof providerBody.detectedLanguage === "string" && languagePattern.test(providerBody.detectedLanguage.toLowerCase()) ? providerBody.detectedLanguage.toLowerCase() : null;
     await admin.from("agreement_message_translations").update({ status: "available", translated_body: translatedText, provider: "configured_provider", error_code: null, completed_at: new Date().toISOString() }).eq("message_id", messageId).eq("target_language", targetLanguage);
-    return reply({ status: "available", targetLanguage, detectedLanguage: typeof providerBody.detectedLanguage === "string" ? providerBody.detectedLanguage : null });
+    if (message.language_code === "und" && detectedLanguage) await admin.from("agreement_messages").update({ language_code: detectedLanguage, language_detection_status: "detected" }).eq("id", messageId).eq("language_code", "und");
+    return reply({ status: "available", targetLanguage, detectedLanguage });
   } catch {
     await admin.from("agreement_message_translations").update({ status: "failed", provider: "configured_provider", error_code: "provider_failed", completed_at: new Date().toISOString() }).eq("message_id", messageId).eq("target_language", targetLanguage);
     return reply({ error: "Translation failed. The original message is still available.", code: "provider_failed" }, 502);

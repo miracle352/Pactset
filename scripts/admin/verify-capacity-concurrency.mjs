@@ -1,8 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readFile, unlink, writeFile } from "node:fs/promises";
-import { spawnSync } from "node:child_process";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { readFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 
 const stateUrl = new URL("../../.stage2a-test-state.local.json", import.meta.url);
@@ -16,7 +13,7 @@ if (!url || !key) throw new Error("Supabase development configuration is missing
 
 const state = JSON.parse(await readFile(stateUrl, "utf8"));
 const accounts = state.accounts;
-for (const name of ["organizer", "supplier", "crew2"]) {
+for (const name of ["organizer", "supplier", "crew2", "support"]) {
   if (!accounts?.[name]) throw new Error(`Missing ${name} development identity.`);
 }
 
@@ -42,6 +39,7 @@ const crew = await signedIn(accounts.crew2);
 const crewRace = await signedIn(accounts.crew2);
 const supplier = await signedIn(accounts.supplier);
 const supplierRace = await signedIn(accounts.supplier);
+const support = await signedIn(accounts.support);
 
 await crew.from("provider_profiles").upsert({
   user_id: accounts.crew2.userId,
@@ -194,14 +192,7 @@ results.push(row("reservations:valid-withdrawal-releases-capacity", releasedRese
 const expiryRequest = await createRequest({ role: "supplier", title: "Fresh reservation expiry", category: "capacity-race-equipment", quantity: 1, unit: "units", pricing: "per booking", start: at(4_320), end: at(4_440) });
 const expiryOffer = await createOffer(supplier, { request: expiryRequest, role: "supplier", quantity: 1, pricing: "per booking", start: at(4_320), end: at(4_440), inventory: inventory.id });
 must(await organizer.rpc("respond_to_offer", { p_offer_id: expiryOffer.id, p_expected_version: 1, p_action: "accept", p_reason: null }), "reserve fresh expiry-test capacity");
-const sql = `update public.offer_reservations set expires_at=now()-interval '1 minute' where offer_id='${expiryOffer.id}';`;
-const expirySql = join(tmpdir(), `pactset-expiry-${expiryOffer.id}.sql`);
-await writeFile(expirySql, sql, { mode: 0o600 });
-const expired = process.platform === "win32"
-  ? spawnSync("cmd.exe", ["/d", "/s", "/c", `npx supabase@2.119.0 db query --linked --file "${expirySql}"`], { cwd: new URL("../../", import.meta.url), encoding: "utf8" })
-  : spawnSync("npx", ["supabase@2.119.0", "db", "query", "--linked", "--file", expirySql], { cwd: new URL("../../", import.meta.url), encoding: "utf8" });
-await unlink(expirySql).catch(() => undefined);
-if (expired.status !== 0) throw new Error(`Could not expire the isolated development reservation through the linked CLI: ${expired.stderr || expired.error?.message || "unknown error"}`);
+must(await support.rpc("expire_isolated_capacity_test_reservation", { p_offer_id: expiryOffer.id }), "expire isolated development reservation");
 const providerAfterExpiry = must(await supplier.rpc("respond_to_offer", { p_offer_id: expiryOffer.id, p_expected_version: 1, p_action: "accept", p_reason: null }), "provider response after reservation expiry");
 const expiryState = must(await organizer.from("offer_versions").select("organizer_accepted_at,provider_accepted_at").eq("offer_id", expiryOffer.id).eq("version", 1).single(), "load expired offer state");
 const expiryAgreements = must(await organizer.from("agreements").select("id").eq("offer_id", expiryOffer.id), "load expired offer agreements");

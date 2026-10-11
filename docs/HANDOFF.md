@@ -2,6 +2,16 @@
 
 Last updated: 2026-10-11 (Africa/Lagos)
 
+## 2026-10-11 notification, private attachment, and expiry-verification checkpoint
+
+- Corrected the authenticated notification surface: desktop uses an anchored bounded popover, mobile uses the existing focus-trapped safe-area sheet, the header remains fixed while only the list scrolls, and loading failures are no longer presented as an empty inbox. Opening the panel does not mark anything read; each destination and the explicit **Mark all read** action do.
+- Added private agreement-chat attachments in a new `conversation-attachments` bucket, deliberately separate from milestone evidence. `20261011170000_private_chat_attachments_and_language_detection.sql` and corrective guard `20261011173000_chat_attachment_upload_guard.sql` were applied only to `pactset-development`. The authenticated `conversation-attachments` Edge Function was deployed there.
+- Attachment paths are server-prepared; database attachment metadata is bound to the uploader and agreement before upload. The sender may add up to five 25 MB JPG/PNG/WebP/MP4/WebM/PDF/TXT/DOCX files. HTML/SVG are not accepted. Members receive 60-second signed downloads; unrelated users cannot read metadata or mint a URL. Pending uploads older than 24 hours are cleaned opportunistically without touching evidence objects.
+- Messages now offer conservative automatic language detection with explicit `detected`/`uncertain` metadata and a manual language override. Short/ambiguous text remains uncertain. Originals remain authoritative. The translation provider contract is unchanged and server-only; no provider is configured, so real translated output remains blocked and the UI keeps the original readable.
+- The isolated multi-account verifier passed 16/16, including organizer/provider/assigned-support attachment reads, unrelated denial, signed-link authorization, notification deduplication, immutable originals, explicit read positions, and honest provider-unavailable behavior.
+- Replaced the failing nested-CLI expiry harness with `20261011174500_authenticated_expiry_test_gate.sql`: only an active support identity can age a far-future, specifically named capacity-race fixture. It cannot affect ordinary bookings. The genuine authenticated concurrency harness then passed 9/9, including expired-hold release, stale-acceptance reset, one renewed reservation, retry protection, capacity-one, capacity-N, buffers, and withdrawal release.
+- Still private/unverified: real provider translations in two languages, physical software-keyboard behavior, real email confirmation/recovery links, fresh Freighter TUSD/TEUR signing, and the full private Pactset Go rehearsal.
+
 ## 2026-10-11 messaging, translation, support, and notifications checkpoint
 
 - Added migration `20261011143000_messaging_translation_notifications.sql` and applied it only to hosted `pactset-development` (`lvpsemqalftvcqkrjsyu`). It adds explicit, revocable agreement-conversation membership; idempotent messages; per-user read positions; per-message/language translation cache; deduplicated notifications; and assignment-driven support access. Existing migration drift remains unchanged and was not reset.
