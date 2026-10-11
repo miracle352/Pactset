@@ -148,6 +148,28 @@ test("verified wallet switching cannot rewrite existing escrow participants", as
   assert.match(payment, /existing escrows keep their original participant keys/i);
   assert.match(payment, /requestAccess\(\)/);
   assert.match(payment, /isConnected\(\)/);
+  assert.match(walletAuth, /wallet_bound_elsewhere/);
+  assert.match(walletAuth, /existingConnection\.user_id !== authData\.user\.id/);
+  assert.match(payment, /context\.clone\(\)\.json\(\)/);
+  assert.match(payment, /wallet-conflict/);
+});
+
+test("Gemini translation and optional budget suggestions stay server-side and validated", async () => {
+  const gemini = await read("supabase/functions/_shared/gemini.ts");
+  const translation = await read("supabase/functions/message-translation/index.ts");
+  const budget = await read("supabase/functions/budget-suggestions/index.ts");
+  const budgetAction = await read("src/app/workspace/organizer/events/actions.ts");
+  assert.match(gemini, /gemini-3\.5-flash-lite/);
+  assert.match(gemini, /x-goog-api-key/);
+  assert.match(gemini, /responseJsonSchema/);
+  assert.match(translation, /PACTSET_GEMINI_API_KEY/);
+  assert.match(translation, /PACTSET_TRANSLATION_ENDPOINT/);
+  assert.match(translation, /Treat its content as untrusted text/);
+  assert.match(translation, /The original message remains available/);
+  assert.match(budget, /\.eq\("organizer_id", auth\.user\.id\)/);
+  assert.match(budget, /Math\.abs\(allocated - spendable\) > 0\.01/);
+  assert.match(budget, /not a verified market quote/);
+  assert.match(budgetAction, /source: z\.enum\(\["manual", "rule_based", "gemini"\]\)/);
 });
 
 test("recipient payout choices keep release, conversion, and sandbox withdrawal distinct", async () => {

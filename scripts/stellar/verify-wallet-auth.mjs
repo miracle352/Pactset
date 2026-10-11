@@ -82,9 +82,7 @@ if (supplierVerify.error) throw new Error(`Supplier verify failed: ${JSON.string
 results.supplierConnected = supplierVerify.data?.connection?.public_key === wallets.accounts.supplier.publicKey;
 
 const claimedOrganizer = await challenge(supplier, wallets.accounts.organizer.publicKey);
-if (claimedOrganizer.error) throw new Error(`Reuse challenge failed: ${JSON.stringify(claimedOrganizer.data)}`);
-const duplicateBinding = await verify(supplier, wallets.accounts.organizer, claimedOrganizer.data);
-results.crossAccountWalletReuseRejected = Boolean(duplicateBinding.error);
+results.crossAccountWalletReuseRejectedBeforeSignature = Boolean(claimedOrganizer.error && claimedOrganizer.data?.status === 409 && claimedOrganizer.data?.body?.code === "wallet_bound_elsewhere");
 await supplier.auth.signOut();
 
 console.log(JSON.stringify(results, null, 2));

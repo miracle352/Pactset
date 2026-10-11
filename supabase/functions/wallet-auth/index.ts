@@ -14,6 +14,10 @@ function response(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: jsonHeaders });
 }
 
+function failure(error: string, code: string, status: number) {
+  return response({ error, code }, status);
+}
+
 function randomNonce() {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
@@ -36,40 +40,55 @@ function decodeSignature(value: unknown) {
 
 Deno.serve(async (request: Request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: jsonHeaders });
-  if (request.method !== "POST") return response({ error: "Method not allowed" }, 405);
+  if (request.method !== "POST") return failure("Method not allowed", "method_not_allowed", 405);
 
   const authorization = request.headers.get("Authorization");
-  if (!authorization?.startsWith("Bearer ")) return response({ error: "Authentication required" }, 401);
+  if (!authorization?.startsWith("Bearer ")) return failure("Your Pactset session has expired. Sign in again before connecting a wallet.", "session_expired", 401);
 
   const url = Deno.env.get("SUPABASE_URL");
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!url || !anonKey || !serviceRole) return response({ error: "Server configuration unavailable" }, 503);
+  if (!url || !anonKey || !serviceRole) return failure("Wallet verification is temporarily unavailable.", "server_configuration", 503);
 
   const authClient = createClient(url, anonKey, { global: { headers: { Authorization: authorization } } });
   const { data: authData, error: authError } = await authClient.auth.getUser();
-  if (authError || !authData.user) return response({ error: "Authentication required" }, 401);
+  if (authError || !authData.user) return failure("Your Pactset session has expired. Sign in again before connecting a wallet.", "session_expired", 401);
   const admin = createClient(url, serviceRole, { auth: { persistSession: false, autoRefreshToken: false } });
 
   let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
-    return response({ error: "Invalid JSON body" }, 400);
+    return failure("Invalid wallet request", "invalid_request", 400);
   }
 
   const action = body.action;
   const publicKey = typeof body.publicKey === "string" ? body.publicKey.trim() : "";
-  if (!StrKey.isValidEd25519PublicKey(publicKey)) return response({ error: "Invalid Stellar account" }, 400);
-  if (body.network !== "TESTNET") return response({ error: "Pactset wallet verification requires Stellar Testnet" }, 400);
+  if (!StrKey.isValidEd25519PublicKey(publicKey)) return failure("Invalid Stellar account", "invalid_wallet", 400);
+  if (body.network !== "TESTNET") return failure("Pactset wallet verification requires Stellar Testnet", "wrong_network", 400);
 
   if (action === "disconnect") {
     const { error } = await admin.from("wallet_connections").update({ active: false, updated_at: new Date().toISOString() }).eq("user_id", authData.user.id).eq("public_key", publicKey).eq("network", "TESTNET").eq("active", true);
-    if (error) return response({ error: "Could not disconnect this wallet" }, 500);
+    if (error) return failure("Could not disconnect this wallet", "wallet_disconnect_failed", 500);
     return response({ disconnected: true });
   }
 
   if (action === "challenge") {
+    // Avoid requesting a signature when the selected address cannot be bound to
+    // this Pactset account. The response deliberately does not identify the
+    // other account that owns the active connection.
+    const { data: existingConnection, error: connectionLookupError } = await admin
+      .from("wallet_connections")
+      .select("user_id")
+      .eq("public_key", publicKey)
+      .eq("network", "TESTNET")
+      .eq("active", true)
+      .maybeSingle();
+    if (connectionLookupError) return failure("Wallet verification is temporarily unavailable.", "server_configuration", 503);
+    if (existingConnection && existingConnection.user_id !== authData.user.id) {
+      return failure("This Testnet address is already connected to a different Pactset account. Sign in to that account or choose another wallet address.", "wallet_bound_elsewhere", 409);
+    }
+
     const issuedAt = new Date();
     const expiresAt = new Date(issuedAt.getTime() + 5 * 60 * 1000);
     const nonce = randomNonce();
@@ -102,7 +121,7 @@ Deno.serve(async (request: Request) => {
       })
       .select("id,expires_at")
       .single();
-    if (error || !data) return response({ error: "Could not create wallet challenge" }, 500);
+    if (error || !data) return failure("Could not create wallet challenge", "challenge_create_failed", 500);
     return response({ challengeId: data.id, challenge, expiresAt: data.expires_at, network: "TESTNET" });
   }
 
@@ -115,10 +134,10 @@ Deno.serve(async (request: Request) => {
       .eq("user_id", authData.user.id)
       .eq("public_key", publicKey)
       .maybeSingle();
-    if (error || !challenge) return response({ error: "Wallet challenge not found" }, 404);
-    if (challenge.used_at) return response({ error: "Wallet challenge has already been used" }, 409);
+    if (error || !challenge) return failure("The wallet challenge is invalid. Start the connection again.", "challenge_invalid", 404);
+    if (challenge.used_at) return failure("This wallet challenge has already been used. Start the connection again.", "challenge_used", 409);
     if (challenge.network !== "TESTNET" || new Date(challenge.expires_at).getTime() <= Date.now()) {
-      return response({ error: "Wallet challenge has expired" }, 410);
+      return failure("The wallet challenge expired. Start the connection again.", "challenge_expired", 410);
     }
 
     let valid = false;
@@ -128,7 +147,7 @@ Deno.serve(async (request: Request) => {
     } catch {
       valid = false;
     }
-    if (!valid) return response({ error: "Signature does not match this wallet challenge" }, 401);
+    if (!valid) return failure("The signature does not match this wallet challenge. Check the selected Freighter account and try again.", "signature_invalid", 401);
 
     const usedAt = new Date().toISOString();
     const { data: consumed, error: consumeError } = await admin
@@ -138,7 +157,7 @@ Deno.serve(async (request: Request) => {
       .is("used_at", null)
       .select("id")
       .maybeSingle();
-    if (consumeError || !consumed) return response({ error: "Wallet challenge has already been used" }, 409);
+    if (consumeError || !consumed) return failure("This wallet challenge has already been used. Start the connection again.", "challenge_used", 409);
 
     const provider = typeof body.walletProvider === "string" ? body.walletProvider.slice(0, 48) : "Freighter";
     const { data: connection, error: connectionError } = await admin.rpc("activate_wallet_connection", {
@@ -149,10 +168,11 @@ Deno.serve(async (request: Request) => {
       p_verified_at: usedAt,
     });
     if (connectionError || !connection) {
-      const message = connectionError?.code === "23505"
-        ? "This Testnet wallet is already connected to another Pactset account"
+      const bindingConflict = connectionError?.code === "23505";
+      const message = bindingConflict
+        ? "This Testnet address is already connected to a different Pactset account. Sign in to that account or choose another wallet address."
         : "Could not save the verified wallet";
-      return response({ error: message }, connectionError?.code === "23505" ? 409 : 500);
+      return failure(message, bindingConflict ? "wallet_bound_elsewhere" : "wallet_save_failed", bindingConflict ? 409 : 500);
     }
     return response({ connection: {
       public_key: connection.public_key,
@@ -162,5 +182,5 @@ Deno.serve(async (request: Request) => {
     } });
   }
 
-  return response({ error: "Unsupported action" }, 400);
+  return failure("Unsupported action", "unsupported_action", 400);
 });

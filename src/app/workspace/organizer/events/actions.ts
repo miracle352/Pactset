@@ -45,7 +45,7 @@ const budgetSchema = z.object({
   contingencyAmount: z.coerce.number().min(0).max(999_999_999_999),
   allocations: z.string().max(4000),
   assumptions: z.string().max(4000),
-  source: z.enum(["manual", "rule_based"]).default("manual"),
+  source: z.enum(["manual", "rule_based", "gemini"]).default("manual"),
 });
 
 export async function saveEventBudget(eventId: string, _: FormState, formData: FormData): Promise<FormState> {
@@ -59,18 +59,25 @@ export async function saveEventBudget(eventId: string, _: FormState, formData: F
   if (!event) return { status: "error", message: "The event could not be found.", fields };
   const spendable = parsed.data.totalAmount - parsed.data.contingencyAmount;
   const manual = allocations(parsed.data.allocations);
-  const proposed = parsed.data.source === "rule_based" ? [
+  let proposed = parsed.data.source === "rule_based" ? [
     { category: "Venue", amount: Number((spendable * 0.35).toFixed(2)) },
     { category: "Food", amount: Number((spendable * 0.25).toFixed(2)) },
     { category: "Equipment", amount: Number((spendable * 0.2).toFixed(2)) },
     { category: "Crew", amount: Number((spendable * 0.2).toFixed(2)) },
   ] : manual;
+  let generatedAssumptions: string[] | null = null;
+  if (parsed.data.source === "gemini") {
+    const { data: suggestion, error: suggestionError } = await supabase.functions.invoke("budget-suggestions", { body: { eventId, totalAmount: parsed.data.totalAmount, contingencyAmount: parsed.data.contingencyAmount } });
+    if (suggestionError || !Array.isArray(suggestion?.allocations)) return { status: "error", message: "Gemini suggestions are not available yet. Your entries were preserved; use the rule-based draft or save them manually.", fields };
+    proposed = suggestion.allocations;
+    generatedAssumptions = Array.isArray(suggestion.assumptions) ? suggestion.assumptions : [];
+  }
   if (!proposed.length) return { status: "error", message: "Add at least one allocation as `category: amount`.", fields };
   const assumptionLines = parsed.data.source === "rule_based" ? [
     "Rule-based starting point only; these figures are not market quotes or accepted offers.",
     `Based on ${event.attendee_count ?? "the saved attendee count"} attendees and the current event brief.`,
     "Edit every allocation before approval.",
-  ] : lines(parsed.data.assumptions);
+  ] : generatedAssumptions ?? lines(parsed.data.assumptions);
   const { data, error } = await supabase.rpc("save_event_budget", {
     p_event_id: eventId,
     p_total_amount: parsed.data.totalAmount,
@@ -82,7 +89,7 @@ export async function saveEventBudget(eventId: string, _: FormState, formData: F
   });
   if (error || !data) return { status: "error", message: error?.message.includes("exceed") ? "Allocations and contingency cannot exceed the total budget." : "The budget draft could not be saved. Existing approved planning is unchanged.", fields };
   revalidatePath(`/workspace/organizer/events/${eventId}`);
-  return { status: "success", message: parsed.data.source === "rule_based" ? "Editable rule-based draft saved. Review it before approval." : "Editable budget draft saved." };
+  return { status: "success", message: parsed.data.source === "rule_based" ? "Editable rule-based draft saved. Review it before approval." : parsed.data.source === "gemini" ? "Editable Gemini suggestion saved. Review every amount before approval." : "Editable budget draft saved." };
 }
 
 export async function approveEventBudget(eventId: string, budgetId: string, _: FormState, _formData: FormData): Promise<FormState> {

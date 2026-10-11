@@ -1,5 +1,13 @@
 # Restricted staging review plan
 
+## Wallet conflict and Gemini setup (2026-10-11)
+
+The previously generic Freighter failure was HTTP 409 after a valid ownership signature because that Testnet address was already active on another Pactset account. The repaired flow rejects this condition before requesting a signature and explains that the tester must sign in to the owning Pactset account or select a different Freighter address. Never move the address between accounts merely to pass the rehearsal; existing escrow participants remain immutable.
+
+Add the Gemini key privately in **Supabase Dashboard → pactset-development → Edge Functions → Secrets** as `PACTSET_GEMINI_API_KEY`. Optional override: `PACTSET_GEMINI_MODEL`; otherwise Pactset uses `gemini-3.5-flash-lite`. Do not add this secret to Vercel or any `NEXT_PUBLIC_*` variable. Direct Gemini takes precedence; the existing `PACTSET_TRANSLATION_ENDPOINT` + `PACTSET_TRANSLATION_API_KEY` configuration remains a fallback only when no Gemini key is present.
+
+After saving the secret, use a fictional agreement message and request English → French, then French → English. Confirm the original remains visible, amounts/codes/dates/URLs are unchanged, and quota/provider failure keeps the original readable. Separately request an organizer budget suggestion and confirm it is an editable unapproved draft whose allocations plus contingency equal the supplied total. No provider call is counted as passed until these requests succeed.
+
 ## Profile onboarding review (2026-10-11)
 
 1. Open the protected Preview and register Organizer, Supplier, or Crew. Save a valid 3–30 character lowercase username; only username plus the selected authorized role is required before entering the workspace.
@@ -8,7 +16,7 @@
 4. Save, refresh, sign out, and sign in again with the username. Confirm all preferences persist and no existing agreement currency, deadline, or wallet changes.
 5. Email confirmation success was completed privately by the owner on 2026-10-11. Do not repeat it merely for fixture coverage. Password recovery, old-password rejection, and expired/reused email-link behavior remain a separate unverified checklist.
 
-Translation remains unavailable until a reviewed provider is configured privately in the `pactset-development` Supabase Edge Function secrets as `PACTSET_TRANSLATION_ENDPOINT` and `PACTSET_TRANSLATION_API_KEY`. The endpoint must accept `{ text, sourceLanguage, targetLanguage, preserve }` and return `{ translatedText, detectedLanguage? }`. Provider signup and API charges, if any, are external and have not been authorized. Optional AI budgets require a separate reviewed server adapter/provider; the current rule-based editable proposal remains active.
+Translation and optional AI budgets remain provider-blocked until `PACTSET_GEMINI_API_KEY` is saved privately in the `pactset-development` Edge Function secrets. The existing generic endpoint/key contract remains a fallback. The rule-based editable proposal remains active.
 
 Automated protected-Preview coverage completed on 2026-10-11 against the stable branch alias at 1440px and 390px. It passed username sign-in, availability/current-name feedback, Canada → Ontario, explicit `America/Toronto`, suggested `TCAD`, save/reload persistence, and mobile overflow checks. This does not replace the manual password-recovery checklist or prove every country subdivision/timezone combination.
 
