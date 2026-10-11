@@ -1,6 +1,16 @@
 # Pactset Stage 2B handoff
 
-Last updated: 2026-10-11 (Africa/Lagos)
+Last updated: 2026-10-12 (Africa/Lagos)
+
+## 2026-10-12 release-candidate checkpoint
+
+- Release gates pass on commit `0837f86`: 32/32 application tests, TypeScript, Biome, five escrow contract tests and nine Pactset Go contract tests. Hosted authorization checks additionally passed development identities 24/24, profile onboarding, messaging/support 16/16, Gemini 16/16, planning/reviews/reminders 11/11, provider portfolio privacy, payment API authorization, isolated Testnet failure cases, capacity concurrency 9/9, replacement/support/deadlines 9/9 and Stage 3 schema/runtime checks.
+- Production Vercel configuration now contains only the required public site URL, Supabase URL and publishable key. It targets `pactset-development`; no service-role, Gemini, issuer, liquidity or wallet secret was copied to Vercel or a client variable.
+- Supabase Auth now uses `https://pactset.vercel.app` as the Production site URL and allows only the exact Production confirmation/recovery routes in addition to the existing exact Preview routes and localhost development route. Normal email confirmation remains enabled.
+- Gemini remains server-side in `pactset-development`. Fresh fictional EN↔FR provider calls, immutable originals, unrelated-user denial and a validated editable TGBP budget succeeded. AI still has no agreement, approval or payment authority.
+- In-app reminders remain scheduled by private hosted Postgres cron. Payment reconciliation runs after submit/refresh/authenticated action, with `npm run payments:reconcile` as the operator recovery path; there is no unattended Vercel reconciliation process.
+- The release process and rollback procedure are documented in `docs/release-runbook.md`. Historical migration-version drift remains documented and was not reset or rewritten.
+- Deferred owner actions remain explicit: password recovery, real Freighter TUSD/TEUR signing and the complete multi-person Pactset Go rehearsal are unverified. They do not block the Testnet-only application release because their automated contracts, authorization boundaries and recovery paths pass, but they must not be represented as user-verified.
 
 ## 2026-10-11 coordinated motion and live Gemini verification checkpoint
 

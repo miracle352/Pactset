@@ -1,5 +1,13 @@
 # Restricted staging review plan
 
+## 2026-10-12 release transition
+
+- The protected branch Preview remains the release-candidate gate. The authorized release path is a normal pull request from `codex/stage-2b-preview` to `main`, followed by the existing Vercel Git deployment to `https://pactset.vercel.app`.
+- The final candidate passed the application, type, lint, Soroban, hosted authorization, Gemini, planning, portfolio, payment-API, failure-isolation, capacity-race, replacement/support/deadline and Stage 3 runtime checks recorded in `docs/HANDOFF.md`.
+- Production public configuration targets `pactset-development`; Supabase Auth preserves the exact Production, Preview and localhost callback routes. Privileged Edge/worker/payment credentials remain outside Vercel and browser bundles.
+- See `docs/release-runbook.md` for startup, reminder/reconciliation worker, deployment and rollback instructions.
+- Manual Freighter TUSD/TEUR signing, password recovery and the complete multi-person Pactset Go rehearsal remain unverified and must stay labelled that way after release.
+
 ## Motion and Gemini verification (2026-10-11)
 
 - Gemini is configured in `pactset-development` as the server-only `PACTSET_GEMINI_API_KEY`; never copy it to Vercel or a `NEXT_PUBLIC_*` variable. `npm run gemini:verify-development` passed authenticated English↔French fictional-message translation, original preservation, protected names/amounts/times/dates/URLs, unrelated-user denial, and a validated editable TGBP budget. The generic endpoint/key adapter remains fallback-only when direct Gemini is absent.
