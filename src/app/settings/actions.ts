@@ -15,6 +15,7 @@ const profileSchema = z.object({
   language: z.string().trim().min(2).max(50), timezone: z.string().refine((value) => timezones().includes(value), "Choose a named timezone"),
   currency: z.string().refine(isTestCurrencyAssetCode, "Choose a current ISO 4217 test currency"), headline: z.string().trim().max(120), bio: z.string().trim().max(1000),
   services: z.string().max(600), skills: z.string().max(600), pricingUnits: z.string().max(300), availability: z.string().max(300),
+  portfolioVisibility: z.enum(["private", "public"]),
 });
 
 const list = (value: string) => value.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 20);
@@ -43,10 +44,10 @@ export async function saveSettings(_: FormState, formData: FormData): Promise<Fo
     }
   }
   if (selectedRoles.some((role) => role === "supplier" || role === "crew")) {
-    const { error } = await supabase.from("provider_profiles").upsert({ user_id: account.userId, headline: parsed.data.headline, bio: parsed.data.bio, services: list(parsed.data.services), skills: list(parsed.data.skills), pricing_units: list(parsed.data.pricingUnits), availability_note: parsed.data.availability }, { onConflict: "user_id" });
+    const { error } = await supabase.from("provider_profiles").upsert({ user_id: account.userId, headline: parsed.data.headline, bio: parsed.data.bio, services: list(parsed.data.services), skills: list(parsed.data.skills), pricing_units: list(parsed.data.pricingUnits), availability_note: parsed.data.availability, portfolio_visibility: parsed.data.portfolioVisibility }, { onConflict: "user_id" });
     if (error) return { status: "error", message: "Your account settings saved, but the provider profile did not. Try again.", fields };
   }
-  revalidatePath("/settings"); revalidatePath("/workspace", "layout");
+  revalidatePath("/settings"); revalidatePath("/workspace", "layout"); revalidatePath(`/providers/${account.userId}`);
   return { status: "success", message: "Profile and role settings saved.", fields };
 }
 
