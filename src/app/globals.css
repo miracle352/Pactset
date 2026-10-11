@@ -1455,7 +1455,8 @@ details:not([open]) > [data-sheet-panel] { display: none !important; }
 
 @media (max-width: 680px) {
   .public-profile-shell { width: min(100% - 20px, 1180px); padding-top: 92px; }
-  .public-profile-hero { grid-template-columns: auto minmax(0, 1fr); padding: 22px 17px; gap: 16px; }
-  .public-profile-hero .rating-summary { grid-column: 1 / -1; justify-self: start; }
+  .public-profile-hero { grid-template-columns: 1fr; padding: 22px 17px; gap: 16px; }
+  .public-profile-hero h1 { font-size: clamp(1.9rem, 9vw, 2.6rem); }
+  .public-profile-hero .rating-summary { justify-self: start; }
   .public-profile-grid { grid-template-columns: 1fr; }
 }
