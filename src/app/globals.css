@@ -25,6 +25,9 @@
   --radius-small: 12px;
   --ease-out: cubic-bezier(.22, 1, .36, 1);
   --ease-in-out: cubic-bezier(.4, 0, .2, 1);
+  --motion-feedback: 180ms;
+  --motion-menu: 260ms;
+  --motion-content: 580ms;
 }
 
 .replacement-form { padding: 0; overflow: hidden; }
@@ -675,7 +678,8 @@ html[data-theme="dark"] .kicker { color: var(--gold); }
 .pactset-hero::after { content:""; position:absolute; inset:0; z-index:-2; opacity:.055; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode:soft-light; }
 .architectural-lines { pointer-events:none; }
 .architectural-line { fill:none; stroke:rgba(209,231,224,.17); stroke-width:1; vector-effect:non-scaling-stroke; }
-.architectural-signal { fill:none; stroke:rgba(223,161,45,.84); stroke-width:1.35; stroke-linecap:round; stroke-dasharray:4 132; vector-effect:non-scaling-stroke; animation:architecturalTravel 11s linear infinite; }
+.architectural-signal { fill:none; stroke:rgba(223,161,45,.84); stroke-width:1.35; stroke-linecap:round; stroke-dasharray:4 132; vector-effect:non-scaling-stroke; animation:architecturalTravel 11s linear infinite; animation-play-state:paused; }
+.architectural-lines.is-motion-visible .architectural-signal { animation-play-state:running; }
 .architectural-signal.signal-b { animation-delay:-5.5s; }
 .architectural-lines-hero { position:absolute; z-index:-1; top:0; right:-2%; width:min(64%,930px); height:100%; }
 .pactset-hero .site-header { position:relative; z-index:10; width:min(1380px,calc(100% - 8px)); margin:0 auto; padding:8px 9px 8px 17px; border:1px solid rgba(243,245,239,.18); border-radius:15px; color:#f3f5ef; background:rgba(6,31,30,.68); box-shadow:0 18px 56px rgba(0,0,0,.2); backdrop-filter:blur(18px) saturate(125%); }
@@ -1064,6 +1068,9 @@ select { text-overflow: ellipsis; }
 .milestone-track li.is-reached { opacity:1; }
 .milestone-track li.is-reached .milestone-dot { background:var(--gold); box-shadow:0 0 0 1px var(--gold),0 0 0 7px rgba(223,161,45,.1); }
 .milestone-track li.is-current .milestone-dot { animation:checkpointArrival 420ms var(--ease-out); box-shadow:0 0 0 1px var(--gold),0 0 0 10px rgba(223,161,45,.16),0 0 22px rgba(223,161,45,.34); }
+.milestone-track li time,
+.milestone-track li h3,
+.milestone-track li p { will-change:transform,opacity; }
 @keyframes checkpointArrival { 0%{transform:scale(.88)} 55%{transform:scale(1.12)} 100%{transform:scale(1)} }
 .timeline-replay { display:inline-flex; align-items:center; gap:6px; margin-left:auto; color:var(--gold); }
 .illustrative-note { display:flex; align-items:center; gap:12px; }
@@ -1172,6 +1179,8 @@ button, input, select, textarea { font-family: var(--font-sans); }
 .journey-blueprint > div:not(.journey-blueprint-progress) span { color:var(--gold); font-family:var(--font-mono); font-size:.62rem; }
 .journey-blueprint > div:not(.journey-blueprint-progress) strong { font-size:.82rem; line-height:1.4; }
 .connected-journey > .illustrative-note { margin:0; padding:0 clamp(30px,5vw,68px) 24px; }
+.journey-blueprint-progress { overflow:visible; }
+.journey-blueprint-progress i { position:absolute; z-index:2; top:50%; left:0; width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 5px rgba(223,161,45,.1),0 0 18px rgba(223,161,45,.56); transform:translate(-50%,-50%); }
 
 .evidence-story { display:grid; grid-template-columns:minmax(0,.86fr) minmax(420px,1.14fr); gap:clamp(54px,9vw,130px); align-items:center; }
 .evidence-story-copy h2 { margin:0; font-size:clamp(2.8rem,5.6vw,5.8rem); line-height:.95; letter-spacing:-.05em; }
@@ -1483,4 +1492,96 @@ details:not([open]) > [data-sheet-panel] { display: none !important; }
   .public-profile-hero h1 { font-size: clamp(1.9rem, 9vw, 2.6rem); }
   .public-profile-hero .rating-summary { justify-self: start; }
   .public-profile-grid { grid-template-columns: 1fr; }
+}
+
+/* Shared motion language: content remains visible without JavaScript; GSAP
+   owns scroll choreography while CSS owns finite control feedback. */
+details[open] > .get-started-panel,
+details[open] > .landing-account-panel,
+details[open] > [data-sheet-panel] {
+  animation: pactsetMenuIn var(--motion-menu) var(--ease-out) both;
+  transform-origin: top right;
+}
+.mobile-menu-backdrop { animation: pactsetBackdropIn var(--motion-menu) ease both; }
+.mobile-menu { animation: pactsetSheetIn var(--motion-menu) var(--ease-out) both; }
+.wallet-dialog[open] { animation:pactsetDialogIn 320ms var(--ease-out) both; }
+.wallet-dialog[open]::backdrop { animation:pactsetBackdropIn var(--motion-menu) ease both; }
+.faq-list details[open] > p,
+.form-message,
+.transaction-message,
+.wallet-message,
+.notification-list li.unread { animation: pactsetContentIn var(--motion-menu) var(--ease-out) both; }
+.workspace-main > :not(.workspace-topbar),
+.settings-page > *,
+.auth-grid > *,
+.workspace-state-content > * { animation:pactsetPageIn var(--motion-content) var(--ease-out) both; }
+.workspace-main > :nth-child(3),.settings-page > :nth-child(3),.auth-grid > :nth-child(2) { animation-delay:45ms; }
+.workspace-main > :nth-child(n+4),.settings-page > :nth-child(n+4) { animation-delay:90ms; }
+.record-list > a,
+.agreement-card-link,
+.candidate-row,
+.operational-card {
+  transition: transform var(--motion-feedback) var(--ease-out), border-color var(--motion-feedback) ease, background-color var(--motion-feedback) ease, box-shadow var(--motion-feedback) ease;
+}
+@media (hover:hover) and (pointer:fine) {
+  .record-list > a:hover,
+  .agreement-card-link:hover,
+  .operational-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb,var(--gold) 35%,var(--line));
+    box-shadow: 0 14px 32px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+}
+.upload-progress::-webkit-progress-value { transition: width var(--motion-content) var(--ease-out); }
+
+@keyframes pactsetMenuIn {
+  from { opacity:0; transform:translateY(-7px) scale(.985); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes pactsetSheetIn {
+  from { opacity:0; transform:translateY(-10px) scale(.99); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes pactsetDialogIn {
+  from { opacity:0; transform:translateY(12px) scale(.985); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes pactsetBackdropIn { from { opacity:0; } to { opacity:1; } }
+@keyframes pactsetContentIn {
+  from { opacity:.5; transform:translateY(8px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes pactsetPageIn {
+  from { opacity:.7; transform:translateY(10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width:620px) {
+  details[open] > [data-sheet-panel] { transform-origin:bottom center; animation-name:pactsetMobileSheetIn; }
+  @keyframes pactsetMobileSheetIn {
+    from { opacity:0; transform:translateY(18px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .architectural-signal { animation-play-state:paused!important; }
+  details[open] > .get-started-panel,
+  details[open] > .landing-account-panel,
+  details[open] > [data-sheet-panel],
+  .mobile-menu-backdrop,
+  .mobile-menu,
+  .wallet-dialog[open],
+  .wallet-dialog[open]::backdrop,
+  .faq-list details[open] > p,
+  .form-message,
+  .transaction-message,
+  .wallet-message,
+  .notification-list li.unread {
+    animation:none!important;
+    transition:none!important;
+    transform:none!important;
+  }
+  .workspace-main > :not(.workspace-topbar),.settings-page > *,.auth-grid > *,.workspace-state-content > * { animation:none!important; }
+  .record-list > a:hover,.agreement-card-link:hover,.operational-card:hover { transform:none; }
 }

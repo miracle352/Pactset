@@ -85,7 +85,7 @@ export async function saveEventBudget(eventId: string, _: FormState, formData: F
     p_allocations: proposed,
     p_assumptions: assumptionLines,
     p_input_snapshot: { eventType: event.event_type, city: event.city, timezone: event.timezone, startsAt: event.starts_at, attendees: event.attendee_count, spaces: event.spaces, food: event.food_requirements, equipment: event.equipment_requirements, crew: event.crew_requirements },
-    p_proposal_source: parsed.data.source,
+    p_proposal_source: parsed.data.source === "gemini" ? "ai" : parsed.data.source,
   });
   if (error || !data) return { status: "error", message: error?.message.includes("exceed") ? "Allocations and contingency cannot exceed the total budget." : "The budget draft could not be saved. Existing approved planning is unchanged.", fields };
   revalidatePath(`/workspace/organizer/events/${eventId}`);

@@ -46,23 +46,25 @@ export function PreparationTimeline() {
     let vertical = window.matchMedia("(max-width: 620px)").matches;
     const setProgress = (progress: number) => {
       vertical = window.matchMedia("(max-width: 620px)").matches;
-      const distance = vertical ? track.clientHeight : track.clientWidth;
+      const distance = Math.max(0, (vertical ? track.clientHeight : track.clientWidth) - 8);
       gsap.set(line, vertical
         ? { scaleX: 1, scaleY: progress, transformOrigin: "top center" }
         : { scaleX: progress, scaleY: 1, transformOrigin: "left center" });
       gsap.set(signal, vertical ? { x: 0, y: progress * distance } : { x: progress * distance, y: 0 });
       checkpoints.forEach((checkpoint, index) => {
         const threshold = index / Math.max(checkpoints.length - 1, 1);
+        const localProgress = Math.max(0, Math.min(1, (progress - threshold + .16) / .16));
         checkpoint.classList.toggle("is-reached", progress + .015 >= threshold);
         checkpoint.classList.toggle("is-current", Math.abs(progress - threshold) < .075);
+        gsap.set(checkpoint.querySelectorAll("time,h3,p"), { y: (1 - localProgress) * 8, opacity: .45 + localProgress * .55 });
       });
     };
 
     setProgress(0);
     const scrollProgress = ScrollTrigger.create({
       trigger: root.current,
-      start: "top 76%",
-      end: "bottom 42%",
+      start: "top 82%",
+      end: "bottom 28%",
       scrub: true,
       invalidateOnRefresh: true,
       onUpdate: (self) => setProgress(self.progress),

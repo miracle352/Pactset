@@ -1,0 +1,112 @@
+{
+  "baseURL": "http://127.0.0.1:3100",
+  "label": "after-local",
+  "results": [
+    {
+      "name": "landing-360",
+      "status": 200,
+      "overflow": false,
+      "sectionVisibility": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "preparation": {
+        "progressTransform": "matrix(1, 0, 0, 0.3636, 0, 0)",
+        "reached": 2
+      }
+    },
+    {
+      "name": "landing-390",
+      "status": 200,
+      "overflow": false,
+      "sectionVisibility": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "preparation": {
+        "progressTransform": "matrix(1, 0, 0, 0.3655, 0, 0)",
+        "reached": 2
+      }
+    },
+    {
+      "name": "landing-430",
+      "status": 200,
+      "overflow": false,
+      "sectionVisibility": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "preparation": {
+        "progressTransform": "matrix(1, 0, 0, 0.3816, 0, 0)",
+        "reached": 2
+      }
+    },
+    {
+      "name": "landing-768",
+      "status": 200,
+      "overflow": false,
+      "sectionVisibility": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "preparation": {
+        "progressTransform": "matrix(0.3468, 0, 0, 1, 0, 0)",
+        "reached": 2
+      }
+    },
+    {
+      "name": "landing-1440",
+      "status": 200,
+      "overflow": false,
+      "sectionVisibility": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "preparation": {
+        "progressTransform": "matrix(0.511, 0, 0, 1, 0, 0)",
+        "reached": 2
+      }
+    },
+    {
+      "name": "organizer-payment",
+      "overflow": false,
+      "walletPanel": true
+    },
+    {
+      "name": "organizer-payment-mobile",
+      "overflow": false
+    },
+    {
+      "name": "reduced-motion",
+      "hiddenWords": 0,
+      "smoothScroll": null,
+      "signalAnimation": "paused"
+    }
+  ],
+  "errors": []
+}

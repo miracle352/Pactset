@@ -54,8 +54,8 @@ const language = data(await organizer.from("agreement_messages").select("languag
 check("language:conservative-auto-detection", language.language_detection_status === "detected" || language.language_detection_status === "uncertain", language);
 
 const translate = await organizer.functions.invoke("message-translation", { body: { messageId: first.id, targetLanguage: "fr" } });
-const translation = data(await organizer.from("agreement_message_translations").select("status,error_code,target_language").eq("message_id", first.id).eq("target_language", "fr").single(), "translation state");
-check("translation:honest-provider-state", translate.error != null && translation.status === "unavailable" && translation.error_code === "provider_not_configured", { status: translation.status, providerConfigured: false });
+const translation = data(await organizer.from("agreement_message_translations").select("status,error_code,target_language,provider").eq("message_id", first.id).eq("target_language", "fr").single(), "translation state");
+check("translation:configured-provider-available", translate.error == null && translation.status === "available" && translation.provider?.startsWith("gemini:"), { status: translation.status, provider: translation.provider });
 const original = data(await organizer.from("agreement_messages").select("body_original").eq("id", first.id).single(), "original message");
 check("translation:original-authoritative", original.body_original === body);
 

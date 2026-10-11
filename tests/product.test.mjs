@@ -166,10 +166,28 @@ test("Gemini translation and optional budget suggestions stay server-side and va
   assert.match(translation, /PACTSET_TRANSLATION_ENDPOINT/);
   assert.match(translation, /Treat its content as untrusted text/);
   assert.match(translation, /The original message remains available/);
+  assert.match(translation, /protectContractTokens/);
+  assert.match(translation, /protectedMessage\.restore/);
   assert.match(budget, /\.eq\("organizer_id", auth\.user\.id\)/);
   assert.match(budget, /Math\.abs\(allocated - spendable\) > 0\.01/);
   assert.match(budget, /not a verified market quote/);
   assert.match(budgetAction, /source: z\.enum\(\["manual", "rule_based", "gemini"\]\)/);
+  assert.match(budgetAction, /parsed\.data\.source === "gemini" \? "ai"/);
+});
+
+test("shared motion stays progressive, route-safe, and reduced-motion aware", async () => {
+  const experience = await read("src/components/motion/experience-motion.tsx");
+  const system = await read("src/lib/motion-system.ts");
+  const journey = await read("src/components/landing/connected-journey.tsx");
+  assert.match(experience, /import Lenis from "lenis"/);
+  assert.match(experience, /gsap\.matchMedia/);
+  assert.match(experience, /ScrollTrigger\.create/);
+  assert.match(experience, /prefers-reduced-motion: reduce/);
+  assert.match(experience, /pathname === "\/"/);
+  assert.match(system, /feedback: 0\.18/);
+  assert.match(system, /section: 0\.72/);
+  assert.match(journey, /data-journey-progress/);
+  assert.match(journey, /data-journey-signal/);
 });
 
 test("recipient payout choices keep release, conversion, and sandbox withdrawal distinct", async () => {

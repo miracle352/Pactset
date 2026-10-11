@@ -1,10 +1,17 @@
 # Restricted staging review plan
 
+## Motion and Gemini verification (2026-10-11)
+
+- Gemini is configured in `pactset-development` as the server-only `PACTSET_GEMINI_API_KEY`; never copy it to Vercel or a `NEXT_PUBLIC_*` variable. `npm run gemini:verify-development` passed authenticated English↔French fictional-message translation, original preservation, protected names/amounts/times/dates/URLs, unrelated-user denial, and a validated editable TGBP budget. The generic endpoint/key adapter remains fallback-only when direct Gemini is absent.
+- The landing uses one Lenis instance only for fine-pointer public browsing, synchronized to GSAP/ScrollTrigger. Workspaces and touch/reduced-motion sessions use native scrolling. `npm run qa:capture-motion -- after-local http://127.0.0.1:3100` verifies 360/390/430/768/1440 layouts, lower-section visibility, preparation progress, authenticated payment/wallet surfaces, reduced motion, overflow and console errors.
+- Review the committed desktop/mobile recordings under `docs/recordings/motion-upgrade/after-local/`. The earlier `docs/recordings/ui-correction/` files are the preserved before baseline. A fresh protected-Preview before capture was not possible because its old short-lived automation token no longer passed the unchanged Vercel gate; this is not evidence that protection was bypassed.
+- Private gates remain unchanged: do not initiate payment merely for motion QA. Real Freighter signing, password recovery, and the multi-person Pactset Go rehearsal remain unverified. Email confirmation is user-verified.
+
 ## Wallet conflict and Gemini setup (2026-10-11)
 
 The previously generic Freighter failure was HTTP 409 after a valid ownership signature because that Testnet address was already active on another Pactset account. The repaired flow rejects this condition before requesting a signature and explains that the tester must sign in to the owning Pactset account or select a different Freighter address. Never move the address between accounts merely to pass the rehearsal; existing escrow participants remain immutable.
 
-Add the Gemini key privately in **Supabase Dashboard → pactset-development → Edge Functions → Secrets** as `PACTSET_GEMINI_API_KEY`. Optional override: `PACTSET_GEMINI_MODEL`; otherwise Pactset uses `gemini-3.5-flash-lite`. Do not add this secret to Vercel or any `NEXT_PUBLIC_*` variable. Direct Gemini takes precedence; the existing `PACTSET_TRANSLATION_ENDPOINT` + `PACTSET_TRANSLATION_API_KEY` configuration remains a fallback only when no Gemini key is present.
+The Gemini key is configured privately in **Supabase Dashboard → pactset-development → Edge Functions → Secrets** as `PACTSET_GEMINI_API_KEY`. Optional override: `PACTSET_GEMINI_MODEL`; otherwise Pactset uses `gemini-3.5-flash-lite`. Do not add this secret to Vercel or any `NEXT_PUBLIC_*` variable. Direct Gemini takes precedence; the existing `PACTSET_TRANSLATION_ENDPOINT` + `PACTSET_TRANSLATION_API_KEY` configuration remains a fallback only when no Gemini key is present.
 
 After saving the secret, use a fictional agreement message and request English → French, then French → English. Confirm the original remains visible, amounts/codes/dates/URLs are unchanged, and quota/provider failure keeps the original readable. Separately request an organizer budget suggestion and confirm it is an editable unapproved draft whose allocations plus contingency equal the supplied total. No provider call is counted as passed until these requests succeed.
 
@@ -16,7 +23,7 @@ After saving the secret, use a fictional agreement message and request English �
 4. Save, refresh, sign out, and sign in again with the username. Confirm all preferences persist and no existing agreement currency, deadline, or wallet changes.
 5. Email confirmation success was completed privately by the owner on 2026-10-11. Do not repeat it merely for fixture coverage. Password recovery, old-password rejection, and expired/reused email-link behavior remain a separate unverified checklist.
 
-Translation and optional AI budgets remain provider-blocked until `PACTSET_GEMINI_API_KEY` is saved privately in the `pactset-development` Edge Function secrets. The existing generic endpoint/key contract remains a fallback. The rule-based editable proposal remains active.
+Translation and optional AI budgets are now provider-verified through the authenticated development path. The existing generic endpoint/key contract remains a fallback. The rule-based editable proposal remains active.
 
 Automated protected-Preview coverage completed on 2026-10-11 against the stable branch alias at 1440px and 390px. It passed username sign-in, availability/current-name feedback, Canada → Ontario, explicit `America/Toronto`, suggested `TCAD`, save/reload persistence, and mobile overflow checks. This does not replace the manual password-recovery checklist or prove every country subdivision/timezone combination.
 
