@@ -186,8 +186,9 @@ test("agreement collaboration is scoped, immutable, and auditable", async () => 
   assert.doesNotMatch(migration, /update public\.agreements\s+set\s+preparation_deadline/i);
   assert.match(actions, /fromZonedTime/);
   assert.match(interfaceSource, /The accepted deadline remains/);
-  assert.match(interfaceSource, /Original shown · translation/);
-  assert.match(interfaceSource, /neutral human review/i);
+  assert.match(interfaceSource, /Original message/);
+  assert.match(interfaceSource, /Machine translation/);
+  assert.match(interfaceSource, /neutral review/i);
 });
 
 test("event changes are version-bound and cannot silently rewrite accepted agreements", async () => {

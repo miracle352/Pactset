@@ -1360,3 +1360,29 @@ button, input, select, textarea { font-family: var(--font-sans); }
 @media (max-width: 680px) {
   .replacement-control-grid { grid-template-columns: 1fr; }
 }
+
+.agreement-message-form .field-help { grid-column:1/-1; margin:0; color:var(--faint); font-size:.68rem; line-height:1.5; }
+.message-translation { display:grid; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
+.message-translation form { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.message-translation select { min-height:40px; border:1px solid var(--line-strong); border-radius:8px; padding:8px 28px 8px 10px; color:var(--ink); background:var(--surface-dense); }
+.message-translation .button { min-height:40px; padding:8px 12px; }
+.message-translation details { padding:10px 12px; border-left:2px solid var(--gold); background:rgba(223,161,45,.05); }
+.conversation-read-control { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:14px 0; }
+.notification-menu { position:relative; }
+.notification-menu>summary { position:relative; min-width:44px; min-height:44px; display:grid; place-items:center; border:1px solid var(--line); border-radius:10px; color:var(--ink); background:var(--surface-dense); cursor:pointer; list-style:none; }
+.notification-menu>summary::-webkit-details-marker { display:none; }
+.notification-menu>summary>b { position:absolute; top:-5px; right:-5px; min-width:19px; min-height:19px; display:grid; place-items:center; padding:2px; border-radius:99px; color:var(--primary-text); background:var(--gold); font-size:.58rem; }
+.notification-panel { position:absolute; z-index:72; top:calc(100% + 9px); right:0; width:min(390px,calc(100vw - 28px)); max-height:min(76dvh,650px); overflow:auto; padding:18px; border-radius:16px; box-shadow:var(--shadow); }
+.notification-panel ol { display:grid; gap:8px; margin:16px 0 0; padding:0; list-style:none; }
+.notification-panel li { padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface-dense); }
+.notification-panel li.unread { border-color:color-mix(in srgb,var(--gold) 55%,var(--line)); }
+.notification-panel li>div { display:flex; justify-content:space-between; gap:12px; }
+.notification-panel li p { margin:6px 0; color:var(--muted); font-size:.7rem; line-height:1.45; }
+.notification-panel li small { color:var(--faint); font-size:.6rem; }
+.notification-panel li form { margin-top:8px; }
+.notification-panel .button { min-height:38px; padding:7px 10px; }
+
+@media (max-width: 720px) {
+  .notification-panel { position:fixed; inset:auto 8px calc(8px + env(safe-area-inset-bottom)); width:auto; max-height:min(82dvh,680px); }
+  .agreement-message-list>li>div { align-items:flex-start; flex-direction:column; gap:4px; }
+}

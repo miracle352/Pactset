@@ -2,6 +2,18 @@
 
 Last updated: 2026-10-11 (Africa/Lagos)
 
+## 2026-10-11 messaging, translation, support, and notifications checkpoint
+
+- Added migration `20261011143000_messaging_translation_notifications.sql` and applied it only to hosted `pactset-development` (`lvpsemqalftvcqkrjsyu`). It adds explicit, revocable agreement-conversation membership; idempotent messages; per-user read positions; per-message/language translation cache; deduplicated notifications; and assignment-driven support access. Existing migration drift remains unchanged and was not reset.
+- Deployed the authenticated `message-translation` Edge adapter to `pactset-development`. No external translation provider is configured, so the verified behavior is an honest `unavailable` state with the original text preserved. To enable output, configure `PACTSET_TRANSLATION_ENDPOINT` and `PACTSET_TRANSLATION_API_KEY` as function secrets for a reviewed provider; no provider credentials belong in Vercel or the client.
+- Agreement conversations now paginate, refresh from Supabase Realtime with a visible-session polling fallback, save retry-safe sends, require an explicit user action to mark messages read, and disclose machine translation. `@support` creates or reuses an active case without allowing participant self-assignment. Neutral language reminders do not affect rights or funds.
+- The authenticated header now exposes owner-only notification summaries for messages, support requests/assignments, replacement events, and agreement updates. Opening a notification marks only that recipient's row read and validates the internal destination.
+- The isolated multi-account verifier passed 12/12: one idempotent send, provider/assigned-support access, unrelated read/send denial, explicit three-member scope, translation-provider-unavailable behavior, immutable original, explicit read position, notification deduplication/private-copy protection, and support-case reuse.
+- Application tests pass 19/19, TypeScript passes, and Biome passes. The known OneDrive production-build limitation remains separate; hosted Vercel build is the deployment gate.
+- Deadline regressions now include the America/New_York spring-forward/repeated-hour boundary and source-level proof that the countdown recalculates from `Date.now()` on visibility resume rather than drifting. The existing two-party accepted/rejected extension rehearsal remains valid.
+- The expired-reservation harness now creates a fresh isolated offer instead of reusing the stale fixture. Its test-only direct time shift is still blocked because a child CLI process cannot inherit the linked Supabase session on this host; no stale result is counted as a pass. The already verified withdrawal release and genuine concurrent capacity tests remain passing evidence.
+- Still unverified: real provider translations in two languages, chat attachments, automatic language detection, physical software-keyboard behavior, real confirmation/recovery email links, fresh Freighter TUSD/TEUR signing, and the full private Pactset Go rehearsal.
+
 ## 2026-10-11 capacity, replacement, support, and deadline checkpoint
 
 - Continued from `328e386` on `codex/stage-2b-preview`. This checkpoint is local only: no Git push, Vercel deployment, Production change, or unrelated Supabase project access occurred.

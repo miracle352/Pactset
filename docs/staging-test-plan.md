@@ -153,6 +153,16 @@ npx next build --webpack
 
 Reviewers are not required to set up the project locally.
 
+## Messaging and support Preview check
+
+1. Use separate organizer and provider browser profiles. Open the same accepted agreement and its **Messages** section.
+2. Send one ordinary message. Confirm the other participant receives one notification, opens the correct agreement, and deliberately marks it read.
+3. Retry a send only after a visible failure. Confirm only one copy appears after refresh/reconnect.
+4. Request French or another reading language. Until a provider is configured, expect **Translation unavailable** and an unchanged, readable original; do not treat this as translated output.
+5. Send a message containing `@support`. Confirm the existing active case is linked (not duplicated), participants see pending/assigned status, and only the assigned support identity can enter the related private record.
+6. Sign in as the unrelated account and confirm the agreement, messages, translation rows, case and notifications are not visible. A soft not-found/denial is expected.
+7. Repeat at 390px with the software keyboard visible: the composer, notification sheet and send action must remain reachable without horizontal overflow.
+
 ## 2026-10-10 frontend Preview verification
 
 - Branch-only delivery: `codex/stage-2b-preview`; Production/main/custom domains were not changed.

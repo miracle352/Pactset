@@ -1,5 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, unlink, writeFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 
 const stateUrl = new URL("../../.stage2a-test-state.local.json", import.meta.url);
@@ -118,8 +121,8 @@ async function acceptRace(offerA, offerB) {
   return [a, b];
 }
 
-const slot = Number.parseInt(run.slice(0, 8), 16) % (5 * 365 * 48);
-const base = Date.UTC(2040, 0, 1) + slot * 30 * 60 * 1000;
+const slot = Number(BigInt(Date.now()) % BigInt(100 * 365 * 48));
+const base = Date.UTC(2100, 0, 1) + slot * 30 * 60 * 1000;
 const at = (minutes) => new Date(base + minutes * 60 * 1000).toISOString();
 const crewStart = at(0);
 const crewEnd = at(120);
@@ -187,6 +190,23 @@ must(await organizer.rpc("respond_to_offer", { p_offer_id: releaseOffer.id, p_ex
 must(await supplier.rpc("respond_to_offer", { p_offer_id: releaseOffer.id, p_expected_version: 1, p_action: "withdraw", p_reason: "Release isolated verification capacity." }), "withdraw reservation");
 const releasedReservations = must(await organizer.from("offer_reservations").select("offer_id").eq("offer_id", releaseOffer.id), "load released reservations");
 results.push(row("reservations:valid-withdrawal-releases-capacity", releasedReservations.length === 0, { reservations: releasedReservations.length }));
+
+const expiryRequest = await createRequest({ role: "supplier", title: "Fresh reservation expiry", category: "capacity-race-equipment", quantity: 1, unit: "units", pricing: "per booking", start: at(4_320), end: at(4_440) });
+const expiryOffer = await createOffer(supplier, { request: expiryRequest, role: "supplier", quantity: 1, pricing: "per booking", start: at(4_320), end: at(4_440), inventory: inventory.id });
+must(await organizer.rpc("respond_to_offer", { p_offer_id: expiryOffer.id, p_expected_version: 1, p_action: "accept", p_reason: null }), "reserve fresh expiry-test capacity");
+const sql = `update public.offer_reservations set expires_at=now()-interval '1 minute' where offer_id='${expiryOffer.id}';`;
+const expirySql = join(tmpdir(), `pactset-expiry-${expiryOffer.id}.sql`);
+await writeFile(expirySql, sql, { mode: 0o600 });
+const expired = process.platform === "win32"
+  ? spawnSync("cmd.exe", ["/d", "/s", "/c", `npx supabase@2.119.0 db query --linked --file "${expirySql}"`], { cwd: new URL("../../", import.meta.url), encoding: "utf8" })
+  : spawnSync("npx", ["supabase@2.119.0", "db", "query", "--linked", "--file", expirySql], { cwd: new URL("../../", import.meta.url), encoding: "utf8" });
+await unlink(expirySql).catch(() => undefined);
+if (expired.status !== 0) throw new Error(`Could not expire the isolated development reservation through the linked CLI: ${expired.stderr || expired.error?.message || "unknown error"}`);
+const providerAfterExpiry = must(await supplier.rpc("respond_to_offer", { p_offer_id: expiryOffer.id, p_expected_version: 1, p_action: "accept", p_reason: null }), "provider response after reservation expiry");
+const expiryState = must(await organizer.from("offer_versions").select("organizer_accepted_at,provider_accepted_at").eq("offer_id", expiryOffer.id).eq("version", 1).single(), "load expired offer state");
+const expiryAgreements = must(await organizer.from("agreements").select("id").eq("offer_id", expiryOffer.id), "load expired offer agreements");
+const renewedReservations = must(await organizer.from("offer_reservations").select("offer_id,expires_at").eq("offer_id", expiryOffer.id), "load renewed reservation");
+results.push(row("reservations:expired-release-and-stale-acceptance", providerAfterExpiry && expiryState.organizer_accepted_at === null && expiryState.provider_accepted_at !== null && expiryAgreements.length === 0 && renewedReservations.length === 1, { agreements: expiryAgreements.length, renewedReservations: renewedReservations.length }));
 
 const failures = results.filter((item) => !item.ok);
 console.log(JSON.stringify({ run, results, passed: results.length - failures.length, failed: failures.length }, null, 2));
