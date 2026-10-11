@@ -10,6 +10,16 @@ test-results/
 .env
 .env.*
 !.env.example
+.stage2a-test-state.local.json
+.stellar-testnet.local.json
+.stellar-testnet-state.local.json
+.stellar-failure-fixtures.local.json
+.staging-preview-state.local.json
+.wallet-escrow-test.local.json
+.browser-payment-rehearsals.local.json
+.pactset-go-testnet.local.json
+contracts/target/
+supabase/.temp/
 *.pem
 *.key
 *.seed
@@ -24,3 +34,5 @@ Thumbs.db
 *.tsbuildinfo
 .idea/
 .vscode/
+.agents/skills/
+skills-lock.json

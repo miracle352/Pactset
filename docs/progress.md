@@ -1,15 +1,50 @@
 # Pactset progress
 
-Last updated: 2026-10-04 (Africa/Lagos)
+## 2026-10-05 — Stage 2B local Testnet checkpoint
+
+- Added a runtime ISO 4217 test-currency catalogue and a separate provisioned Stellar Testnet asset registry.
+- Provisioned TUSD and TEUR through one generic idempotent process with real trustlines, issued test supply, illustrative seeded liquidity, and SAC addresses.
+- Deployed a version-bound Soroban escrow and completed one genuine XLM → TUSD → escrow → submit → release journey; the supplier received exactly 750 TUSD.
+- Verified expiring single-use wallet ownership challenges, replay/wrong-network/cross-account rejection, private evidence ACL, repeated/unauthorized/disputed release rejection, and an authorized resolver refund.
+- Added a responsive participant-only payment projection with real explorer links and light/dark desktop/mobile screenshots.
+- Browser transaction signing, automatic reconciliation, the remaining failure matrix, and evidence/review actions remain incomplete and are labeled as such. No push or deployment was performed.
+
+Last updated: 2026-10-05 (Africa/Lagos)
 
 ## Current stage
 
-Stage 1: foundation, design system, project tracking, GitHub, and working Vercel preview.
+Stage 2A remains complete except for real email-link confirmation and recovery, which are still blocked by the hosted email limit. Stage 2B has a genuine local/operator-driven Testnet settlement proof and participant payment projection, but browser-signed payment actions, automatic reconciliation, and several adversarial cases remain incomplete. Later stages remain out of scope.
+
+## Stage 2A inspection and architecture record
+
+- The existing repository, routes, Opal/Obsidian tokens, theme persistence, GitHub remote, and Vercel project are being preserved.
+- The current public role pages are fictional generic shells with broken hash navigation, oversized headings, repeated local preferences, and a component-state showcase. These findings are now explicit `REV-*` requirements.
+- Supabase is the selected managed Auth/Postgres service. The existing `pactset-development` project (`lvpsemqalftvcqkrjsyu`) was verified in “miracle352’s projects” through the connection labeled `python`. Fieldwork and `supabase-canary-branch` were not changed.
+- Current official Supabase guidance was checked on 2026-10-04. The implementation uses publishable keys, `@supabase/ssr`, cookie sessions, Next.js 16 `proxy.ts`, `getClaims()` for server identity checks, explicit Data API grants, and RLS on every exposed table.
+- Changelog review found the 2026 Data API auto-exposure change and the move toward publishable keys; migrations therefore include explicit least-privilege grants rather than assuming new tables are exposed.
+- Design read: targeted evolution of the existing premium event brand. Dials are `DESIGN_VARIANCE 5`, `MOTION_INTENSITY 3`, and `VISUAL_DENSITY 6`. The glass system stays; workspace type becomes compact; role layouts become task-specific; animation is limited to feedback.
 
 ## Inspection record
 
 - Workspace root is an existing personal profile repository (`miracle352/miracle352`) with an unrelated untracked nested `fieldwork/` repository. Pactset is being created in a separate sibling folder and repository at `pactset/`.
-- No root `AGENTS.md` applies to the new Pactset folder. The only discovered workspace `AGENTS.md` files belong to Fieldwork and are out of scope.
+- No repository `AGENTS.md` existed at initial inspection. Next.js later generated its version-specific `AGENTS.md` and `CLAUDE.md`; the proxy guidance it requires was read from the installed Next.js 16 documentation before further edits.
+
+## Stage 2A local implementation checkpoint
+
+- Implemented Supabase SSR auth screens/actions, verification and recovery callbacks, session refresh proxy, protected layouts, multiple public roles, and a server-assigned-only support boundary.
+- Added profile/settings persistence contracts, an original CSS avatar, global country/language/IANA timezone controls, independent test-currency preferences, provider services/skills/pricing/availability, and supplier inventory.
+- Added organizer draft events with named event timezones, validated local-to-instant conversion, 24-hour preparation defaults, capacity/budget/quantity validation, explicit save states, request publication, provider offers, versioned counteroffers, rejection/withdrawal, two-party acceptance, and visibly unfunded agreements.
+- The migration enables RLS on every exposed table, revokes anonymous table access, derives identity from `auth.uid()`, serializes provider capacity checks, rejects stale versions, resets expired acceptance, prevents duplicate agreements, audits transitions, and checks overlapping supplier inventory or crew shifts.
+- Public role demos remain fictional and separate from `/workspace/*`. The public component-state showcase and remaining milestone/development copy were removed.
+- Local verification passed: typecheck, Biome lint, 6 Node tests, production build, dependency audit with zero vulnerabilities, and 23 Playwright browser checks with 3 expected device-specific skips. Public/auth routes, themes, mobile widths, focus, touch, reduced motion, navigation, and overflow were exercised.
+- The Stage 2A schema and hardening migration are applied to `pactset-development`. Data API is enabled, automatic table exposure is off, automatic RLS is enabled, all 11 application tables have RLS, anonymous table grants are absent, and authenticated access is explicitly granted.
+- Four dashboard-created, auto-confirmed development-only users are recorded in an ignored local state file. A real separate-account run passed 12/12 checks: organizer login/logout and draft resume, privacy-safe request discovery, idempotent supplier offer retry, stale-version rejection, concurrent same-version acceptance, unfunded supplier and crew agreements, unrelated-account read/update denial, support self-assignment denial, and agreement persistence after signing in again.
+- Focused remote edge-case verification passed 7/7 checks: supplier inventory overbooking rejected, crew scheduling conflict rejected, organizer rejection persisted, provider withdrawal persisted, a first acceptance created a temporary reservation, forced expiry cleared the stale acceptance, and a fresh two-party acceptance released the reservation into an unfunded agreement.
+- Authenticated Playwright journeys passed on desktop and mobile for organizer, supplier, and crew. Visual inspection covered light/dark full-page evidence. It exposed and fixed the organizer's nonexistent offer-detail target and the missing mobile account/sign-out control while preserving the Opal/Obsidian glass system.
+- The final Next.js production build passed after those fixes. No deployment or hosted verification was attempted.
+- Normal email confirmation remains enabled globally. Real confirmation-link and password-recovery email flows are still blocked/unverified because the Free-plan email service rate limit was reached; dashboard auto-confirm was used only for the four development test identities.
+- Payment-phase requirement `PAY-015` preserves broad local test-currency selection as a catalog separate from Stellar assets actually provisioned for Testnet settlement. It is not implemented in Stage 2A.
+- Per the user’s latest instruction, no production deployment was attempted and no commit was pushed, because pushing `main` would trigger the existing production-linked Vercel project.
 - GitHub is authenticated as personal account `miracle352`. Search found no existing personal Pactset repository, so a new private repository was created at `https://github.com/miracle352/Pactset` and the verified `main` history was pushed without force.
 - Vercel's connector remains independently unauthorized for the `miracle352` account scope. The signed-in browser route could access the exact private `miracle352/Pactset` repository without another identity challenge, so it was used to create the single `pactset` project and deploy `https://pactset.vercel.app` without changing repository visibility or security settings.
 - Official framework check on 2026-10-04: Next.js 16.3.8 is Active LTS, React 19.3 is stable, Next.js 16 requires Node.js 20.9+ and TypeScript 5.1+.
@@ -66,8 +101,9 @@ The following are explicit Stage 5 verification requirements and must not be mar
 
 - `npm run typecheck`: passed.
 - `npm run lint`: passed with Biome 2.5.15.
-- `npm test`: 4/4 passed.
-- `npm run build`: passed; all eight application routes statically prerendered. The build required sandbox escalation because Windows blocked generated `.next` route directories inside the managed filesystem; the same command succeeded outside that restriction.
+- `npm test`: 6/6 passed, including Stage 2A migration boundary assertions.
+- `node tests/stage2a-remote.mjs verify`: 12/12 passed against `pactset-development`; email-link verification and recovery are explicitly excluded and remain blocked.
+- `npm run build`: passed; public pages prerender and auth/workspace/settings routes remain dynamic. The build required a shared host session because OneDrive blocked generated `.next` route directories inside the managed sandbox.
 - `npm run test:e2e`: 23 passed, 3 expected project-specific skips across desktop and mobile Chromium projects; required 360/390/430/768/1440 widths, short mobile viewport, both themes, enlarged text, menu/sticky-action conflict, persistence, routes, overflow, whole-card role links, keyboard focus, fine-pointer hover, mobile tap, and reduced motion were exercised.
 - `npm audit --audit-level=high`: 0 vulnerabilities after replacing a vulnerable ESLint glob dependency chain with the Next.js-supported Biome linter.
 - Secret-pattern scan: no credential, private-key, seed, or API-key pattern found outside the preserved product brief.
@@ -100,3 +136,33 @@ The following are explicit Stage 5 verification requirements and must not be mar
 - Stage 1 preferences may use versioned local storage because they are non-sensitive UI preferences; authoritative account/agreement settings wait for persistent backend work.
 - The approved pavilion artwork is a temporary visual fallback, not a 3D implementation.
 - Vercel access note: the browser session can read the specific private repository, while the API connector still returns a separate account-scope authorization error. The browser import route is the authorized fallback; no security setting or repository visibility change is required.
+
+## Stage 2B browser-payment checkpoint — 2026-10-05
+
+- Implemented real Freighter ownership/signing UI, server-prepared Testnet envelopes, exact conversion quote, separate escrow funding, private evidence, correction, approval/release, dispute/resolution and ledger reconciliation.
+- Confirmed fresh TUSD end-to-end Testnet transfers and generic TEUR conversion with genuine hashes. Automated fixture signing is explicitly not browser-extension proof.
+- Added caller-scoped local reconciliation, durable idempotency/pending state and conversion-success/funding-retry UI.
+- Desktop/mobile browser checks pass in both themes and screenshots were visually reviewed. Production build passes with webpack; Turbopack is blocked only by OneDrive generated-directory `EPERM`.
+- No push or website deployment. Restricted staging and manual Freighter/two-crew/support rehearsal remain gated by explicit authorization and private user interaction.
+
+## Stage 2B isolated-failure and staging checkpoint — 2026-10-05
+
+- Added an idempotent, ignored-state Testnet verifier that creates disposable accounts only. The registered TUSD path failed with `op_no_trust` for a destination lacking a trustline; a deliberately drained disposable account failed trustline creation with `op_low_reserve`; a fresh unissued `TNOQ` asset had zero offers and zero strict-receive paths. No successful demo agreement or escrow was touched.
+- Read-only Vercel dashboard inspection confirmed project `pactset` (`prj_YFD3oimOHAfrcRMcAyjIS2J1zNjT`) under the `miracle352` Hobby scope, Standard Vercel Authentication enabled, password protection unavailable without upgrade, protected sourcemaps enabled, and no project environment variables configured. The connector itself still lacks authorization for this scope.
+- Read-only Supabase inspection confirmed staging callbacks have not been added: Site URL is localhost and the only redirect allow-list entry is `http://localhost:3000/**`.
+- The restricted-staging plan now documents Preview-only variables, exact callbacks, layered Vercel/Supabase protection, caller-scoped reconciliation, a real Freighter sequence, and organizer/supplier/two-crew/support rehearsal.
+- Second-crew and support credentials are prepared in the ignored local fixture file, but the external Auth account creation submit remains pending the required action-time confirmation. No role is stored in editable user metadata; support will be inserted through database administration and audited only after its Auth UUID exists.
+- Email confirmation and password recovery remain unverified. No email verification setting was disabled and no rate-limited retry was attempted.
+- Crew B and support now exist as separate auto-confirmed development fixtures in `pactset-development`; global signup **Confirm email** remains enabled. Roles were assigned through database administration, not user metadata, and the support assignment has an audit record.
+- A fresh client/RLS verification passed 24/24 checks across organizer, supplier, Crew A, Crew B, support and unrelated identities. Ordinary support self-assignment was rejected; private agreements/evidence stayed hidden from Crew B, support-without-resolver and the unrelated account.
+- Assigned-case support remains unimplemented. The existing narrow resolver-wallet payment boundary must not be described as an assigned-case system; no support wallet was bound and no broad access was granted.
+
+## Stage 2B wallet-created escrow and assigned-support checkpoint — 2026-10-05
+
+- Applied the forward-only `stage_2b_user_escrow_and_assigned_support` and development-runtime migrations only to `pactset-development`. They add deterministic agreement-version escrow finalization, server-controlled support cases/messages/events, agreement-scoped RLS, and a development-only public runtime registry. Fieldwork and canary were untouched.
+- Uploaded the existing tested escrow WASM to Stellar Testnet once. The application now prepares a deterministic custom-contract deployment for the organizer's verified wallet; no issuer/operator signing key is present in the browser, Vercel, or checked-in configuration.
+- Automated fixture signing confirmed deployment transaction `749626ab9ad223acff6716c17ca0e88dbc61ec9bc4df507a31f6acac79168b4f` and contract `CC4WVKCENGZGVZQMBYPC26IKF6CNJOFN45HW7UMOA26WOCIPDZHM4D4P` for isolated agreement `60a7b51a-1129-45fe-8872-8f842ccd72ae`. Reconciliation recovered the already-confirmed transaction after an interruption; a duplicate create was rejected.
+- Assigned case `acdb42fc-4400-4faf-9efc-c70e6f357d33` was opened by a participant and assigned server-side to the support identity that owns the disclosed resolver fixture wallet. Assigned access and unrelated denial passed. Real Freighter signing and the fresh browser dispute/resolution rehearsal remain required.
+- Supabase Auth now has the exact protected Preview origin as Site URL and exact `/auth/confirm**` and `/auth/update-password` redirects; localhost remains allowed. Verification was not disabled. Actual confirmation and recovery email-link journeys remain unverified.
+- Added safe active-wallet switching after browser QA found the development accounts were already bound to automated fixture wallets. The service-only transaction keeps one active verified wallet per account/network while leaving every existing escrow participant key immutable.
+- Typecheck, Biome lint, 8/8 app tests, 5/5 contract tests, and a Next.js production build passed. The first build attempt hit a OneDrive `EPERM` generated-directory lock; a clean retry completed all static and dynamic routes.

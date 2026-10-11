@@ -1,0 +1,13 @@
+import { chromium } from "@playwright/test";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+const state = JSON.parse(await readFile(new URL("../../.stage2a-test-state.local.json", import.meta.url), "utf8"));
+const browser = await chromium.launch({ headless: true, executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", args: ["--use-angle=swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"] });
+const context = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: "dark" }); const page = await context.newPage(); const messages = [];
+page.on("console", (message) => messages.push({ type: message.type(), text: message.text() }));
+await page.goto("http://localhost:3000", { waitUntil: "networkidle" }); await page.waitForTimeout(4000);
+const scene = await page.evaluate(() => ({ label: document.querySelector(".scene-status")?.textContent, webgl: Boolean(document.createElement("canvas").getContext("webgl2") || document.createElement("canvas").getContext("webgl")) }));
+await page.goto("http://localhost:3000/auth/sign-in", { waitUntil: "networkidle" }); await page.getByLabel("Email").fill(state.accounts.supplier.email); await page.getByLabel("Password").fill(state.accounts.supplier.password); await page.getByRole("button", { name: "Sign in" }).click(); await page.waitForURL(/\/workspace\//); await page.goto("http://localhost:3000/settings/wallet", { waitUntil: "networkidle" }); await page.getByRole("button", { name: /Verify a different wallet|Select wallet/ }).click(); await page.waitForTimeout(500);
+const dialog = await page.locator(".wallet-dialog").evaluate((element) => ({ open: element.open, html: element.textContent, rect: element.getBoundingClientRect().toJSON(), display: getComputedStyle(element).display, position: getComputedStyle(element).position, opacity: getComputedStyle(element).opacity }));
+await page.screenshot({ path: fileURLToPath(new URL("../../docs/screenshots/cinematic-checkpoint/wallet-picker-mobile-dark.png", import.meta.url)), fullPage: false });
+console.log(JSON.stringify({ scene, dialog, messages }, null, 2)); await browser.close();

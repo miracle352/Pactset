@@ -1,0 +1,22 @@
+"use client";
+
+import { CheckCircle, WarningCircle } from "@phosphor-icons/react";
+import { useActionState } from "react";
+import { requestReviewModeration, respondAgreementReview, submitAgreementReview } from "@/app/workspace/agreements/actions";
+import { initialFormState } from "@/lib/form-state";
+
+export type AgreementReview = { id: string; reviewer_id: string; subject_id: string; rating: number; body: string; visibility: string; moderation_status: string; response_body: string | null; responded_at: string | null; created_at: string };
+
+function Status({ state }: { state: typeof initialFormState }) { return state.message ? <p className={`form-message ${state.status}`} role={state.status === "error" ? "alert" : "status"}>{state.status === "error" ? <WarningCircle /> : <CheckCircle />}{state.message}</p> : null; }
+
+function ReviewResponse({ agreementId, review }: { agreementId: string; review: AgreementReview }) {
+  const [state, action, pending] = useActionState(respondAgreementReview.bind(null, agreementId, review.id), initialFormState);
+  const [flagState, flagAction, flagPending] = useActionState(requestReviewModeration.bind(null, agreementId, review.id), initialFormState);
+  return <div className="review-response-actions">{!review.response_body && <form action={action}><label>Public response<textarea name="response" minLength={3} maxLength={2000} defaultValue={state.fields?.response} required /></label><Status state={state} /><button className="button button-secondary" type="submit" disabled={pending}>{pending ? "Saving…" : "Add response"}</button></form>}<details><summary>Ask support to review this</summary><form action={flagAction}><label>Reason<textarea name="reason" minLength={10} maxLength={2000} defaultValue={flagState.fields?.reason} required /></label><Status state={flagState} /><button className="button button-quiet" type="submit" disabled={flagPending}>{flagPending ? "Requesting…" : "Request human review"}</button></form></details></div>;
+}
+
+export function AgreementReviews({ agreementId, currentUserId, eligible, reviews, role }: { agreementId: string; currentUserId: string; eligible: boolean; reviews: AgreementReview[]; role: string }) {
+  const [state, action, pending] = useActionState(submitAgreementReview.bind(null, agreementId), initialFormState);
+  const alreadyReviewed = reviews.some((review) => review.reviewer_id === currentUserId);
+  return <section id="reviews" className="workspace-section agreement-reviews financial-surface"><div className="compact-section-heading"><div><p className="kicker">Booking history</p><h2>Feedback from completed work</h2><p>Only participants in this booking can review. A concern goes to human support and never changes payment automatically.</p></div><CheckCircle /></div>{reviews.length ? <ol className="review-list">{reviews.map((review) => <li key={review.id}><div><strong>{review.rating}/5</strong><span>{review.moderation_status.replaceAll("_", " ")} · {review.visibility}</span></div><p>{review.body}</p>{review.response_body && <blockquote>Response: {review.response_body}</blockquote>}{review.subject_id === currentUserId && review.moderation_status === "published" && <ReviewResponse agreementId={agreementId} review={review} />}</li>)}</ol> : <p className="empty-inline">No participant feedback has been recorded for this booking.</p>}{role !== "support" && !alreadyReviewed && (eligible ? <form action={action} className="review-form"><label>Rating<select name="rating" defaultValue={state.fields?.rating ?? "5"}><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Fair</option><option value="2">2 — Needs improvement</option><option value="1">1 — Poor</option></select></label><label className="wide">Booking feedback<textarea name="body" minLength={10} maxLength={2000} defaultValue={state.fields?.body} required /></label><label>Visibility<select name="visibility" defaultValue={state.fields?.visibility ?? "participants"}><option value="participants">Booking participants</option><option value="profile">Eligible profile history</option></select></label><Status state={state} /><button className="button button-primary" type="submit" disabled={pending}>{pending ? "Saving…" : "Submit review"}</button></form> : <p className="empty-inline">Feedback opens after the escrow confirms all milestone payments or refunds are complete.</p>)}</section>;
+}

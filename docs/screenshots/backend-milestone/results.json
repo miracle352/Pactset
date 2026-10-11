@@ -1,0 +1,28 @@
+[
+  {
+    "name": "organizer-replacement-desktop",
+    "path": "/workspace/replacements/b363058c-1928-4f3e-87cf-8910fb265b5a",
+    "heading": "Replacement: Wallet-created escrow verification 20261005145633",
+    "errors": 0,
+    "overflow": false
+  },
+  {
+    "name": "support-replacement-mobile",
+    "path": "/workspace/replacements/b363058c-1928-4f3e-87cf-8910fb265b5a",
+    "heading": "Replacement: Wallet-created escrow verification 20261005145633",
+    "errors": 0,
+    "overflow": false
+  },
+  {
+    "name": "support-cases-desktop",
+    "path": "/workspace/support",
+    "heading": "Case workspace",
+    "errors": 0,
+    "overflow": false
+  },
+  {
+    "name": "unrelated-denial",
+    "status": 200,
+    "denied": true
+  }
+]

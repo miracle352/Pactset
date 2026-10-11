@@ -1,0 +1,3 @@
+-- Historical pactset-development migration already recorded remotely before the
+-- repository migration timestamps were normalized. Intentionally no-op; the
+-- equivalent schema is preserved in the adjacent checked-in migrations.

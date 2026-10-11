@@ -1,0 +1,13 @@
+import { Bell } from "@phosphor-icons/react/dist/ssr/Bell";
+import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { markAllNotificationsRead, openNotification } from "@/app/workspace/notifications/actions";
+import { CloseIcon } from "@/components/icons/close-icon";
+import { DismissibleDetails } from "@/components/ui/dismissible-details";
+
+type Notification = { id: number; kind: string; entity_type: string | null; title: string; body: string; href: string | null; read_at: string | null; created_at: string };
+const contextLabel = (item: Notification) => item.entity_type === "support_case" ? "Support case" : item.kind === "agreement_message" ? "Booking message" : item.kind.replaceAll("_", " ");
+
+export function NotificationMenu({ notifications, loadError = false }: { notifications: Notification[]; loadError?: boolean }) {
+  const unread = notifications.filter((item) => !item.read_at).length;
+  return <DismissibleDetails className="notification-menu" mobileModal><summary aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}><Bell /><span className="sr-only">Notifications</span>{unread > 0 && <b>{unread > 9 ? "9+" : unread}</b>}</summary><div className="notification-panel glass-panel" data-sheet-panel role="dialog" aria-label="Notifications"><header className="notification-panel-header"><button className="sheet-close" type="button" data-close-details><CloseIcon /> Close</button><div><p className="kicker">Notifications</p><h2>What needs attention</h2></div>{unread > 0 && <form action={markAllNotificationsRead}><button className="button button-quiet" type="submit">Mark all read</button></form>}</header><div className="notification-list" aria-live="polite">{loadError ? <div className="notification-error" role="alert"><strong>Notifications could not load.</strong><p>Close this panel and try again. Nothing has been marked read.</p></div> : notifications.length ? <ol>{notifications.map((item) => <li key={item.id} className={item.read_at ? "" : "unread"}><div><span><small className="notification-context">{contextLabel(item)}</small><strong>{item.title}</strong></span>{item.read_at && <CheckCircle aria-label="Read" />}</div><p>{item.body}</p><small><time dateTime={item.created_at}>{new Date(item.created_at).toLocaleString()}</time></small><form action={openNotification}><input type="hidden" name="id" value={item.id} /><input type="hidden" name="href" value={item.href ?? "/workspace"} /><button className="button button-quiet" type="submit">Open</button></form></li>)}</ol> : <p className="empty-inline">No notifications yet. Message, support, replacement, and agreement updates will appear here.</p>}</div></div></DismissibleDetails>;
+}

@@ -2,11 +2,12 @@
 
 import { CheckCircle, GlobeHemisphereWest, Info, WarningCircle } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import { currencies } from "@/lib/product";
+import { testCurrencies } from "@/lib/regions";
 
 type Preferences = { serviceArea: string; language: string; timezone: string; currency: string };
 const defaults: Preferences = { serviceArea: "West Africa", language: "English", timezone: "Africa/Lagos", currency: "TUSD" };
 const key = "pactset-preferences-v1";
+const currencies = testCurrencies();
 
 export function PreferencesPanel({ compact = false }: { compact?: boolean }) {
   const [preferences, setPreferences] = useState(defaults);
@@ -61,12 +62,12 @@ export function PreferencesPanel({ compact = false }: { compact?: boolean }) {
         </label>
         <label>Preferred test currency
           <select value={preferences.currency} onChange={(event) => update("currency", event.target.value)}>
-            {currencies.map((currency) => <option key={currency.code} value={currency.code}>{currency.code} · {currency.name}</option>)}
+            {currencies.map((currency) => <option key={currency.assetCode} value={currency.assetCode}>{currency.label}</option>)}
           </select>
         </label>
       </div>
       <p className="preference-note"><Info size={17} /> These settings are independent. Changing your preferred currency never changes the settlement currency of an existing agreement.</p>
-      <p className="testnet-note"><WarningCircle size={17} /> TUSD, TGBP, and TAUD are fictional Stellar Testnet demonstration assets with no real-world value.</p>
+      <p className="testnet-note"><WarningCircle size={17} /> T-prefixed choices are Pactset Testnet labels with no monetary value. A planning choice does not provision a Stellar asset or conversion path.</p>
     </section>
   );
 }

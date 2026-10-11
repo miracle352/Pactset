@@ -8,39 +8,34 @@ export const roleContent: Record<Role, {
   eyebrow: string;
   title: string;
   description: string;
-  nav: string[];
   focus: string;
 }> = {
   organizer: {
     label: "Organizer",
     eyebrow: "Readiness and decisions",
-    title: "Keep every agreement moving toward one opening moment.",
-    description: "Review blockers, approve changes, and see what needs your decision next.",
-    nav: ["Overview", "Plan", "Team", "Agreements", "Messages"],
+    title: "Organizer overview",
+    description: "Explore sample events, requests, offers, and accepted unfunded agreements.",
     focus: "Confirm venue access before the production walkthrough.",
   },
   supplier: {
     label: "Supplier",
     eyebrow: "Offers and availability",
-    title: "Shape clear offers around the work you can deliver.",
-    description: "Keep services, timing, and capacity visible before you accept new work.",
-    nav: ["Requests", "Offers", "Services", "Calendar", "Messages"],
+    title: "Supplier overview",
+    description: "Explore sample inventory, relevant requests, offers, and accepted bookings.",
     focus: "Review the revised delivery window before responding.",
   },
   crew: {
     label: "Crew",
     eyebrow: "Shifts and evidence",
-    title: "Know where to be, what is due, and what proves it is done.",
-    description: "Follow shift timing, preparation notes, and milestone evidence in one place.",
-    nav: ["Today", "Shifts", "Evidence", "Schedule", "Messages"],
+    title: "Crew overview",
+    description: "Explore sample opportunities, accepted jobs, schedule, and preparation timing.",
     focus: "Sound check begins 24 minutes after venue access.",
   },
   support: {
     label: "Support",
     eyebrow: "Assigned cases and decisions",
-    title: "See the full case without exceeding disclosed authority.",
-    description: "Review agreements, evidence, and conversations for cases assigned to you.",
-    nav: ["Queue", "Cases", "Decisions", "Audit", "Messages"],
+    title: "Support access boundary",
+    description: "Support is server-assigned. This public demo contains no private cases or privileged tools.",
     focus: "Two parties are waiting for a milestone evidence review.",
   },
 };
@@ -49,6 +44,8 @@ export const currencies = [
   { code: "TUSD", name: "Test US Dollar" },
   { code: "TGBP", name: "Test British Pound" },
   { code: "TAUD", name: "Test Australian Dollar" },
+  { code: "TNGN", name: "Test Nigerian Naira" },
+  { code: "TEUR", name: "Test Euro" },
 ] as const;
 
 export const demoEvent = {

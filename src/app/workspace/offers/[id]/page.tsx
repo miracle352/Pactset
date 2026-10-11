@@ -1,0 +1,38 @@
+import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { OfferResponse } from "@/components/offers/offer-response";
+import { WorkspaceHeading, WorkspaceShell } from "@/components/workspace/workspace-shell";
+import { requireAccount } from "@/lib/account";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function OfferPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const returnTo = `/workspace/offers/${id}`;
+  const account = await requireAccount(undefined, returnTo);
+  const supabase = await createClient();
+  const offerResult = await supabase.from("offers").select("*").eq("id", id).maybeSingle();
+  if (offerResult.error) throw new Error("Offer could not be loaded.");
+  const offer = offerResult.data;
+  if (!offer) notFound();
+  const [requestResult, termsResult, auditResult, agreementResult] = await Promise.all([
+    supabase.from("requests").select("organizer_id,title").eq("id", offer.request_id).maybeSingle(),
+    supabase.from("offer_versions").select("*").eq("offer_id", id).eq("version", offer.current_version).maybeSingle(),
+    supabase.from("audit_events").select("id,action,reason,created_at").eq("entity_type", "offer").eq("entity_id", id).order("created_at", { ascending: false }),
+    supabase.from("agreements").select("id").eq("offer_id", id).eq("offer_version", offer.current_version).maybeSingle(),
+  ]);
+  if (requestResult.error || termsResult.error || auditResult.error || agreementResult.error) throw new Error("Offer details could not be loaded.");
+  const request = requestResult.data;
+  const viewer = request?.organizer_id === account.userId ? "organizer" : offer.provider_id === account.userId ? "provider" : null;
+  if (!viewer || !termsResult.data) notFound();
+  const terms = termsResult.data;
+  const role = viewer === "organizer" ? "organizer" : offer.provider_role as "supplier" | "crew";
+  const backHref = `/workspace/${role}#offers`;
+  return <WorkspaceShell workspaceRole={role} account={account} nav={[{ label: "Workspace", href: `/workspace/${role}` }, { label: "Current offer", href: returnTo }]}>
+    <WorkspaceHeading eyebrow={`Offer version ${offer.current_version}`} title={request?.title ?? "Service offer"} description="Only this current version can be accepted. Any revision invalidates earlier acceptance." action={<Link className="button button-secondary" href={backHref}><ArrowLeft /> Back to offers</Link>} />
+    {agreementResult.data && <section className="workspace-section next-action"><div><p className="kicker">Accepted booking</p><h2>This offer now has an agreement.</h2><p>Open the booking to review wallet, funding, evidence, and payment status.</p></div><Link className="button button-primary" href={`/workspace/agreements/${agreementResult.data.id}/payment`}>Open agreement <ArrowRight /></Link></section>}
+    <section className="offer-terms glass-panel"><span className="status-tag">{offer.status}</span><h2>{terms.scope}</h2><dl><div><dt>Price</dt><dd>{terms.amount} {terms.currency}</dd></div><div><dt>Quantity</dt><dd>{terms.quantity}</dd></div><div><dt>Pricing unit</dt><dd>{terms.pricing_unit}</dd></div><div><dt>Window</dt><dd>{new Date(terms.available_from).toLocaleString()} to {new Date(terms.available_until).toLocaleString()}</dd></div><div><dt>Organizer accepted</dt><dd>{terms.organizer_accepted_at ? "Yes" : "Not yet"}</dd></div><div><dt>Provider accepted</dt><dd>{terms.provider_accepted_at ? "Yes" : "Not yet"}</dd></div></dl></section>
+    <OfferResponse offer={offer} terms={terms} viewer={viewer} />
+    <section className="workspace-section"><div className="compact-section-heading"><h2>Audit history</h2></div>{auditResult.data?.length ? <ol className="audit-list">{auditResult.data.map((item) => <li key={item.id}><strong>{item.action}</strong><span>{new Date(item.created_at).toLocaleString()}</span>{item.reason && <p>{item.reason}</p>}</li>)}</ol> : <p className="section-copy">No recorded transitions yet.</p>}</section>
+  </WorkspaceShell>;
+}

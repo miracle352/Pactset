@@ -9,14 +9,50 @@
     "lint": "biome check .",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "payments:reconcile": "node scripts/stellar/reconcile-payments.mjs",
+    "payments:verify-api": "node scripts/stellar/verify-browser-payment-api.mjs",
+    "payments:verify-failures": "node scripts/stellar/verify-isolated-payment-failures.mjs",
+    "accounts:verify-development": "node scripts/admin/verify-development-identities.mjs",
+    "messages:verify-development": "node scripts/admin/verify-messaging-support.mjs",
+    "gemini:verify-development": "node scripts/admin/verify-gemini-integration.mjs",
+    "reminders:process": "node scripts/admin/process-reminders.mjs",
+    "planning:verify-development": "node scripts/admin/verify-planning-reviews-reminders.mjs",
+    "profiles:verify-development": "node scripts/admin/verify-provider-portfolios.mjs",
+    "profiles:verify-onboarding": "node scripts/admin/verify-profile-onboarding.mjs",
+    "db:verify-stage3": "node scripts/admin/verify-stage3-schema.mjs",
+    "qa:capture-stage3": "node scripts/qa/capture-stage3.mjs",
+    "qa:capture-motion": "node scripts/qa/capture-motion-upgrade.mjs",
+    "qa:verify-agreement-route": "node scripts/qa/verify-agreement-route.mjs",
+    "payments:deploy-fixtures": "node scripts/stellar/deploy-browser-fixtures.mjs",
+    "payments:verify-fresh": "node scripts/stellar/verify-fresh-browser-journey.mjs",
+    "payments:verify-recipient": "node scripts/stellar/verify-recipient-payouts.mjs",
+    "staging:prepare-wallet-agreement": "node scripts/staging/prepare-wallet-agreement.mjs",
+    "staging:prepare-browser-rehearsals": "node scripts/staging/prepare-browser-payment-rehearsals.mjs",
+    "staging:verify-agreement-access": "node scripts/staging/verify-agreement-route-access.mjs",
+    "staging:bind-support-resolver": "node scripts/staging/bind-support-resolver.mjs",
+    "staging:verify-wallet-escrow": "node scripts/staging/verify-wallet-created-escrow.mjs",
+    "pactset-go:upload-testnet": "node scripts/stellar/upload-pactset-go.mjs",
+    "db:types": "npx supabase@2.119.0 gen types typescript --linked > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",
+    "@gsap/react": "^2.1.2",
     "@phosphor-icons/react": "latest",
+    "@stellar/freighter-api": "6.0.1",
+    "@stellar/stellar-sdk": "17.2.1",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.2",
+    "countries-states-cities-service": "1.5.1",
+    "date-fns": "^4.4.0",
+    "date-fns-tz": "^3.2.0",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.26",
     "next": "16.3.8",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "three": "^0.186.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@biomejs/biome": "latest",
@@ -24,9 +60,10 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/three": "^0.186.0",
     "typescript": "latest"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=22.12.0"
   }
 }

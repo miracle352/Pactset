@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "name": "Pactset pavilion recovery",
+    "description": "An original Pactset event-operations system informed by Integrated Biosciences pacing, hierarchy, and single-object storytelling.",
+    "source_references": ["https://integratedbio.com/", "docs/design-standard.md"],
+    "created_at": "2026-10-08"
+  },
+  "design_system": {
+    "color": {
+      "palette_type": "complementary",
+      "primary": { "hex": "#3039E8", "role": "primary action and focus signal" },
+      "secondary": { "hex": "#949BFF", "role": "dark-theme action and Testnet path signal" },
+      "accent": { "hex": "#FF8C3C", "role": "architectural light, never financial status" },
+      "neutral": { "scale": ["#030407", "#15171C", "#5D616C", "#B7B9C1", "#F4F3F0"], "usage": "deep-charcoal scenes, silver structure, pearl daylight, readable operational surfaces" },
+      "semantic": { "success": "#1D7657", "warning": "#8B5D0A", "error": "#B12C4A", "info": "#3039E8" },
+      "surface": { "background": "#F4F3F0 / #030407", "card": "rgba(252,252,250,.92) / rgba(16,18,23,.94)", "elevated": "solid dense surface inside restrained glass frame" },
+      "contrast_strategy": "high-contrast editorial text over theme-specific scene treatments; dense solid surfaces for financial detail"
+    },
+    "typography": {
+      "type_scale": {
+        "display": { "size": "clamp(4.1rem, 6.4vw, 6.4rem)", "weight": "470", "line_height": ".90", "tracking": "-.052em" },
+        "heading_1": { "size": "clamp(3rem, 6vw, 6.4rem)", "weight": "480", "line_height": ".92", "tracking": "-.058em" },
+        "heading_2": { "size": "clamp(2rem, 4vw, 4.2rem)", "weight": "510", "line_height": ".98", "tracking": "-.045em" },
+        "heading_3": { "size": "1.35rem", "weight": "650", "line_height": "1.15", "tracking": "-.02em" },
+        "body": { "size": "1rem", "weight": "450", "line_height": "1.68", "tracking": "0" },
+        "body_small": { "size": ".78rem", "weight": "500", "line_height": "1.55", "tracking": "0" },
+        "caption": { "size": ".7rem", "weight": "600", "line_height": "1.5", "tracking": ".02em" },
+        "overline": { "size": ".68rem", "weight": "700", "line_height": "1.4", "tracking": ".14em" }
+      },
+      "font_families": { "heading": "Manrope Variable", "body": "Manrope Variable", "mono": "ui-monospace, SFMono-Regular, Consolas, monospace" },
+      "font_style_notes": "Wide humanist grotesk; typography carries the composition, with compact tabular numerals for finance."
+    },
+    "spacing": { "base_unit": "4px", "scale": ["4px", "8px", "12px", "16px", "24px", "32px", "48px", "72px", "112px"], "content_density": "spacious landing, comfortable operational screens, compact finance", "section_rhythm": "full-viewport story beats alternating with dense role-specific work surfaces" },
+    "layout": { "grid_system": "asymmetric editorial grid with 1380px landing frame and 1120px workspace frame", "max_content_width": "1380px", "columns": "2 editorial / 12 conceptual", "gutter": "clamp(20px, 3.4vw, 48px)", "breakpoints": ["430px", "820px", "1000px", "1440px"], "alignment_tendency": "asymmetric" },
+    "shape": { "border_radius": { "small": "11px", "medium": "18px", "large": "24px", "pill": "999px" }, "border_usage": "subtle 1px silver boundaries; glass reserved for navigation and context", "divider_style": "fine high-contrast rule" },
+    "elevation": { "shadow_style": "soft diffused", "levels": { "low": "0 14px 36px rgba(0,0,0,.10)", "medium": "0 18px 54px rgba(0,0,0,.24)", "high": "0 28px 80px rgba(0,0,0,.52)" }, "depth_cues": "overlap, real scene lighting, reflective floor, restrained blur" },
+    "iconography": { "style": "outlined functional glyphs", "stroke_weight": "regular", "size_scale": ["16px", "20px", "24px"], "preferred_set": "Phosphor Icons" },
+    "motion": { "easing": "cubic-bezier(.23,1,.32,1)", "duration_scale": { "micro": "180–220ms", "normal": "450–720ms", "macro": "1350ms entrance" }, "entrance_pattern": "venue eases from 92% scale while HTML actions are immediately available", "exit_pattern": "opacity and color only; no blocking outro", "philosophy": "cinematic, restrained, explanatory" },
+    "components": { "button_style": "tactile solid primary or quiet underlined secondary with directional icon", "input_style": "solid readable surface, visible labels and focus", "card_style": "operational surfaces are solid; glass frames context only", "navigation_pattern": "compact floating header plus complete authenticated role shell", "modal_style": "dense glass frame with trapped focus and solid choices", "list_style": "ruled records with explicit state and next action", "component_notes": "Financial controls do not move away from the pointer; hover is enhancement only." }
+  },
+  "design_style": {
+    "aesthetic": { "mood": ["cinematic", "assured", "warm", "precise"], "visual_metaphor": "an illuminated event pavilion assembling many commitments into one structure", "era_influence": "contemporary architectural editorial", "genre": "cinematic product narrative", "personality_traits": ["calm", "meticulous", "accountable"], "adjectives": ["architectural", "luminous", "restrained", "legible"] },
+    "visual_language": { "complexity": "rich", "ornamentation": "subtle accents", "whitespace_usage": "generous and intentional", "visual_weight_distribution": "large type balanced by one substantial venue", "focal_strategy": "single hero element with progressive reveal", "contrast_level": "high", "texture_usage": "metal, glass, reflected warm light" },
+    "composition": { "hierarchy_method": "scale contrast and spatial isolation", "balance_type": "asymmetric", "flow_direction": "vertical narrative with lateral object depth", "grouping_strategy": "rules and shared alignment rather than repeated card grids", "negative_space_role": "holds focus on the evolving pavilion and next action" },
+    "imagery": { "photo_treatment": "static scenery only as reduced-motion fallback", "illustration_style": "original real-time architectural geometry", "graphic_elements": "numbered rules and restrained transaction path", "pattern_usage": "none", "image_shape": "full-bleed viewport scene" },
+    "interaction_feel": { "feedback_style": "immediate and explicit", "hover_behavior": "small lift or arrow travel", "transition_personality": "smooth glide", "loading_style": "honest preparing/fallback state", "microinteraction_density": "low" },
+    "brand_voice_in_ui": { "tone": "plain, confident, honest", "formality": "professional conversational", "cta_style": "direct imperative", "empty_state_approach": "explain prerequisite and one next step", "error_tone": "specific, recoverable, never accusatory" }
+  },
+  "visual_effects": {
+    "overview": { "effect_intensity": "heavy-immersive landing, subtle-accent product", "performance_tier": "heavy", "fallback_strategy": "theme-specific static pavilion on reduced motion, data saving, or WebGL failure", "primary_technology": "WebGL/Three.js" },
+    "background_effects": { "type": "scene-bg", "description": "theme-responsive pavilion and reflective floor", "technology": "Three.js WebGL", "params": { "color_palette": ["#030405", "#727984", "#FF8C3C", "#E8E9EB"], "speed": "slow", "density": "single object", "opacity": "opaque scene with gradient treatment", "blend_mode": "normal" } },
+    "particle_systems": { "enabled": false, "type": "none", "description": "No particles", "technology": "none", "params": { "count": 0, "shape": "none", "size_range": "none", "movement_pattern": "none", "color_behavior": "none", "interaction": "none", "spawn_area": "none" } },
+    "3d_elements": { "enabled": true, "type": "scene-bg", "description": "Glass-and-metal event pavilion whose equipment assembles through the story", "technology": "Three.js", "params": { "renderer": "WebGLRenderer, ACES tone mapping, capped DPR", "lighting": "warm point and spot spill, daylight hemisphere, silver edge light", "camera": "36° perspective with restrained pointer parallax and portrait targets", "materials": "physical glass, brushed metal, warm translucent wall, reflective floor", "geometry": "tube arches, glass roof, mullions, stage, tables, equipment cases", "post_processing": [], "interaction_model": "intersection-observed story stages plus pointer depth" } },
+    "shader_effects": { "enabled": false, "type": "none", "description": "No custom shaders", "technology": "none", "params": { "uniforms": {}, "vertex_manipulation": "none", "fragment_output": "standard materials", "noise_type": "none", "distortion": "none" } },
+    "scroll_effects": { "parallax": { "enabled": true, "layers": "camera, pavilion, HTML story", "depth_range": "restrained", "speed_curve": "eased interpolation" }, "scroll_triggered_animations": { "enabled": true, "trigger_points": ["01", "02", "03"], "animation_type": "camera shift and physical dependency assembly", "scrub_behavior": "discrete stage interpolation, no scroll hijack" }, "scroll_morphing": { "enabled": true, "description": "equipment moves from perimeter to booked positions; final payment path appears" } },
+    "text_effects": { "type": "none", "description": "Stable HTML typography", "technology": "CSS", "params": { "split_strategy": "by-line", "animation_per_unit": "none", "stagger": "none", "effect_style": "none" } },
+    "cursor_effects": { "enabled": true, "type": "camera-depth", "description": "subtle camera response over the scene", "params": { "shape": "system cursor", "size": "system", "blend_mode": "normal", "trail": false, "interaction_zone": "landing scene" } },
+    "image_effects": { "type": "none", "description": "Fallback images crossfade by theme", "technology": "CSS", "params": { "filter_pipeline": "none", "hover_transform": "none", "reveal_animation": "opacity", "distortion_type": "none" } },
+    "glassmorphism_neumorphism": { "enabled": true, "style": "frosted-layers", "params": { "blur_radius": "18px navigation / 22px contextual panels", "transparency": "restrained", "border_treatment": "1px silver", "shadow_type": "soft diffused", "light_source_angle": "upper-left" } },
+    "canvas_drawings": { "enabled": true, "type": "3D scene", "description": "real-time pavilion rendering", "technology": "Three.js WebGL", "params": { "draw_method": "scene graph render", "animation_loop": "requestAnimationFrame paused offscreen", "color_scheme": "daylight/evening", "responsiveness": "desktop and portrait camera targets", "interaction": "pointer and scroll stage" } },
+    "svg_animations": { "enabled": false, "type": "none", "description": "Icons remain stable", "params": { "animation_method": "none", "path_morphing": false, "stroke_animation": false, "filter_effects": "none" } },
+    "composite_notes": "The scene is the only heavy visual layer. GSAP was evaluated but not added: existing direct Three.js interpolation and IntersectionObserver satisfy this bounded checkpoint with less runtime weight."
+  }
+}
