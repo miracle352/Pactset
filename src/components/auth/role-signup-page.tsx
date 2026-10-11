@@ -38,7 +38,7 @@ export function RoleSignupPage({ signupRole, requestedNext }: { signupRole: keyo
         <ul>{item.points.map(([Icon, label]) => <li key={label}><Icon aria-hidden="true" />{label}</li>)}</ul>
       </div>
       <AuthForm action={signUp} submitLabel="Create account" next={next} fields={[
-        { name: "displayName", label: "Your name", autoComplete: "name" },
+        { name: "displayName", label: "Your or business name (optional)", autoComplete: "name", required: false },
         { name: "username", label: "Unique username", autoComplete: "username" },
         { name: "email", label: "Email", type: "email", autoComplete: "email" },
         { name: "password", label: "Password (10 characters minimum)", type: "password", autoComplete: "new-password" },

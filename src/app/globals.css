@@ -748,6 +748,30 @@ html[data-theme="dark"] .kicker { color: var(--gold); }
 .settings-heading { padding-top:32px; }
 .settings-heading h1 { font-size:clamp(2.55rem,5vw,4.25rem); }
 
+/* Focused account-onboarding repair: keep dense settings readable and calm. */
+.username-settings { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(240px,.7fr); gap:22px 28px; align-items:end; }
+.username-settings .form-message,.username-settings .settings-inline-actions { grid-column:2; }
+.username-field { display:grid; gap:8px; min-width:0; }
+.username-field > label { color:var(--muted); font-size:.75rem; font-weight:700; }
+.username-field > input { width:100%; min-height:48px; padding:11px 13px; border:1px solid var(--line-strong); border-radius:var(--radius-small); color:var(--ink); background:var(--surface-dense); }
+.username-field > input[aria-invalid="true"] { border-color:rgba(230,135,111,.72); }
+.username-availability { display:flex; align-items:center; gap:7px; min-height:20px; margin:0; color:var(--muted); font-size:.75rem; line-height:1.45; }
+.username-availability svg { flex:none; }
+.username-availability.available { color:#9edbbd; }
+.username-availability.invalid,.username-availability.taken { color:#f1b4a4; }
+.settings-inline-actions { display:flex; flex-wrap:wrap; gap:10px; }
+.settings-section-heading { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,.65fr); gap:24px; align-items:end; }
+.settings-section-heading > p { margin:0; color:var(--muted); font-size:.83rem; line-height:1.6; }
+.optional-label { margin-left:5px; color:var(--gold); font-size:.67rem; font-weight:650; letter-spacing:.04em; text-transform:uppercase; }
+.input-help { color:var(--muted); font-size:.7rem; font-weight:500; line-height:1.45; }
+.form-grid select:disabled { cursor:not-allowed; opacity:.72; }
+
+@media (max-width:700px) {
+  .username-settings,.settings-section-heading { grid-template-columns:1fr; }
+  .username-settings .form-message,.username-settings .settings-inline-actions { grid-column:1; }
+  .settings-inline-actions .button { width:100%; }
+}
+
 .header-wallet-control { position:relative; }
 .header-wallet-control>summary { min-height:44px; display:grid; grid-template-columns:auto auto; align-items:center; gap:1px 8px; padding:6px 11px; border:1px solid var(--line); border-radius:10px; color:var(--ink); background:var(--surface-dense); cursor:pointer; list-style:none; }
 .header-wallet-control>summary::-webkit-details-marker { display:none; }

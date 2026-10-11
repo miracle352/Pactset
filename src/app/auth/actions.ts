@@ -8,9 +8,10 @@ import { type FormState, formFields } from "@/lib/form-state";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { safeInternalPath } from "@/lib/navigation";
+import { normalizeUsername, usernamePattern, usernameValidationMessage } from "@/lib/username";
 
 const credentials = z.object({ identifier: z.string().trim().min(3).max(254), password: z.string().min(10).max(128) });
-const signup = z.object({ email: z.email(), password: z.string().min(10).max(128), displayName: z.string().trim().min(2).max(80), username: z.string().trim().toLowerCase().regex(/^[a-z0-9][a-z0-9_]{2,29}$/), role: z.enum(publicAccountRoles) });
+const signup = z.object({ email: z.email(), password: z.string().min(10).max(128), displayName: z.string().trim().max(80), username: z.string(), role: z.enum(publicAccountRoles) });
 const safeFields = (fields: Record<string, string>) => Object.fromEntries(Object.entries(fields).filter(([key]) => !key.toLowerCase().includes("password")));
 
 function originFromHeaders(value: Headers) {
@@ -39,28 +40,36 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
   const fields = formFields(formData);
   if (!isSupabaseConfigured()) return { status: "error", message: "The Pactset account service is not connected yet.", fields: safeFields(fields) };
   const parsed = signup.safeParse(fields);
-  if (!parsed.success) return { status: "error", message: "Enter your name, a valid email, a 10-character password, and a public role.", fields: safeFields(fields) };
+  if (!parsed.success) return { status: "error", message: "Enter a valid email, a 10-character password, a username, and a public role.", fields: safeFields(fields) };
+  const username = normalizeUsername(parsed.data.username);
+  const usernameError = usernameValidationMessage(username);
+  if (usernameError || !usernamePattern.test(username)) return { status: "error", message: usernameError ?? "Choose a valid username.", fields: { ...safeFields(fields), username } };
   const requestHeaders = await headers();
   const origin = originFromHeaders(requestHeaders);
   const defaultNext = `/workspace/${parsed.data.role}`;
   const requestedNext = safeInternalPath(fields.next, defaultNext);
   const next = parsed.data.role === "organizer" && requestedNext.startsWith("/workspace/organizer") ? requestedNext : parsed.data.role !== "organizer" && requestedNext.startsWith(`/workspace/${parsed.data.role}`) ? requestedNext : defaultNext;
   const supabase = await createClient();
+  const { data: usernameAvailable, error: availabilityError } = await supabase.rpc("username_available", { p_username: username });
+  if (!availabilityError && !usernameAvailable) return { status: "error", message: "That username is already in use. Choose another.", fields: { ...safeFields(fields), username } };
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { display_name: parsed.data.displayName, username: parsed.data.username },
+      data: { display_name: parsed.data.displayName, username },
       emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}&role=${parsed.data.role}`,
     },
   });
-  if (error) return { status: "error", message: "Account creation failed. Review the details or try signing in.", fields: { email: parsed.data.email, displayName: parsed.data.displayName, role: parsed.data.role, username: parsed.data.username } };
+  if (error) {
+    const { data: stillAvailable } = await supabase.rpc("username_available", { p_username: username });
+    return { status: "error", message: stillAvailable === false ? "That username was just taken. Choose another." : "Account creation failed. Review the details or try signing in.", fields: { email: parsed.data.email, displayName: parsed.data.displayName, role: parsed.data.role, username } };
+  }
   if (data.session) {
     const { error: roleError } = await supabase.from("account_roles").insert({ user_id: data.session.user.id, role: parsed.data.role });
     if (roleError && roleError.code !== "23505") return { status: "error", message: "The account was created, but its role could not be assigned. Sign in and try again.", fields: { email: parsed.data.email, displayName: parsed.data.displayName, role: parsed.data.role } };
     redirect(next);
   }
-  return { status: "success", message: "Check your email to verify the account, then return to Pactset.", fields: { email: parsed.data.email, displayName: parsed.data.displayName, role: parsed.data.role, username: parsed.data.username } };
+  return { status: "success", message: "Check your email to verify the account, then return to Pactset.", fields: { email: parsed.data.email, displayName: parsed.data.displayName, role: parsed.data.role, username } };
 }
 
 export async function requestPasswordReset(_: FormState, formData: FormData): Promise<FormState> {

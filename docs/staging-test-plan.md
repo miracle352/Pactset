@@ -1,5 +1,15 @@
 # Restricted staging review plan
 
+## Profile onboarding review (2026-10-11)
+
+1. Open the protected Preview and register Organizer, Supplier, or Crew. Save a valid 3–30 character lowercase username; only username plus the selected authorized role is required before entering the workspace.
+2. Try an invalid username and one already used by another development account. Expect specific format/taken messages without any email or profile disclosure. Availability is advisory; the database unique index is the final race-safe check.
+3. In **Account → Profile and settings**, select a country. Confirm the region list changes and an incompatible old region clears. For a country with multiple timezones, choose the correct named timezone explicitly. Accept or override the suggested T-prefixed local test currency.
+4. Save, refresh, sign out, and sign in again with the username. Confirm all preferences persist and no existing agreement currency, deadline, or wallet changes.
+5. Email confirmation success was completed privately by the owner on 2026-10-11. Do not repeat it merely for fixture coverage. Password recovery, old-password rejection, and expired/reused email-link behavior remain a separate unverified checklist.
+
+Translation remains unavailable until a reviewed provider is configured privately in the `pactset-development` Supabase Edge Function secrets as `PACTSET_TRANSLATION_ENDPOINT` and `PACTSET_TRANSLATION_API_KEY`. The endpoint must accept `{ text, sourceLanguage, targetLanguage, preserve }` and return `{ translatedText, detectedLanguage? }`. Provider signup and API charges, if any, are external and have not been authorized. Optional AI budgets require a separate reviewed server adapter/provider; the current rule-based editable proposal remains active.
+
 ## Fresh TUSD/TEUR private-wallet rehearsal (2026-10-11)
 
 Use the protected Preview and separate browser profiles. Credentials stay in the ignored local development identity record; never paste them into a report.
