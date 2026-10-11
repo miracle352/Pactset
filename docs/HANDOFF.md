@@ -1,6 +1,26 @@
 # Pactset Stage 2B handoff
 
-Last updated: 2026-10-10 (Africa/Lagos)
+Last updated: 2026-10-11 (Africa/Lagos)
+
+## 2026-10-11 capacity, replacement, support, and deadline checkpoint
+
+- Continued from `328e386` on `codex/stage-2b-preview`. This checkpoint is local only: no Git push, Vercel deployment, Production change, or unrelated Supabase project access occurred.
+- Applied the narrow, non-destructive migration `20261011120000_capacity_buffers_and_replacement_controls.sql` to hosted `pactset-development`. It persists setup/teardown buffers for ordinary offers and counteroffers, and adds organizer-only audited budget revision and replacement-search cancellation. Explicit authenticated grants remain function-scoped. Migration history confirms `20261011120000` locally and remotely; the previously documented `20261009193000`/`20261010192753` versus four corrective remote-version drift remains unchanged.
+- Fixed the ordinary offer path so setup/teardown buffers reach the database capacity guard. Replacement budget revisions cannot undercut current terms, change the settlement asset, or be performed by a provider. Closing a search releases reservations without cancelling the original agreement or moving its funds.
+- A repeatable, genuine two-client `Promise.all` race now creates isolated future records each run. Capacity-one crew produced exactly one success and one conflict rejection; one agreement persisted. Capacity-three inventory produced one winning two-unit acceptance plus one one-unit fill (3/3 total), while the competing two-unit acceptance was rejected. Exact buffer-boundary work was accepted, a one-minute teardown overlap was rejected, duplicate acceptance created no second agreement, and withdrawal removed the reservation (8/8).
+- Assigned-support and deadline verification passed 9/9 with independent authenticated clients: unrelated replacement/audit/invitation reads returned zero; support self-assignment changed zero rows; assigned support saw only a replacement connected to its active case; accepted deadlines were visible to organizer/provider after new sign-ins; a rejected later request did not replace the accepted deadline; the agreement's original terms and unfunded state remained immutable.
+- Local Chromium browser QA verified organizer replacement at 1440×950, assigned support at 390×844, support case workspace at 1440×900, and an unrelated-account soft-not-found. A generic mobile status-grid rule was found and fixed so replacement values, time window, and funding warning no longer collide or clip. Screenshots are in `docs/screenshots/backend-milestone/`.
+- Payment API authorization regression passed: organizer quote and unsigned envelope preparation work, supplier release is denied, unrelated agreement access is denied, and an unsigned submission is rejected. This is API validation, not Freighter signing. Persisted disposable Testnet failure fixtures still verify missing trustline (`op_no_trust`), insufficient reserve (`op_low_reserve`), and no path/liquidity for TNOQ; successful demo agreements were untouched.
+- Soroban regressions passed 14/14: five escrow tests and nine Pactset Go atomicity/consent/version/funding/expiry/refund/authorization/replay tests. No fresh bundle instance or participant transaction was submitted in this checkpoint.
+- Application gates pass: 19/19 source/security tests, TypeScript, and Biome. Per the owner's explicit deferral, the known OneDrive Next.js production-build failure was not retried; production build remains blocked/unverified until a full build succeeds.
+
+### Remaining private/external verification
+
+- Fresh TUSD and TEUR organizer/provider journeys still require distinct Freighter Testnet wallets for ownership, escrow creation, conversion, funding, evidence submission, approval, and release. No operator key is counted as browser-wallet evidence, and no fresh transaction hash is claimed here.
+- Confirmation and recovery routes remain implemented but real mailbox delivery, invalid/expired/reused links, and successful password reset remain unverified. Keep confirmation enabled and use the manual checklist in `docs/staging-test-plan.md`; do not retry while rate-limited.
+- A full multi-person Pactset Go Testnet bundle rehearsal (organizer, supplier, Crew A, Crew B) remains blocked on their real wallet signatures. Contract tests prove on-chain invariants, not the browser ceremony.
+- Expired-reservation cleanup was previously verified, but the legacy `edgecases-expiry` harness reused a stale offer and now exits with `Stale offer version`; it needs a fresh isolated expiry fixture before being counted as rerun evidence.
+- Translated chat, external AI-assisted budget generation, ratings/activity history, and scheduled reminder delivery remain unfinished; placeholder UI is not counted as completion.
 
 ## 2026-10-10 replacement-booking backend milestone
 

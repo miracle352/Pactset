@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const migration = readFileSync("supabase/migrations/20261010192753_replacement_bookings_and_capacity_guards.sql", "utf8");
+const controls = readFileSync("supabase/migrations/20261011120000_capacity_buffers_and_replacement_controls.sql", "utf8");
 
 test("replacement bookings remain separate, scoped, and versioned", () => {
   assert.match(migration, /original_agreement_id uuid not null/);
@@ -21,4 +22,14 @@ test("acceptance accounts for setup, teardown, reservations, and atomic capacity
   assert.match(migration, /offer_reservations/);
   assert.match(migration, /Not enough inventory capacity including setup and teardown/);
   assert.match(migration, /crew shift conflicts with setup, work, or teardown/);
+});
+
+test("ordinary offers preserve buffers and replacement controls stay organizer-scoped", () => {
+  assert.match(controls, /p_setup_minutes integer default 0/);
+  assert.match(controls, /p_teardown_minutes integer default 0/);
+  assert.match(controls, /insert into public\.offer_versions[\s\S]*setup_minutes,teardown_minutes/);
+  assert.match(controls, /v_row\.organizer_id<>v_actor/);
+  assert.match(controls, /budget_revised/);
+  assert.match(controls, /delete from public\.offer_reservations/);
+  assert.match(controls, /update public\.requests set status='closed'/);
 });

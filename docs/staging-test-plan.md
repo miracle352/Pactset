@@ -1,5 +1,38 @@
 # Restricted staging review plan
 
+## 2026-10-11 local backend checkpoint
+
+This checkpoint remains local and must not be expected on the protected Preview. The new hosted-database migration is `20261011120000_capacity_buffers_and_replacement_controls.sql`, applied only to `pactset-development`; no website deployment followed it.
+
+Developer checks (credentials remain in ignored local files):
+
+```powershell
+node scripts/admin/verify-capacity-concurrency.mjs
+node scripts/admin/verify-replacement-support-deadlines.mjs
+node scripts/qa/capture-backend-milestone.mjs
+npm run payments:verify-api
+npm run payments:verify-failures
+cd contracts
+cargo test --workspace
+```
+
+The production build is deliberately omitted while the owner defers the known OneDrive filesystem blocker. `npm test`, `npm run typecheck`, and `npm run lint` remain required and pass at this checkpoint.
+
+### Manual email confirmation and reset
+
+1. Run the local app at `http://localhost:3000` in the same browser that will open the email link; confirm that localhost remains an allowed Supabase Auth redirect.
+2. Create a fresh address through the public role-specific signup page. Do not use an admin-confirmed fixture as proof. Confirm the generic response does not reveal whether an address already exists.
+3. Open the confirmation email once. Expect `/auth/confirm` on the same origin, a Pactset session, and the intended safe workspace/onboarding destination. Reopening the consumed link must show a clear invalid/used state.
+4. Sign out and confirm a private workspace deep link returns to sign-in with its internal destination preserved.
+5. From Forgot password, request one reset email. Open it in the same browser/origin, expect `/auth/update-password`, set a new password, then prove the old password fails and the new password succeeds.
+6. Separately inspect an expired or malformed link. It must return recovery-specific guidance and a safe return to sign-in without exposing account existence. Stop rather than repeatedly resend if Supabase reports a rate limit.
+
+Real mailbox delivery/link completion is still unverified until the owner performs these steps. Wallet connection is not required for any of them.
+
+### Remaining Freighter and Pactset Go rehearsal
+
+Use separate browser profiles and distinct disposable Testnet wallets. Organizer and provider each verify ownership; organizer creates escrow, reviews an exact-receive TUSD or TEUR quote, signs conversion, then funds without reconverting after any funding retry. Provider submits private evidence; organizer requests one correction, approves, and releases. Record only public Testnet hashes. Repeat Pactset Go with organizer, supplier, Crew A, and Crew B: each provider consents to the exact current bundle/version, organizer reserves and activates once, then a separate disposable bundle exercises expiry/refund. Contract fixtures or operator keys are not substitutes for these Freighter signatures.
+
 A protected Preview is available for review. The public deployment and Production environment remain unchanged.
 
 ## Pactset Go review (not on the current hosted Preview yet)

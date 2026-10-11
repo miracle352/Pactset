@@ -37,3 +37,25 @@ export async function inviteReplacement(_: FormState, formData: FormData): Promi
   revalidatePath(`/workspace/replacements/${parsed.data.replacementId}`);
   return { status: "success", message: "Invitation sent. The provider must submit and accept current terms before a replacement booking exists." };
 }
+
+const reviseBudgetSchema = z.object({ replacementId: z.uuid(), budgetLimit: z.coerce.number().min(0), reason: z.string().trim().min(10).max(1000) });
+export async function reviseReplacementBudget(_: FormState, formData: FormData): Promise<FormState> {
+  await requireAccount("organizer"); const fields = formFields(formData); const parsed = reviseBudgetSchema.safeParse(fields);
+  if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message ?? "Review the revised budget.", fields };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revise_replacement_budget", { p_replacement_id: parsed.data.replacementId, p_budget_limit: parsed.data.budgetLimit, p_reason: parsed.data.reason });
+  if (error) return { status: "error", message: error.message.includes("below the current offer") ? error.message : "The replacement budget was not changed.", fields };
+  revalidatePath(`/workspace/replacements/${parsed.data.replacementId}`);
+  return { status: "success", message: "Replacement budget revised. The currency and original booking remain unchanged." };
+}
+
+const cancelSchema = z.object({ replacementId: z.uuid(), reason: z.string().trim().min(10).max(1000) });
+export async function cancelReplacement(_: FormState, formData: FormData): Promise<FormState> {
+  await requireAccount("organizer"); const fields = formFields(formData); const parsed = cancelSchema.safeParse(fields);
+  if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message ?? "Explain why this replacement search is closing.", fields };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("cancel_replacement_request", { p_replacement_id: parsed.data.replacementId, p_reason: parsed.data.reason });
+  if (error) return { status: "error", message: "The replacement search could not be closed.", fields };
+  revalidatePath(`/workspace/replacements/${parsed.data.replacementId}`); revalidatePath("/workspace", "layout");
+  return { status: "success", message: "Replacement search closed. The original booking and its funds were not changed." };
+}

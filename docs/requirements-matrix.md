@@ -2,6 +2,17 @@
 
 ## Frontend completion review — 2026-10-10
 
+## Backend workflow verification — 2026-10-11
+
+| ID | Requirement | Evidence | Status |
+|---|---|---|---|
+| AGR-002 | Concurrent capacity enforcement includes setup/teardown, half-open back-to-back rules, capacity-N inventory, reservation release, and idempotent retries | `scripts/admin/verify-capacity-concurrency.mjs`; two independent authenticated clients; final persisted agreement/capacity assertions | Verified in `pactset-development` (8/8); isolated expiry rerun still pending |
+| REP-003 | Organizer may auditably revise the same-asset replacement ceiling or close an active search without changing/cancelling the original booking or moving its funds | `20261011120000_capacity_buffers_and_replacement_controls.sql`; replacement controls/actions | Implemented in `pactset-development`; browser-rendered organizer controls verified, mutation click-path pending |
+| SUP-004 | Assigned support replacement access follows an active case; support cannot self-assign; unrelated accounts receive no private replacement data | `verify-replacement-support-deadlines.mjs`; organizer/support/unrelated sessions; soft-not-found browser capture | Verified in `pactset-development` (scoped read/self-assignment checks) |
+| AGR-007 | Accepted deadline changes remain visible across sessions; rejected changes do not replace accepted terms; original agreement state remains immutable | `verify-replacement-support-deadlines.mjs` | Verified for cross-session persistence and rejection (3 checks); DST/browser-resume still unverified |
+| PAY-022 | Payment API rejects unauthorized release, unrelated reads, and unsigned submission while preserving explicit wallet authorization | `npm run payments:verify-api` | Verified at API boundary; fresh Freighter TUSD/TEUR browser transaction unverified |
+| PAY-020 | Pactset Go atomic invariants and authorization remain intact after capacity/replacement changes | `cargo test --workspace` (9 Go + 5 escrow tests) | Automated contract regression verified; multi-person Testnet/Freighter rehearsal unverified |
+
 | ID | Requirement | Evidence | Status |
 |---|---|---|---|
 | UX-NAV-05 | Keep one public navbar; remove the duplicate sticky chapter rail while preserving the six-stage How it works story and safe anchor offsets | `page.tsx`, removed `landing-chapter-nav.tsx`, desktop/mobile browser matrix | Implemented and verified locally |
