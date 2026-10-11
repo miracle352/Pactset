@@ -2,6 +2,18 @@
 
 Last updated: 2026-10-11 (Africa/Lagos)
 
+## 2026-10-11 planning, verified reviews, and reminder checkpoint
+
+- Added versioned organizer budgets with manual editing and a deterministic rule-based starting point. The current proposal uses the saved event currency and constraints, requires an explicit organizer approval, and cannot accept offers, change agreement terms, or move Testnet funds. External AI generation is not configured and is not represented as working.
+- Added booking-backed reviews after confirmed completed escrow work only. Organizer/provider eligibility is enforced in the database, responses are limited to the review subject, assigned support receives case-scoped visibility only, and moderation requests are audited. Supplier and crew workspaces now summarize their own verified feedback alongside the existing offer/booking activity.
+- Added durable scheduled reminder jobs for preparation deadlines, pending evidence, organizer decisions, and deadline-extension responses. Jobs are deduplicated, retryable, cancelled when their source state no longer applies, and delivered into Pactset's private in-app notifications. This is not email or push delivery.
+- Added the developer worker command `npm run reminders:process`. It requires `SUPABASE_SERVICE_ROLE_KEY` in ignored `.env.local`; that key is not configured on this checkout, so unattended local delivery is not running. A service-role database rehearsal scheduled 40 preparation reminders and found no due jobs; an authenticated ordinary user was denied worker access.
+- Applied only to `pactset-development`: `20261011190000_planning_reviews_reminders.sql`, `20261011191500_reminder_schedule_coverage.sql`, and `20261011193000_planning_review_reminder_indexes.sql`. Existing historical migration-version drift was not reset or rewritten.
+- The authenticated development verifier passed 10/10 budget/review/worker-boundary checks. Application tests pass 23/23; TypeScript, Biome, five escrow contract tests, and nine Pactset Go contract tests pass. Payment API authorization and isolated missing-trustline, low-reserve, and unavailable-liquidity fixtures remain passing evidence.
+- Chromium QA passed the organizer budget and participant review views at 1440px and 390px with no horizontal overflow or console/runtime failures. It also confirmed an invalid confirmation callback returns to the safe sign-in error route. Evidence is under `docs/screenshots/core-completion/`.
+- Local `next build` again compiled and typechecked, then hit the known OneDrive `EPERM` while creating `.next/server/app/help.segments/help`; the hosted Vercel build remains the production-build gate.
+- Still private or externally blocked: actual confirmation/recovery email links, fresh Freighter-signed TUSD and TEUR journeys, and a full multi-person Pactset Go browser rehearsal. No fresh transaction hash is claimed by this checkpoint. Real machine translation output still requires a reviewed translation provider and server-side credentials.
+
 ## 2026-10-11 notification, private attachment, and expiry-verification checkpoint
 
 - Corrected the authenticated notification surface: desktop uses an anchored bounded popover, mobile uses the existing focus-trapped safe-area sheet, the header remains fixed while only the list scrolls, and loading failures are no longer presented as an empty inbox. Opening the panel does not mark anything read; each destination and the explicit **Mark all read** action do.

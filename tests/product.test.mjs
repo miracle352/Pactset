@@ -245,3 +245,24 @@ test("Pactset Go is a bounded on-chain bundle, not a database-only atomic claim"
   assert.match(boundary, /one failed check or escrow funding call reverts the complete activation/i);
   assert.match(boundary, /does not retrofit funded legacy agreements/i);
 });
+
+test("budgets, reviews, and reminders preserve authorization and financial boundaries", async () => {
+  const migration = await read("supabase/migrations/20261011190000_planning_reviews_reminders.sql");
+  const coverage = await read("supabase/migrations/20261011191500_reminder_schedule_coverage.sql");
+  const budget = await read("src/components/events/event-budget-planner.tsx");
+  const reviews = await read("src/components/agreements/agreement-reviews.tsx");
+  for (const table of ["event_budget_versions", "agreement_reviews", "scheduled_reminders"]) {
+    assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+  }
+  assert.match(migration, /organizer_id=\(select auth\.uid\(\)\)/);
+  assert.match(migration, /Reviews open after confirmed completion/);
+  assert.match(migration, /values\(p_agreement_id,v_actor,v_subject/);
+  assert.match(migration, /subject_id=v_actor/);
+  assert.match(migration, /grant execute on function public\.refresh_scheduled_reminders\(\) to service_role/);
+  assert.doesNotMatch(migration, /grant execute on function public\.refresh_scheduled_reminders\(\) to authenticated/);
+  assert.match(coverage, /pending_evidence/);
+  assert.match(coverage, /pending_decision/);
+  assert.match(coverage, /deadline_extension/);
+  assert.match(budget, /does not accept an offer, change signed terms, or move Testnet funds/i);
+  assert.match(reviews, /Only participants in this booking can review/i);
+});

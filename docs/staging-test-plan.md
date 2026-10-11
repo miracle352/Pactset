@@ -1,5 +1,24 @@
 # Restricted staging review plan
 
+## Planning, reviews, and reminder operations (2026-10-11)
+
+The hosted development schema now contains versioned budgets, completed-booking reviews, and durable reminder jobs. These migrations were applied only to `pactset-development`:
+
+- `20261011190000_planning_reviews_reminders.sql`
+- `20261011191500_reminder_schedule_coverage.sql`
+- `20261011193000_planning_review_reminder_indexes.sql`
+
+Developer verification uses ignored local credentials:
+
+```powershell
+npm run planning:verify-development
+npm run reminders:process
+```
+
+`reminders:process` requires the server-only `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. It refreshes eligible jobs and delivers due jobs to the existing private in-app notification table. It is not a continuously running scheduler, email sender, or push service; staging has no background delivery while this command (or an equivalent protected worker) is not running.
+
+For private review, sign in as the organizer, open an event and use **Event budget** to save then approve a planning version. Approval must leave offers, agreements, wallets, and funds unchanged. After a genuinely completed booking, either participant can use **Verified booking feedback** on its payment page. Supplier and crew workspaces show only feedback they are authorized to read.
+
 ## 2026-10-11 local backend checkpoint
 
 This checkpoint remains local and must not be expected on the protected Preview. The new hosted-database migration is `20261011120000_capacity_buffers_and_replacement_controls.sql`, applied only to `pactset-development`; no website deployment followed it.

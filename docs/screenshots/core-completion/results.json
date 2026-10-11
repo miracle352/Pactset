@@ -1,0 +1,38 @@
+[
+  {
+    "name": "organizer-budget-desktop",
+    "status": 200,
+    "overflow": false,
+    "overflowElements": [],
+    "targetVisible": true,
+    "errors": []
+  },
+  {
+    "name": "organizer-budget-mobile",
+    "status": 200,
+    "overflow": false,
+    "overflowElements": [],
+    "targetVisible": true,
+    "errors": []
+  },
+  {
+    "name": "organizer-review-desktop",
+    "status": 200,
+    "overflow": false,
+    "overflowElements": [],
+    "targetVisible": true,
+    "errors": []
+  },
+  {
+    "name": "provider-review-mobile",
+    "status": 200,
+    "overflow": false,
+    "overflowElements": [],
+    "targetVisible": true,
+    "errors": []
+  },
+  {
+    "name": "invalid-confirmation-safe-redirect",
+    "safe": true
+  }
+]

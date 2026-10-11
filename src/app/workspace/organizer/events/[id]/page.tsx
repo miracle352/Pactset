@@ -2,6 +2,7 @@ import { ArrowRight, Clock, CurrencyCircleDollar, UsersThree } from "@phosphor-i
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EventForm } from "@/components/events/event-form";
+import { EventBudgetPlanner, type BudgetVersion } from "@/components/events/event-budget-planner";
 import { EventChangeWorkflow, type EventChange } from "@/components/events/event-change-workflow";
 import { PactsetGoBuilder } from "@/components/pactset-go/bundle-controls";
 import { RequestForm } from "@/components/events/request-form";
@@ -18,13 +19,14 @@ const agreementEscrow = (agreement: TeamAgreement) => Array.isArray(agreement.ag
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params; const account = await requireAccount("organizer"); const supabase = await createClient();
-  const [{ data: event }, { data: requests }, agreementResult, changeResult, runtimeResult, walletResult] = await Promise.all([
+  const [{ data: event }, { data: requests }, agreementResult, changeResult, runtimeResult, walletResult, budgetResult] = await Promise.all([
     supabase.from("events").select("*").eq("id", id).eq("organizer_id", account.userId).maybeSingle(),
     supabase.from("requests").select("id,title,status,provider_role,category").eq("event_id", id).order("created_at", { ascending: false }),
     supabase.from("agreements").select("id,scope,status,amount,currency,provider_role,provider:profiles!agreements_provider_id_fkey(display_name),agreement_escrows(id,status,contract_address),requests!inner(event_id)").eq("requests.event_id", id).order("created_at"),
     supabase.from("event_change_requests").select("id,version,change_type,reason,prior_values,proposed_values,status,created_at,event_change_impacts(id,agreement_id,agreement_version,response,response_reason,proposed_implications)").eq("event_id", id).order("version", { ascending: false }),
     supabase.from("pactset_go_runtime_registry").select("id").eq("network","TESTNET").eq("active",true).maybeSingle(),
     supabase.from("wallet_connections").select("public_key,network,wallet_provider,verified_at").eq("user_id",account.userId).eq("network","TESTNET").eq("active",true).maybeSingle(),
+    supabase.from("event_budget_versions").select("id,version,status,currency,total_amount,contingency_amount,allocations,assumptions,proposal_source,approved_at,created_at").eq("event_id",id).order("version",{ascending:false}),
   ]);
   if (!event) notFound();
   const team = (agreementResult.data ?? []) as unknown as TeamAgreement[];
@@ -38,6 +40,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     <section id="event-team" className="workspace-section"><div className="compact-section-heading"><div><p className="kicker">Event team</p><h2>Named providers and booking state</h2></div><CurrencyCircleDollar /></div>{team.length ? <div className="record-list">{team.map((agreement) => { const escrow = agreementEscrow(agreement); return <Link href={`/workspace/agreements/${agreement.id}/payment`} key={agreement.id}><div><strong>{providerName(agreement)}</strong><p>{agreement.scope} · {agreement.amount} {agreement.currency}</p></div><span>{(escrow?.status ?? agreement.status).replaceAll("_", " ")}</span><ArrowRight /></Link>; })}</div> : <EmptyState title="No accepted event team yet" body="Published requests and mutually accepted current offers create the named team. A draft or submitted offer is not a booking." />}</section>
     {!changeResult.error && <EventChangeWorkflow eventId={id} timezone={event.timezone} changes={(changeResult.data ?? []) as unknown as EventChange[]} />}
     {!runtimeResult.error && <PactsetGoBuilder eventId={id} timezone={event.timezone} wallet={walletResult.data} runtimeReady={Boolean(runtimeResult.data)} candidates={team.map((agreement)=>{const escrow=agreementEscrow(agreement);return {id:agreement.id,provider:providerName(agreement),scope:agreement.scope,amount:agreement.amount,currency:agreement.currency,escrowStatus:escrow?.status??"not created",eligible:escrow?.status==="awaiting_funding"};})}/>}
+    {!budgetResult.error && <EventBudgetPlanner eventId={id} currency={event.budget_currency} current={(budgetResult.data?.[0] as unknown as BudgetVersion | undefined)} history={(budgetResult.data ?? []) as unknown as BudgetVersion[]} />}
     <div id="event-details"><EventForm event={event} countries={countries} timezones={timezones()} currencies={testCurrencies()} /></div>
     <section id="event-requests" className="workspace-section"><div className="compact-section-heading"><h2>Requests from this event</h2></div>{requests?.length ? <div className="record-list">{requests.map((request) => <Link href={`/workspace/organizer/requests/${request.id}`} key={request.id}><div><strong>{request.title}</strong><p>{request.category} · {request.provider_role}</p></div><span>{request.status}</span></Link>)}</div> : <EmptyState title="No provider requests" body="A request publishes only the scope and work terms entered below, not the private event draft." />}</section>
     <div id="new-request"><RequestForm event={event} /></div>

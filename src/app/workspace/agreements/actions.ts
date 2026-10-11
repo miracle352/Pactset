@@ -67,3 +67,39 @@ export async function respondDeadlineExtension(agreementId: string, requestId: s
   revalidatePath(`/workspace/agreements/${agreementId}/payment`);
   return { status: "success", message: accept ? "The event-local preparation deadline is acknowledged." : "The proposed deadline was declined; the earlier accepted deadline remains active." };
 }
+
+export async function submitAgreementReview(agreementId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await requireAccount();
+  const fields = formFields(formData);
+  const parsed = z.object({ rating: z.coerce.number().int().min(1).max(5), body: z.string().trim().min(10).max(2000), visibility: z.enum(["participants", "profile"]) }).safeParse(fields);
+  if (!parsed.success) return { status: "error", message: "Choose 1–5 stars and write at least 10 characters.", fields };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("submit_agreement_review", { p_agreement_id: agreementId, p_rating: parsed.data.rating, p_body: parsed.data.body, p_visibility: parsed.data.visibility });
+  if (error) return { status: "error", message: error.message.includes("completion") ? "Reviews open only after the Testnet escrow confirms completed work." : "This review could not be saved. Only genuine participants may review once.", fields };
+  revalidatePath(`/workspace/agreements/${agreementId}/payment`);
+  return { status: "success", message: "Review saved against this completed booking." };
+}
+
+export async function respondAgreementReview(agreementId: string, reviewId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await requireAccount();
+  const fields = formFields(formData);
+  const parsed = z.object({ response: z.string().trim().min(3).max(2000) }).safeParse(fields);
+  if (!parsed.success) return { status: "error", message: "Write a short, factual response.", fields };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("respond_agreement_review", { p_review_id: reviewId, p_response: parsed.data.response });
+  if (error) return { status: "error", message: "The response could not be saved. Only the reviewed participant may respond once.", fields };
+  revalidatePath(`/workspace/agreements/${agreementId}/payment`);
+  return { status: "success", message: "Response added to the booking review." };
+}
+
+export async function requestReviewModeration(agreementId: string, reviewId: string, _: FormState, formData: FormData): Promise<FormState> {
+  await requireAccount();
+  const fields = formFields(formData);
+  const parsed = z.object({ reason: z.string().trim().min(10).max(2000) }).safeParse(fields);
+  if (!parsed.success) return { status: "error", message: "Explain the concern in at least 10 characters.", fields };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("request_review_moderation", { p_review_id: reviewId, p_reason: parsed.data.reason });
+  if (error) return { status: "error", message: "The moderation request could not be saved." };
+  revalidatePath(`/workspace/agreements/${agreementId}/payment`);
+  return { status: "success", message: "Review flagged for human support review. This does not establish fault or alter payment." };
+}

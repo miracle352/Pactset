@@ -2,6 +2,7 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { DataError, EmptyState, WorkspaceHeading, WorkspaceShell } from "@/components/workspace/workspace-shell";
 import { WorkspaceNextStep } from "@/components/workspace/next-step";
+import { ProviderReputation } from "@/components/workspace/provider-reputation";
 import { requireAccount } from "@/lib/account";
 import { effectivePreparationDeadline, latestAcceptedDeadlines } from "@/lib/deadlines";
 import { eventTime, relativeDeadline } from "@/lib/datetime";
@@ -15,12 +16,13 @@ function jobStatus(job: { status: string; agreement_escrows?: { status: string }
 export default async function CrewWorkspace() {
   const account = await requireAccount("crew");
   const supabase = await createClient();
-  const [feedResult, offerResult, jobResult, profileResult, invitationResult] = await Promise.all([
+  const [feedResult, offerResult, jobResult, profileResult, invitationResult, reviewResult] = await Promise.all([
     supabase.rpc("list_eligible_requests"),
     supabase.from("offers").select("id,status,current_version,request_id,updated_at,requests(title,events(name,timezone)),offer_versions(version,scope,amount,currency)").eq("provider_role", "crew").order("updated_at", { ascending: false }),
     supabase.from("agreements").select("id,scope,status,amount,currency,starts_at,ends_at,preparation_deadline,requests(events(name,timezone)),agreement_escrows(status)").eq("provider_role", "crew").order("starts_at"),
     supabase.from("provider_profiles").select("skills,pricing_units,availability_note").eq("user_id", account.userId).maybeSingle(),
     supabase.from("replacement_requests").select("id,title,status,replacement_request_id,invitation_expires_at").eq("invited_provider_id", account.userId).in("status", ["invited", "negotiating"]).order("created_at", { ascending: false }),
+    supabase.from("agreement_reviews").select("id,rating,body,response_body,moderation_status,created_at").eq("subject_id", account.userId).order("created_at", { ascending: false }),
   ]);
   const feed = feedResult.data; const offers = offerResult.data as Array<{ id: string; status: string; current_version: number; requests: { title: string; events: { name: string; timezone: string } | null } | null; offer_versions: Array<{ version: number; scope: string; amount: number; currency: string }> }> | null; const jobs = jobResult.data as Array<{ id: string; scope: string; status: string; amount: number; currency: string; starts_at: string; ends_at: string; preparation_deadline: string | null; requests: { events: { name: string; timezone: string } | null } | null; agreement_escrows?: { status: string } | { status: string }[] | null }> | null;
   const deadlineResult = jobs?.length
@@ -37,5 +39,6 @@ export default async function CrewWorkspace() {
     <section id="opportunities" className="workspace-section"><div className="compact-section-heading"><h2>Eligible opportunities</h2></div>{feedResult.error ? <DataError title="Crew opportunities could not load" /> : feed?.length ? <div className="record-list">{feed.map((request: { id: string; title: string; category: string; available_from: string; timezone?: string }) => <Link href={`/workspace/requests/${request.id}`} key={request.id}><div><strong>{request.title}</strong><p>{request.category} · {eventTime(request.available_from, request.timezone ?? "UTC")}</p></div><ArrowRight /></Link>)}</div> : <EmptyState title="No crew opportunities match" body="Add skills and availability in your profile. Public request cards omit private organizer details." action={<Link href="/settings#provider">Update skills</Link>} />}</section>
     <section id="offers" className="workspace-section"><div className="compact-section-heading"><h2>Your offers</h2></div>{offerResult.error ? <DataError title="Crew offers could not load" /> : offers?.length ? <div className="record-list">{offers.map((offer) => { const terms = offer.offer_versions.find((item) => item.version === offer.current_version); return <Link href={`/workspace/offers/${offer.id}`} key={offer.id}><div><strong>{offer.requests?.title ?? terms?.scope ?? "Crew offer"}</strong><p>{offer.requests?.events?.name ?? "Event"} · {terms ? `${terms.amount} ${terms.currency}` : "Terms unavailable"} · version {offer.current_version}</p></div><span>{offer.status}</span><ArrowRight /></Link>; })}</div> : <EmptyState title="No crew offers" body="Submit an offer from an eligible opportunity with your shift window and preparation deadline." />}</section>
     <section id="jobs" className="workspace-section"><div className="compact-section-heading"><h2>Accepted jobs</h2><Link href="/settings/wallet">Wallet setup</Link></div>{jobResult.error || deadlineResult.error ? <DataError title="Accepted jobs could not load" /> : jobs?.length ? <div className="timeline-list">{jobs.map((job) => { const timezone = job.requests?.events?.timezone ?? "UTC"; const deadline = effectivePreparationDeadline(job.id, job.preparation_deadline, acceptedDeadlines); return <article key={job.id}><time>{eventTime(job.starts_at, timezone)}</time><Link className="crew-job-link" href={`/workspace/agreements/${job.id}/payment`}><span className="funding-status">{jobStatus(job)}</span><h3>{job.scope}</h3><p>Preparation deadline: {deadline ? eventTime(deadline, timezone) : "Not set"}</p><span className="agreement-link-label">Open wallet and payment details <ArrowRight /></span></Link></article>; })}</div> : <EmptyState title="No accepted crew jobs" body="A job appears after both you and the organizer accept the same current terms. You can verify a Testnet wallet now without gaining access to fixture agreements." action={<Link href="/settings/wallet">Verify a Testnet wallet</Link>} />}</section>
+    <ProviderReputation reviews={reviewResult.data ?? []} failed={Boolean(reviewResult.error)} />
   </WorkspaceShell>;
 }

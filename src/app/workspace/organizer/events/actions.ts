@@ -40,6 +40,60 @@ export async function saveEvent(eventId: string | null, _: FormState, formData: 
   return { status: "success", message: "Draft saved to your account.", fields, entityId: data.id };
 }
 
+const budgetSchema = z.object({
+  totalAmount: z.coerce.number().min(0).max(999_999_999_999),
+  contingencyAmount: z.coerce.number().min(0).max(999_999_999_999),
+  allocations: z.string().max(4000),
+  assumptions: z.string().max(4000),
+  source: z.enum(["manual", "rule_based"]).default("manual"),
+});
+
+export async function saveEventBudget(eventId: string, _: FormState, formData: FormData): Promise<FormState> {
+  const account = await requireAccount("organizer");
+  const fields = formFields(formData);
+  const parsed = budgetSchema.safeParse(fields);
+  if (!parsed.success) return { status: "error", message: "Review the budget total, contingency, and allocations.", fields };
+  if (parsed.data.contingencyAmount > parsed.data.totalAmount) return { status: "error", message: "Contingency cannot exceed the total budget.", fields };
+  const supabase = await createClient();
+  const { data: event } = await supabase.from("events").select("id,event_type,city,timezone,starts_at,attendee_count,spaces,food_requirements,equipment_requirements,crew_requirements,budget_currency").eq("id", eventId).eq("organizer_id", account.userId).maybeSingle();
+  if (!event) return { status: "error", message: "The event could not be found.", fields };
+  const spendable = parsed.data.totalAmount - parsed.data.contingencyAmount;
+  const manual = allocations(parsed.data.allocations);
+  const proposed = parsed.data.source === "rule_based" ? [
+    { category: "Venue", amount: Number((spendable * 0.35).toFixed(2)) },
+    { category: "Food", amount: Number((spendable * 0.25).toFixed(2)) },
+    { category: "Equipment", amount: Number((spendable * 0.2).toFixed(2)) },
+    { category: "Crew", amount: Number((spendable * 0.2).toFixed(2)) },
+  ] : manual;
+  if (!proposed.length) return { status: "error", message: "Add at least one allocation as `category: amount`.", fields };
+  const assumptionLines = parsed.data.source === "rule_based" ? [
+    "Rule-based starting point only; these figures are not market quotes or accepted offers.",
+    `Based on ${event.attendee_count ?? "the saved attendee count"} attendees and the current event brief.`,
+    "Edit every allocation before approval.",
+  ] : lines(parsed.data.assumptions);
+  const { data, error } = await supabase.rpc("save_event_budget", {
+    p_event_id: eventId,
+    p_total_amount: parsed.data.totalAmount,
+    p_contingency_amount: parsed.data.contingencyAmount,
+    p_allocations: proposed,
+    p_assumptions: assumptionLines,
+    p_input_snapshot: { eventType: event.event_type, city: event.city, timezone: event.timezone, startsAt: event.starts_at, attendees: event.attendee_count, spaces: event.spaces, food: event.food_requirements, equipment: event.equipment_requirements, crew: event.crew_requirements },
+    p_proposal_source: parsed.data.source,
+  });
+  if (error || !data) return { status: "error", message: error?.message.includes("exceed") ? "Allocations and contingency cannot exceed the total budget." : "The budget draft could not be saved. Existing approved planning is unchanged.", fields };
+  revalidatePath(`/workspace/organizer/events/${eventId}`);
+  return { status: "success", message: parsed.data.source === "rule_based" ? "Editable rule-based draft saved. Review it before approval." : "Editable budget draft saved." };
+}
+
+export async function approveEventBudget(eventId: string, budgetId: string, _: FormState, _formData: FormData): Promise<FormState> {
+  await requireAccount("organizer");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("approve_event_budget", { p_budget_id: budgetId });
+  if (error) return { status: "error", message: "This budget could not be approved. Refresh to confirm its current version." };
+  revalidatePath(`/workspace/organizer/events/${eventId}`);
+  return { status: "success", message: "Budget approved for planning. No offer was accepted and no funds moved." };
+}
+
 const requestSchema = z.object({ title: z.string().trim().min(3).max(140), publicScope: z.string().trim().min(10).max(4000), providerRole: z.enum(["supplier", "crew"]), category: z.string().trim().min(2).max(100), quantity: z.coerce.number().positive(), quantityUnit: z.string().trim().min(1).max(40), pricingUnit: z.string().trim().min(1).max(80), currency: z.string().refine(isTestCurrencyAssetCode), availableFrom: z.string().min(10), availableUntil: z.string().min(10), preparationDeadline: z.string().min(10), cancellationTerms: z.string().trim().min(10).max(2000), milestones: z.string().max(2000), timezone: z.string() });
 
 export async function createRequest(eventId: string, _: FormState, formData: FormData): Promise<FormState> {
