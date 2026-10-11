@@ -2,6 +2,16 @@
 
 Last updated: 2026-10-11 (Africa/Lagos)
 
+## 2026-10-11 fresh browser-payment and provider-portfolio checkpoint
+
+- Prepared two new accepted, unfunded agreements in `pactset-development` without creating an escrow or using an operator payment key: TUSD `d37c890d-c75f-4d36-a718-40443255fcd3` (5 TUSD) and TEUR `08ead1d0-5f0e-4880-ad04-f5af61833819` (4 TEUR). Both registered assets report Testnet provisioning and liquidity `ready`; both agreements are `awaiting_testnet_funding` with no escrow. The ignored `.browser-payment-rehearsals.local.json` is the resumable local record.
+- The next payment proof is deliberately private: organizer and supplier must each connect and verify a distinct Freighter Testnet wallet, then the organizer creates the escrow in the application before quoting/converting/funding. Existing saved fixture-wallet records are not counted as browser readiness or transaction authorization. No fresh transaction hash is claimed.
+- Applied `20261011210000_provider_portfolio_visibility.sql` only to `pactset-development`. Provider portfolios now default to private. Public reads use a field-limited function that returns approved services/skills/pricing/availability, eligible published completed-booking reviews and privacy-safe completion summaries; account preferences, private offers, chats, payment details and unresolved cases stay excluded. The supplier development portfolio was explicitly published for Preview QA; Crew A remains private. The authenticated/anonymous verifier passed all four visibility/denial assertions.
+- Added `/providers/[id]` with real-record activity filters and useful empty states, plus settings control and workspace status/destination. This is implementation, not a fixture-only mock. Review eligibility and moderation rules remain unchanged.
+- Confirmation/recovery callbacks preserve safe internal destinations and now show clear invalid, expired, reused-link and signed-out guidance. Actual email delivery, link exchange, successful password change and old-password rejection remain private manual tests; admin-confirmed fixtures are not evidence.
+- Translation provider secrets and outbound email/push delivery providers are not configured. The Edge adapter therefore keeps its honest unavailable state and original message. Hosted Postgres continues private in-app reminder scheduling; it is not email/push. Budget suggestions remain the explicitly labelled editable rule-based flow because no external AI provider is configured.
+- Verification: TypeScript, Biome, production build and 26/26 application tests pass locally. The earlier OneDrive build failure did not recur. Migration history still contains pre-existing drift; only the new migration was applied and recorded, and no reset was performed.
+
 ## 2026-10-11 offer-route, stale-budget, and hosted-reminder checkpoint
 
 - Diagnosed the reported `/workspace/offers/62a2a546-d131-49b7-8d67-ee8d31662470` failure against the actual development record. The route and offer existed; provider/organizer authorization was correct, but the provider could not read the current `offer_versions` row because its RLS policy indirectly depended on a request row intentionally hidden from providers. The route treated missing terms as not-found.

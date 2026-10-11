@@ -1,5 +1,37 @@
 # Restricted staging review plan
 
+## Fresh TUSD/TEUR private-wallet rehearsal (2026-10-11)
+
+Use the protected Preview and separate browser profiles. Credentials stay in the ignored local development identity record; never paste them into a report.
+
+1. Organizer opens `/workspace/agreements/d37c890d-c75f-4d36-a718-40443255fcd3/payment` (5 TUSD). Supplier later repeats from their own profile. Each opens **Wallet & payments**, selects **Freighter — Recommended**, confirms **Stellar Testnet**, and signs only the single-use ownership challenge. A saved historical address does not prove the extension is present or unlocked.
+2. Organizer selects **Create escrow** only after both distinct wallets are verified. Review agreement version, exact TUSD issuer/asset contract, payer, payee, resolver and 5 TUSD milestone. Sign privately. Refresh/reconcile and record the confirmed contract/deployment hash. A retry must resolve to the same escrow.
+3. Organizer requests the exact-receive XLM quote, checks exact 5 TUSD output, maximum XLM spend, fee, slippage and expiry, then signs conversion. Fund escrow as a separate signature. If funding is rejected/fails, retry funding from the converted balance without another conversion.
+4. Supplier uploads private evidence and signs submission. Organizer requests one correction; supplier resubmits; organizer approves/releases. Confirm recipient TUSD balance and the release hash on a Testnet explorer. Repeated release must be denied/idempotent.
+5. Supplier separately requests recipient conversion from released TUSD to XLM or another provisioned Testnet asset. Reject once and confirm the prior release remains successful, then sign a fresh valid quote and reconcile.
+6. Repeat the generic asset path with TEUR agreement `/workspace/agreements/08ead1d0-5f0e-4880-ad04-f5af61833819/payment` (4 TEUR). Never substitute TUSD.
+
+The first action for the owner is step 1 only. No seed phrase, private key, password, or private media URL belongs in chat.
+
+### Real confirmation and password-reset email check
+
+1. In the protected Preview, register a new disposable email through the intended role signup and wait for the actual confirmation email. Open only the newest link in the same browser profile that will continue the session.
+2. Confirm it lands on the safe requested workspace route and that a protected page is available after exchange. Reusing the link must lead to the invalid/expired guidance.
+3. Sign out, choose **Forgot password**, request one email, and avoid resending while rate-limited. Open the newest link, set a new 10+ character password, and confirm the workspace notice.
+4. Sign out. Verify the old password is rejected and the new password succeeds. Auto-confirmed development fixtures do not satisfy this test.
+
+### Four-person Pactset Go private rehearsal
+
+Use six isolated browser profiles: organizer, supplier, Crew A, Crew B, assigned support and unrelated. Every participant uses a distinct disposable Testnet wallet.
+
+1. Create one current accepted venue/supplier agreement and two non-overlapping crew agreements in the same provisioned asset. Each participant verifies their wallet and creates/funds the compatible individual escrow prerequisite.
+2. Organizer opens the event’s Pactset Go builder, selects the exact supplier/Crew A/Crew B agreement versions, amount, wallets and activation deadline, then signs bundle creation.
+3. Supplier, Crew A and Crew B each open the same bundle and sign consent for only their bound booking/version. Revoke one consent once and prove activation is not ready; restore consent with a fresh signature.
+4. Organizer reserves the exact bundle amount and signs one activation transaction. Confirm all bookings activate or none do, refresh/reconcile in every profile, and record only public Testnet hashes.
+5. On a separate disposable bundle, allow consent/deadline expiry and verify only eligible unreleased reservation funds can be refunded. Assigned support may inspect only an assigned case and still needs the disclosed resolver wallet for allowed on-chain action; unrelated access must remain denied.
+
+Automated contract tests verify invariants, not this participant-signed browser ceremony.
+
 ## Planning, reviews, and reminder operations (2026-10-11)
 
 The hosted development schema now contains versioned budgets, completed-booking reviews, and durable reminder jobs. These migrations were applied only to `pactset-development`:

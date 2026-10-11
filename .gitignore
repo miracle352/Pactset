@@ -16,6 +16,7 @@ test-results/
 .stellar-failure-fixtures.local.json
 .staging-preview-state.local.json
 .wallet-escrow-test.local.json
+.browser-payment-rehearsals.local.json
 .pactset-go-testnet.local.json
 contracts/target/
 supabase/.temp/
