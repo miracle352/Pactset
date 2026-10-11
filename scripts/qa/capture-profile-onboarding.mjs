@@ -8,6 +8,7 @@ const output = new URL("../../test-results/profile-onboarding/", import.meta.url
 await mkdir(output, { recursive: true });
 const baseURL = process.env.PACTSET_QA_URL ?? "http://127.0.0.1:3001";
 const browser = await chromium.launch({ headless: true });
+const protectedPreviewHeaders = process.env.VERCEL_OIDC_TOKEN ? { extraHTTPHeaders: { "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_OIDC_TOKEN } } : {};
 
 async function signIn(page) {
   await page.goto(`${baseURL}/auth/sign-in?next=/settings`);
@@ -18,7 +19,7 @@ async function signIn(page) {
   await page.getByRole("heading", { name: "Profile and settings" }).waitFor();
 }
 
-const desktop = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+const desktop = await browser.newContext({ viewport: { width: 1440, height: 1000 }, ...protectedPreviewHeaders });
 const page = await desktop.newPage();
 await signIn(page);
 assert.equal(await page.getByLabel("Username").inputValue(), "crew_b_preview");
@@ -46,7 +47,7 @@ await page.waitForFunction(() => /current username/i.test(document.querySelector
 await page.screenshot({ path: fileURLToPath(new URL("settings-desktop.png", output)), fullPage: true });
 await desktop.close();
 
-const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, ...protectedPreviewHeaders });
 const mobilePage = await mobile.newPage();
 await signIn(mobilePage);
 assert.equal(await mobilePage.locator('select[name="countryCode"]').inputValue(), "CA");
