@@ -4,6 +4,8 @@ Last updated: 2026-10-12 (Africa/Lagos)
 
 ## 2026-10-12 release-candidate checkpoint
 
+- Pull request `#1` merged the verified branch normally into `main` as `9b6d76d554f332d9bb27d72ba516906164155777`. Vercel Production deployment `dpl_8kcFAohxNwniRSN87MGLLgbUszU7` completed **Ready** and serves `https://pactset.vercel.app`. Build logs confirm branch `main`, commit `9b6d76d`, all 24 static pages and the existing dynamic application routes.
+- Production browser smoke checks passed the public landing and Testnet disclosure, sign-in/recovery entry points, safe preservation of `next`, signed-out redirect from `/workspace/organizer`, and the 390px mobile menu. No browser console warning/error was observed during the smoke check.
 - Release gates pass on commit `0837f86`: 32/32 application tests, TypeScript, Biome, five escrow contract tests and nine Pactset Go contract tests. Hosted authorization checks additionally passed development identities 24/24, profile onboarding, messaging/support 16/16, Gemini 16/16, planning/reviews/reminders 11/11, provider portfolio privacy, payment API authorization, isolated Testnet failure cases, capacity concurrency 9/9, replacement/support/deadlines 9/9 and Stage 3 schema/runtime checks.
 - Production Vercel configuration now contains only the required public site URL, Supabase URL and publishable key. It targets `pactset-development`; no service-role, Gemini, issuer, liquidity or wallet secret was copied to Vercel or a client variable.
 - Supabase Auth now uses `https://pactset.vercel.app` as the Production site URL and allows only the exact Production confirmation/recovery routes in addition to the existing exact Preview routes and localhost development route. Normal email confirmation remains enabled.

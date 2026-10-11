@@ -2,6 +2,7 @@
 
 ## 2026-10-12 release transition
 
+- Release completed through PR `#1`. Merge commit `9b6d76d554f332d9bb27d72ba516906164155777` is deployed as Vercel Production `dpl_8kcFAohxNwniRSN87MGLLgbUszU7` at `https://pactset.vercel.app`; public/auth/protected-route/mobile smoke checks passed.
 - The protected branch Preview remains the release-candidate gate. The authorized release path is a normal pull request from `codex/stage-2b-preview` to `main`, followed by the existing Vercel Git deployment to `https://pactset.vercel.app`.
 - The final candidate passed the application, type, lint, Soroban, hosted authorization, Gemini, planning, portfolio, payment-API, failure-isolation, capacity-race, replacement/support/deadline and Stage 3 runtime checks recorded in `docs/HANDOFF.md`.
 - Production public configuration targets `pactset-development`; Supabase Auth preserves the exact Production, Preview and localhost callback routes. Privileged Edge/worker/payment credentials remain outside Vercel and browser bundles.
