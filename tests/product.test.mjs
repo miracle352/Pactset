@@ -292,3 +292,9 @@ test("offer details remain participant-scoped and preserve the intended sign-in 
   assert.match(page, /Offer details could not be loaded/);
   assert.match(fallback, /does not reveal private offer records/i);
 });
+
+test("agreement payment deep links preserve the exact safe destination through sign-in", async () => {
+  const page = await read("src/app/workspace/agreements/[id]/payment/page.tsx");
+  assert.match(page, /const returnTo = `\/workspace\/agreements\/\$\{id\}\/payment/);
+  assert.match(page, /requireAccount\(undefined, returnTo\)/);
+});

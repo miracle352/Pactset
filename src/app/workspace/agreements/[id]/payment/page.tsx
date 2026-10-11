@@ -29,7 +29,8 @@ export default async function AgreementPaymentPage({ params, searchParams }: { p
   const { id } = await params;
   const query = await searchParams;
   const messageLimit = Math.min(100, Math.max(20, Number.parseInt(query.messages ?? "20", 10) || 20));
-  const account = await requireAccount();
+  const returnTo = `/workspace/agreements/${id}/payment${query.messages ? `?messages=${messageLimit}` : ""}`;
+  const account = await requireAccount(undefined, returnTo);
   const supabase = await createClient();
   const [{ data: agreement }, { data: wallet }, { data: escrow }] = await Promise.all([
     supabase.from("agreements").select("*,requests(events(name,timezone))").eq("id", id).maybeSingle(),
