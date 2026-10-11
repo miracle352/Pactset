@@ -10,6 +10,8 @@
 
 Translation remains unavailable until a reviewed provider is configured privately in the `pactset-development` Supabase Edge Function secrets as `PACTSET_TRANSLATION_ENDPOINT` and `PACTSET_TRANSLATION_API_KEY`. The endpoint must accept `{ text, sourceLanguage, targetLanguage, preserve }` and return `{ translatedText, detectedLanguage? }`. Provider signup and API charges, if any, are external and have not been authorized. Optional AI budgets require a separate reviewed server adapter/provider; the current rule-based editable proposal remains active.
 
+Automated protected-Preview coverage completed on 2026-10-11 against the stable branch alias at 1440px and 390px. It passed username sign-in, availability/current-name feedback, Canada → Ontario, explicit `America/Toronto`, suggested `TCAD`, save/reload persistence, and mobile overflow checks. This does not replace the manual password-recovery checklist or prove every country subdivision/timezone combination.
+
 ## Fresh TUSD/TEUR private-wallet rehearsal (2026-10-11)
 
 Use the protected Preview and separate browser profiles. Credentials stay in the ignored local development identity record; never paste them into a report.
