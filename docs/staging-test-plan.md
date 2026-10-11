@@ -15,7 +15,9 @@ npm run planning:verify-development
 npm run reminders:process
 ```
 
-`reminders:process` requires the server-only `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`. It refreshes eligible jobs and delivers due jobs to the existing private in-app notification table. It is not a continuously running scheduler, email sender, or push service; staging has no background delivery while this command (or an equivalent protected worker) is not running.
+`reminders:process` remains the developer-only manual command and requires the server-only `SUPABASE_SERVICE_ROLE_KEY` in ignored `.env.local`. Hosted `pactset-development` also runs the same refresh/delivery logic every minute through the Postgres-only `pactset-in-app-reminders` cron job. The cron bridge has no client execution grants and exposes no HTTP endpoint or Vercel secret. Both paths deliver only to Pactset's private in-app notification table; neither is an email or push sender.
+
+To verify hosted scheduling without exposing message contents or credentials, inspect the latest `cron.job_run_details` rows for job name `pactset-in-app-reminders`. A healthy run has status `succeeded`. Ordinary authenticated clients must continue to receive an authorization error from `refresh_scheduled_reminders` and `deliver_due_reminders`.
 
 For private review, sign in as the organizer, open an event and use **Event budget** to save then approve a planning version. Approval must leave offers, agreements, wallets, and funds unchanged. After a genuinely completed booking, either participant can use **Verified booking feedback** on its payment page. Supplier and crew workspaces show only feedback they are authorized to read.
 

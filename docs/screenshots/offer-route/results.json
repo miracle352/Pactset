@@ -1,0 +1,18 @@
+[
+  {
+    "name": "signed-out-return",
+    "passed": true,
+    "pathname": "/auth/sign-in",
+    "next": "/workspace/offers/62a2a546-d131-49b7-8d67-ee8d31662470"
+  },
+  {
+    "name": "authorized-direct-refresh",
+    "passed": true,
+    "backHref": "/workspace/organizer#offers",
+    "errors": []
+  },
+  {
+    "name": "unrelated-private-not-found",
+    "passed": true
+  }
+]

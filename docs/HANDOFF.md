@@ -2,6 +2,16 @@
 
 Last updated: 2026-10-11 (Africa/Lagos)
 
+## 2026-10-11 offer-route, stale-budget, and hosted-reminder checkpoint
+
+- Diagnosed the reported `/workspace/offers/62a2a546-d131-49b7-8d67-ee8d31662470` failure against the actual development record. The route and offer existed; provider/organizer authorization was correct, but the provider could not read the current `offer_versions` row because its RLS policy indirectly depended on a request row intentionally hidden from providers. The route treated missing terms as not-found.
+- Applied `20261011200000_fix_offer_participant_visibility.sql` and corrective `20261011200500_remove_recursive_offer_request_policy.sql` only to `pactset-development`. Current offer terms are now directly participant-scoped without widening private request access. Final RLS results: organizer `offer/terms/request = 1/1/1`, provider `1/1/0`, unrelated `0/0/0`.
+- The offer page preserves its exact sign-in return, distinguishes query failures from a private/missing record, provides **Back to offers**, and links accepted offers to the agreement. A privacy-safe local not-found page does not reveal whether another account's record exists. Browser QA passed signed-out return, authorized direct open/refresh, and unrelated denial (3/3); evidence is in `docs/screenshots/offer-route/`.
+- Activated hosted private in-app reminder delivery with `20261011203000_schedule_in_app_reminders.sql`. Supabase `pg_cron` invokes a private Postgres-only bridge every minute; client, authenticated, and service roles have no execute grant on that bridge. The existing public worker RPCs remain service-role-only. Multiple scheduled runs completed with `succeeded`; this still does not provide email or push delivery.
+- Applied `20261011203500_reject_stale_budget_approval.sql`: only the latest saved proposal may be approved. The authenticated verifier passed 11/11, including stale v1 rejection, current v2 approval, unrelated/non-owner denial, review eligibility, and worker denial.
+- Regression gates: application tests 25/25, TypeScript and Biome pass; payment API authorization passed without signing; escrow contracts 5/5 and Pactset Go contracts 9/9 pass. The production build compiled and typechecked, then reproduced the known OneDrive `EPERM` while creating `.next/server/app/_not-found.segments/_not-found`; hosted Vercel remains the production-build gate.
+- Still private or externally blocked: real confirmation/recovery email-link completion, fresh Freighter-signed TUSD/TEUR conversion/funding/release, and a full organizer/supplier/two-crew Pactset Go browser rehearsal. No fresh transaction hash is claimed. Translation remains honestly unavailable until a reviewed provider endpoint/key is configured. Public portfolio visibility/activity filters and scheduled email/push reminders remain unfinished.
+
 ## 2026-10-11 planning, verified reviews, and reminder checkpoint
 
 - Added versioned organizer budgets with manual editing and a deterministic rule-based starting point. The current proposal uses the saved event currency and constraints, requires an explicit organizer approval, and cannot accept offers, change agreement terms, or move Testnet funds. External AI generation is not configured and is not represented as working.

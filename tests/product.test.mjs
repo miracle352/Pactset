@@ -266,3 +266,29 @@ test("budgets, reviews, and reminders preserve authorization and financial bound
   assert.match(budget, /does not accept an offer, change signed terms, or move Testnet funds/i);
   assert.match(reviews, /Only participants in this booking can review/i);
 });
+
+test("budget approval rejects stale drafts and reminder scheduling stays private", async () => {
+  const budgetGuard = await read("supabase/migrations/20261011203500_reject_stale_budget_approval.sql");
+  const reminderCron = await read("supabase/migrations/20261011203000_schedule_in_app_reminders.sql");
+  assert.match(budgetGuard, /v_row\.version <> v_latest_version/);
+  assert.match(budgetGuard, /A newer budget draft exists/);
+  assert.match(reminderCron, /private\.run_scheduled_reminder_worker/);
+  assert.match(reminderCron, /revoke all on function private\.run_scheduled_reminder_worker\(\) from public, anon, authenticated, service_role/);
+  assert.match(reminderCron, /pactset-in-app-reminders/);
+});
+
+test("offer details remain participant-scoped and preserve the intended sign-in return", async () => {
+  const migration = await read("supabase/migrations/20261011200000_fix_offer_participant_visibility.sql");
+  const correction = await read("supabase/migrations/20261011200500_remove_recursive_offer_request_policy.sql");
+  const page = await read("src/app/workspace/offers/[id]/page.tsx");
+  const fallback = await read("src/app/workspace/offers/[id]/not-found.tsx");
+  assert.match(migration, /o\.provider_id = \(select auth\.uid\(\)\)/);
+  assert.match(migration, /r\.organizer_id = \(select auth\.uid\(\)\)/);
+  assert.doesNotMatch(migration, /requests_offer_participant_select/);
+  assert.match(correction, /drop policy if exists requests_offer_participant_select/);
+  assert.doesNotMatch(migration, /using \(true\)/i);
+  assert.match(page, /requireAccount\(undefined, returnTo\)/);
+  assert.match(page, /Back to offers/);
+  assert.match(page, /Offer details could not be loaded/);
+  assert.match(fallback, /does not reveal private offer records/i);
+});
