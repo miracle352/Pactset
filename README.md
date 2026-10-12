@@ -1,37 +1,63 @@
 # PACTSET
 
-Pactset coordinates event work from the first brief through an approved Testnet milestone payment. Organizers publish requests, compare offers, accept versioned terms, track preparation and review private evidence. Suppliers and crew manage services, availability, bookings, deadlines and earnings. Assigned support receives case-scoped access to the related agreement, conversation and evidence; support cannot self-assign or reverse a completed blockchain transfer.
+Pactset is an event coordination platform powered by Stellar. It gives organizers, suppliers, and crew one shared operational path from an event brief to agreed bookings, preparation, proof of work, and authorized milestone payments.
 
-**Production:** https://pactset.vercel.app
+Event delivery often breaks down across scattered messages, changing scopes, disconnected schedules, and payment decisions that are difficult to trace. Pactset brings those responsibilities into versioned agreements: organizers can assemble the event team and see what needs attention; suppliers and crew can manage commitments and evidence; assigned support can review a narrowly scoped case without gaining blanket access to private work.
 
-**Network:** Stellar Testnet only
+**Production:** [https://pactset.vercel.app](https://pactset.vercel.app)
 
 **Backend:** Supabase project `pactset-development`
 
-Pactset-issued T-prefixed assets are demonstration assets with no monetary value, redemption promise or affiliation with similarly named tokens. The application does not provide a real bank withdrawal. Its withdrawal rehearsal is explicitly simulated.
+## Deployment status
 
-## Product workflows
+> **Pactset currently runs on Stellar Testnet. Assets used in this deployment have no real monetary value.**
 
-- **Organizer:** create a persistent event brief and budget, publish supplier/crew requests, review offers and counteroffers, accept the current version, fund an eligible agreement, review evidence and authorize release.
-- **Supplier:** publish a service profile and availability, manage inventory capacity, respond to relevant requests, prepare accepted work, submit evidence and receive the agreed test asset.
-- **Crew:** maintain skills, rates and availability, accept non-conflicting assignments, follow event-local preparation deadlines and submit required evidence.
-- **Assigned support:** work only on server-assigned cases with an audit trail. Database access does not by itself authorize an on-chain resolution; the contract's disclosed resolver wallet is also required.
+Pactset-issued T-prefixed assets are demonstrations, with no redemption promise or affiliation with similarly named tokens. The application is not Mainnet-ready and does not provide real bank withdrawals. Any withdrawal rehearsal is explicitly labelled as a simulation.
+
+## How Pactset works
+
+- **Organizers** create event briefs and budgets, publish requests, compare offers and counteroffers, accept versioned terms, coordinate preparation, review evidence, and authorize eligible payments.
+- **Suppliers** publish services and availability, manage capacity, respond to requests, prepare accepted bookings, submit evidence, and receive the asset agreed in the booking.
+- **Crew** maintain skills, rates, and availability; accept non-conflicting assignments; follow event-local deadlines; and provide the evidence required for their milestones.
+- **Assigned support** works only on server-assigned cases with an audit trail. Case access does not itself authorize an on-chain payment decision; contract permissions and the disclosed resolver wallet still apply.
+
+Implemented product capabilities include persistent role-based workspaces, event briefs, editable budgets, requests, versioned offers and agreements, replacement invitations, capacity protection, preparation deadlines, private evidence and corrections, participant messaging, scoped support, reviews, and in-app notifications.
 
 Ordinary planning, requests, offers, messages and bookings do not require an unlocked wallet. Pactset account authentication and Stellar wallet connection are separate.
 
-## Stellar implementation
+## Powered by Stellar
 
-The implemented payment path is:
+Stellar is the payment and settlement layer for accepted Pactset agreements. It connects the organizer's funding decision to the provider's agreed milestone without making planning, messaging, or ordinary booking work dependent on an unlocked wallet.
+
+### XLM conversion into supported Stellar assets
+
+An organizer can review an exact-receive quote that converts Testnet XLM into the agreement's supported Stellar asset. The review identifies the asset code and issuer, maximum XLM spend, fees, slippage bounds, and quote expiry. Availability depends on an explicitly provisioned asset and a valid liquidity path; Pactset never silently substitutes TUSD or implies universal currency liquidity.
+
+### Agreement-bound Soroban escrow
+
+Each compatible escrow is bound to the accepted agreement version, organizer and provider wallet addresses, asset, milestone allocation, and disclosed resolver rules. Conversion and funding are separate recoverable operations: if conversion succeeds and funding does not, the converted balance remains available for a funding retry without a second conversion.
+
+### Authorized milestone payments
+
+Providers submit private evidence against the agreed work. The organizer can request corrections or approve an eligible milestone. Release is an explicit authorized contract action, executes once, and pays the agreed asset to the provider wallet; an upload or AI assessment cannot release funds by itself.
+
+### Disputes and reconciliation
+
+Disputed escrow funds stay frozen until an action permitted by the accepted terms and contract authorization is signed. Assigned support has only case-scoped application access and cannot reverse a completed Stellar transfer. Pactset persists pending transactions, reconciles confirmed ledger state after refresh or interruption, prevents duplicate operations, and links confirmed transactions to a Testnet explorer.
+
+### Pactset Go
+
+Pactset Go is the implemented bounded bundle contract and application workflow for essential bookings. A bundle contains 2–8 accepted, compatible, unfunded agreements in one supported Stellar asset. Each listed provider consents to the exact agreement version, wallet, escrow, amount, and activation deadline. The organizer reserves the exact total and can authorize one Soroban activation that funds every listed escrow or reverts the entire activation. Pre-activation cancellation and expiry refunds return only eligible reserved funds; Pactset Go cannot reverse released milestones, adjudicate disputes, combine different assets, or reuse disputed or owed balances.
+
+The contract invariants and application preparation/reconciliation paths have automated coverage. A complete organizer/supplier/two-crew Freighter rehearsal of a fresh bundle remains unverified, so the repository does not present Pactset Go as universally production-proven.
+
+The standard agreement payment path is:
 
 1. An organizer and provider accept the same agreement version and verify distinct Testnet wallets.
 2. The organizer creates a deterministic Soroban escrow bound to that agreement version, payer, payee, asset, milestone allocation and resolver rules.
 3. The organizer reviews an exact-receive XLM conversion quote for the agreement's registered test asset, then signs conversion and escrow funding as separate recoverable operations.
 4. The provider submits private evidence. The organizer may request corrections or approve eligible work.
 5. The escrow releases the exact milestone once. Confirmed transactions are reconciled from Stellar and linked to the Testnet explorer.
-
-Conversion success never implies funding success, and a funding retry does not convert again. Asset codes are always paired with issuers. Pactset never silently substitutes TUSD for another agreed asset.
-
-Pactset Go is a separate bounded Soroban bundle contract. It binds 2–8 current agreement versions in one registered test asset, requires the exact providers' consent, reserves organizer funds and activates all eligible essential bookings in one contract invocation or none. Expiry/refund rules apply only to unreleased reserved funds. Existing independent escrows are not described as atomic package booking, and the full multi-person browser rehearsal remains unverified.
 
 ## Architecture
 
