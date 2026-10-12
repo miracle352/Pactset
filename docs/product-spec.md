@@ -1,12 +1,31 @@
-# Pactset — product requirements and staged delivery brief
+# Pactset — product description and requirements
 
-This is a requirements handoff, not evidence of implementation or a completed repository-specific engineering plan. Inspect the actual workspace before selecting exact dependencies, files, commands, and interfaces. User wants staged Codex prompts, with the approved visual design applied from the start.
+Pactset is an event coordination platform powered by Stellar. It helps organizers assemble venues, suppliers, and crew around one versioned plan; helps providers understand and deliver their commitments; and makes evidence review and milestone payment authorization traceable.
 
-## Outcome and deadline
+## The problem Pactset addresses
 
-Global event operations for organizers, suppliers, crew, and assigned support: brief → budget → offers → agreed bookings → funded milestones → preparations and evidence → review → payments and reviews. Support meetups, large events, and conferences. Suggest scale using attendance and operational complexity; attendee caps are configurable, not proof of enterprise capacity.
+Event operations are commonly split across spreadsheets, message threads, informal promises, and payment tools that do not share the same context. A changed deadline may never reach the crew member it affects. A supplier's evidence may be separated from the agreement it proves. An organizer may know the total budget without knowing which work is merely planned, formally committed, funded, or already paid.
 
-User target: October 5, 2026, 23:40 Africa/Lagos. Treat this as the user's delivery target, not a verified hackathon deadline. Track every requirement below. Never silently drop a requirement or claim a placeholder works. If the deadline threatens delivery, flag the exact unfinished requirements and propose a scope decision.
+Pactset connects those responsibilities without treating software as a guarantee of physical delivery. It records who agreed to what, which preparation step blocks the next, what evidence has been reviewed, and which authorized action may move funds.
+
+## Product workflows
+
+- **Organizer:** brief the event, build and approve an editable budget, publish requests, compare offers, accept versioned agreements, coordinate preparation, review evidence, and authorize eligible milestones.
+- **Supplier:** present services, service area, capacity, pricing, and availability; respond to requests; manage accepted bookings; submit evidence; and receive the agreed Stellar asset.
+- **Crew:** present skills, rates, and availability; accept non-conflicting assignments; follow event-local deadlines; submit required evidence; and track earned milestones.
+- **Assigned support:** join only server-assigned cases, review the relevant agreement, conversation, and evidence, and record bounded decisions with an audit trail. Application access alone never confers authority over escrow funds.
+
+Implemented capabilities include persistent role-based accounts, event briefs, editable budgets, requests, versioned offers and agreements, availability and capacity checks, replacement invitations, deadlines and acknowledged changes, private evidence and corrections, participant messaging, scoped support, reviews, notifications, and Stellar Testnet payment preparation and reconciliation. The requirements below retain planned and unverified capabilities explicitly rather than presenting them as complete.
+
+## Deployment disclosure
+
+> **Pactset currently runs on Stellar Testnet. Assets used in this deployment have no real monetary value.**
+
+Pactset-issued T-prefixed assets are demonstration assets, not fiat deposits or guaranteed-redeemable stablecoins. The current deployment does not provide real bank withdrawals and is not represented as Mainnet-ready.
+
+## Product outcome
+
+Pactset supports an operational path from brief → budget → offers → agreed bookings → funded milestones → preparation and evidence → human review → authorized payment and reviews. It is designed for small gatherings, large events, and conferences; configured attendance and operational scope are not proof of unlimited capacity.
 
 ## Design contract
 
@@ -40,10 +59,22 @@ User target: October 5, 2026, 23:40 Africa/Lagos. Treat this as the user's deliv
 - Event Readiness: deterministic dependencies, blockers, responsible party and next action. Example: venue access blocks sound setup. AI may explain dependencies; it cannot fabricate readiness.
 - Change requests: attendance 80→120 identifies impacted agreements; providers confirm extra chairs, shifts, costs and deadlines; organizer and affected parties accept revisions; required extra funding is confirmed before activation. Original agreement stays active until then. Version every agreement; never mutate signed history silently.
 
-## Stellar Testnet payment requirements
+## Stellar payment and settlement
 
-- Testnet ONLY throughout demo. Dedicated dev wallets. Prominent network indicator and no-real-value labels. No real bank withdrawals or real KYC-document collection in demo.
-- Initial supported issued assets: TUSD (Test US Dollar), TGBP (Test British Pound), TAUD (Test Australian Dollar). Extensible registry; identify each by network, asset code and issuer. These are Pactset demonstration assets, not real fiat, TrueUSD, or guaranteed-redeemable stablecoins.
+Stellar is central to Pactset's accepted-booking workflow, while ordinary planning and collaboration remain available without an unlocked wallet. Account authentication, wallet connection, ownership verification, transaction signing, submission, confirmation, and ledger finality remain distinct states.
+
+The implemented architecture supports:
+
+- **XLM conversion into supported Stellar assets.** The organizer reviews an exact-receive quote for the agreement asset, including issuer identity, maximum spend, fees, slippage, and expiry. Conversion is available only when the exact asset is provisioned and a valid liquidity path exists.
+- **Agreement-bound Soroban escrow.** A compatible escrow binds the accepted agreement version, participants, asset, milestone amounts, and disclosed resolver rules. Conversion and funding remain separate, resumable operations.
+- **Authorized milestone payments.** Private evidence and organizer review precede an explicit release authorization. Evidence upload or AI output cannot release payment.
+- **Dispute controls and payment reconciliation.** Unreleased disputed funds remain subject to accepted terms and contract authorization. Pending transactions are persisted and reconciled against Stellar; completed transfers are not represented as reversible.
+- **Pactset Go.** The bounded bundle contract and application workflow cover 2–8 accepted, compatible, unfunded agreements in one supported asset. Exact providers consent to the stored bundle terms; the organizer reserves the total and authorizes one Soroban activation that funds every listed escrow or reverts the whole activation. Expiry and pre-activation cancellation can return eligible reserved funds. The contract cannot span assets, reverse released milestones, adjudicate disputes, or use disputed/owed money for replacements. Automated contract and preparation/reconciliation coverage exists; a complete fresh organizer/supplier/two-crew Freighter rehearsal remains unverified.
+
+### Testnet requirements and limitations
+
+- The current deployment remains Testnet-only. Use dedicated development wallets, show a prominent network/no-real-value disclosure, and do not collect real banking credentials or identity documents for payment rehearsals.
+- The searchable currency catalogue is separate from the allowlisted Stellar asset registry. TUSD and TEUR are the currently provisioned development assets; each is identified by network, asset code, issuer, contract address, and liquidity status. Catalogue presence never implies issuance or available liquidity. These are Pactset demonstration assets, not real fiat, TrueUSD, or guaranteed-redeemable stablecoins.
 - Provide controlled Testnet issuance/distribution and exchange liquidity. Support XLM and explicitly supported Stellar test assets, not arbitrary crypto networks. Show receive amount, maximum spend, simulated rate, expiry and fees where applicable. Trustlines and balances must be ready.
 - Display-currency changes never alter agreement settlement currency. Recommended first design: convert BEFORE escrow funding and hold each agreement in the provider's accepted currency. Do not claim Classic conversion and Soroban funding are one atomic operation when they are separate.
 - If conversion succeeds but funding fails, show the converted wallet balance and allow an idempotent retry; no lost-funds fiction. No liquidity or expired quote means explicit failure/requote.
