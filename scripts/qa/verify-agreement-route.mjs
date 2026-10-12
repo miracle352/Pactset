@@ -7,9 +7,12 @@ if (!agreementId) throw new Error("Pass an agreement ID.");
 const state = JSON.parse(await readFile(new URL("../../.stage2a-test-state.local.json", import.meta.url), "utf8"));
 const browser = await chromium.launch({ headless: true });
 const errors = [];
+const protectedPreview = baseUrl.includes("vercel.app") && process.env.VERCEL_OIDC_TOKEN
+  ? { extraHTTPHeaders: { "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_OIDC_TOKEN } }
+  : {};
 
 async function pageFor(role) {
-  const context = await browser.newContext();
+  const context = await browser.newContext(protectedPreview);
   const page = await context.newPage();
   page.on("pageerror", (error) => errors.push(`${role}: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${role}: ${message.text()}`); });
