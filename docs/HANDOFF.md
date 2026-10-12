@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-12 (Africa/Lagos)
 
+## 2026-10-12 agreement-unavailable layer correction
+
+- Reproduced the owner's Production screenshot with the unrelated development identity: the state card measured exactly 260px because a lone `.workspace-state-content` occupied the workspace shell's reserved sidebar column even though unavailable states have no sidebar.
+- A lone state content layer now spans the complete shell grid. The heading uses a bounded, balanced responsive scale and remains inside the financial surface. The same correction applies to agreement and offer unavailable states without changing authorization or record visibility.
+- The agreement-route browser regression now asserts desktop and 390px card width, heading containment and document overflow in addition to the existing organizer, supplier, signed-out, unrelated and missing-record checks.
+
 ## 2026-10-12 Production agreement-access correction
 
 - The reported 5 TUSD rehearsal agreement still exists in `pactset-development`, is accepted and awaiting Testnet funding, and remains assigned to the original development organizer and supplier. Ordinary authenticated clients confirmed that both participants can read the exact payment view while the unrelated development account receives no agreement row. No participant, wallet binding, RLS policy or agreement state was changed.

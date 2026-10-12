@@ -11,18 +11,18 @@ const protectedPreview = baseUrl.includes("vercel.app") && process.env.VERCEL_OI
   ? { extraHTTPHeaders: { "x-vercel-trusted-oidc-idp-token": process.env.VERCEL_OIDC_TOKEN } }
   : {};
 
-async function pageFor(role) {
-  const context = await browser.newContext(protectedPreview);
+async function pageFor(role, viewport) {
+  const context = await browser.newContext({ ...protectedPreview, ...(viewport ? { viewport } : {}) });
   const page = await context.newPage();
   page.on("pageerror", (error) => errors.push(`${role}: ${error.message}`));
   page.on("console", (message) => { if (message.type() === "error") errors.push(`${role}: ${message.text()}`); });
   return { context, page };
 }
 
-async function signIn(role, target) {
+async function signIn(role, target, viewport) {
   const account = state.accounts[role];
   if (!account) throw new Error(`Missing ${role} test identity.`);
-  const session = await pageFor(role);
+  const session = await pageFor(role, viewport);
   await session.page.goto(`${baseUrl}/auth/sign-in?next=${encodeURIComponent(target)}`, { waitUntil: "domcontentloaded" });
   await session.page.getByLabel("Email or username").fill(account.email);
   await session.page.getByLabel("Password", { exact: true }).fill(account.password);
@@ -39,6 +39,24 @@ async function waitForHeading(page, name) {
   } catch (error) {
     const headings = await page.getByRole("heading").allTextContents();
     throw new Error(`Expected heading was not rendered at ${page.url()}. Visible headings: ${JSON.stringify(headings)}`, { cause: error });
+  }
+}
+
+async function assertUnavailableLayout(page, minimumCardWidth = 0) {
+  const layout = await page.evaluate(() => {
+    const card = document.querySelector(".workspace-state-card");
+    const heading = card?.querySelector("h1");
+    if (!(card instanceof HTMLElement) || !(heading instanceof HTMLElement)) return null;
+    const cardRect = card.getBoundingClientRect();
+    const headingRect = heading.getBoundingClientRect();
+    return {
+      cardWidth: cardRect.width,
+      headingInside: headingRect.left >= cardRect.left && headingRect.right <= cardRect.right,
+      documentFits: document.documentElement.scrollWidth <= window.innerWidth,
+    };
+  });
+  if (!layout || layout.cardWidth < minimumCardWidth || !layout.headingInside || !layout.documentFits) {
+    throw new Error(`Agreement unavailable layout overflowed: ${JSON.stringify(layout)}`);
   }
 }
 
@@ -71,7 +89,13 @@ try {
   await waitForHeading(unrelated.page, "This agreement is not available to this account.");
   await unrelated.page.getByRole("link", { name: "Back to workspace" }).waitFor();
   await unrelated.page.getByRole("link", { name: "Sign in with another account" }).waitFor();
+  await assertUnavailableLayout(unrelated.page, 600);
   await unrelated.context.close();
+
+  const unrelatedMobile = await signIn("unrelated", target, { width: 390, height: 844 });
+  await waitForHeading(unrelatedMobile.page, "This agreement is not available to this account.");
+  await assertUnavailableLayout(unrelatedMobile.page, 300);
+  await unrelatedMobile.context.close();
 
   const missingTarget = "/workspace/agreements/00000000-0000-4000-8000-000000000000/payment";
   const missing = await signIn("organizer", missingTarget);
@@ -87,6 +111,7 @@ try {
     organizerListNavigation: true,
     providerDirectOpen: true,
     unrelatedDeniedPrivately: true,
+    unavailableLayoutDesktopAndMobile: true,
     missingRecordUnavailable: true,
     browserErrors: errors,
   }, null, 2));
