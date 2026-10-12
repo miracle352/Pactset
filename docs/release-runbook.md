@@ -12,7 +12,7 @@ Last updated: 2026-10-12 (Africa/Lagos)
 
 ## Local startup
 
-1. Install the Node version declared in `package.json` (`>=22.12.0`) and run `npm install`.
+1. Install the Node version declared in `package.json` (`>=22.12.0`) and run `npm ci` with the committed lockfile.
 2. Create an ignored `.env.local` containing the public Supabase URL and publishable key. Add privileged development values only when running an authorized admin/worker script; never prefix them with `NEXT_PUBLIC_`.
 3. Run `npm run dev`, then open `http://localhost:3000`.
 4. Before release, run `npm test`, `npm run typecheck`, `npm run lint`, `npm run build`, and `cargo test --workspace` from `contracts/`.
@@ -33,6 +33,17 @@ Last updated: 2026-10-12 (Africa/Lagos)
 5. Production needs only the three public web values: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Supabase/Gemini service secrets remain in Supabase Edge Function Secrets, not Vercel or the browser bundle.
 6. Confirm Supabase Auth retains exact Production confirmation and recovery routes, plus the existing Preview and localhost routes.
 7. Verify the deployed commit, public navigation/auth entry, private-route redirect, Testnet labels and absence of browser console errors.
+
+### Private agreement smoke check
+
+1. Select an accepted agreement from the intended participant's workspace list; do not publish fixture deep links or credentials.
+2. While signed out, open its payment destination and confirm sign-in preserves the exact validated internal path.
+3. Sign in with the agreement's organizer test-account label and confirm the real scope, amount, Testnet notice and wallet/payment prerequisite render. Repeat by direct open, refresh and workspace-list navigation.
+4. Sign in with the assigned provider test-account label and confirm the permitted provider view renders without organizer-only funding controls.
+5. Confirm an unrelated account and a random missing UUID receive the same privacy-safe **Agreement unavailable** state with workspace/account-switch recovery. Never infer ownership from that response.
+6. If the database or prerequisite query fails, confirm the recoverable workspace error/retry state appears rather than the private/missing state.
+
+The ignored local test-state file maps account labels to credentials. Only labels may appear in committed QA output. A privacy-safe unavailable result commonly means the active account is not a participant; do not alter RLS or participant assignments to make a private fixture open.
 
 ## Rollback
 
