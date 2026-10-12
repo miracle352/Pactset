@@ -1,6 +1,6 @@
 import { ArrowLeft, CheckCircle, Clock, CurrencyCircleDollar, LockKey, WarningCircle } from "@phosphor-icons/react/dist/ssr";
+import { AgreementUnavailable } from "@/components/agreements/agreement-unavailable";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { AgreementConversation, DeadlineExtensions, type AgreementMessage, type DeadlineRequest } from "@/components/agreements/agreement-collaboration";
 import { AgreementReviews, type AgreementReview } from "@/components/agreements/agreement-reviews";
 import { EventChangeResponse, type EventChange } from "@/components/events/event-change-workflow";
@@ -33,17 +33,23 @@ export default async function AgreementPaymentPage({ params, searchParams }: { p
   const returnTo = `/workspace/agreements/${id}/payment${query.messages ? `?messages=${messageLimit}` : ""}`;
   const account = await requireAccount(undefined, returnTo);
   const supabase = await createClient();
-  const [{ data: agreement }, { data: wallet }, { data: escrow }] = await Promise.all([
+  const [agreementResult, walletResult, escrowResult] = await Promise.all([
     supabase.from("agreements").select("*,requests(events(name,timezone))").eq("id", id).maybeSingle(),
     supabase.from("wallet_connections").select("public_key,network,wallet_provider,verified_at").eq("user_id", account.userId).eq("network", "TESTNET").eq("active", true).maybeSingle(),
     supabase.from("agreement_escrows").select("*,test_asset_registry(*)").eq("agreement_id", id).maybeSingle(),
   ]);
-  if (!agreement) notFound();
+  if (agreementResult.error || walletResult.error || escrowResult.error) {
+    throw new Error("Agreement payment prerequisites could not be loaded.");
+  }
+  const agreement = agreementResult.data;
+  const wallet = walletResult.data;
+  const escrow = escrowResult.data;
+  if (!agreement) return <AgreementUnavailable returnTo={returnTo} />;
   const { data: registeredAsset } = escrow
     ? { data: null }
     : await supabase.from("test_asset_registry").select("*").eq("network", "TESTNET").eq("asset_code", agreement.currency).maybeSingle();
   const workspaceRole = agreement.organizer_id === account.userId ? "organizer" : agreement.provider_id === account.userId ? agreement.provider_role : account.roles.includes("support") ? "support" : null;
-  if (!workspaceRole || !["organizer", "supplier", "crew", "support"].includes(workspaceRole)) notFound();
+  if (!workspaceRole || !["organizer", "supplier", "crew", "support"].includes(workspaceRole)) return <AgreementUnavailable returnTo={returnTo} />;
 
   const [{ data: milestoneRows }, { data: transactions }, { data: supportCases }, { data: payoutAssets }, { data: sandboxWithdrawals }, messageResult, readResult, deadlineResult, changeImpactResult, { data: replacement }, reviewResult] = await Promise.all([
     escrow ? supabase.from("escrow_milestones").select("*").eq("escrow_id", escrow.id).order("milestone_index") : Promise.resolve({ data: null }),

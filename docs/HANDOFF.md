@@ -2,6 +2,16 @@
 
 Last updated: 2026-10-12 (Africa/Lagos)
 
+## 2026-10-12 Production agreement-access correction
+
+- The reported 5 TUSD rehearsal agreement still exists in `pactset-development`, is accepted and awaiting Testnet funding, and remains assigned to the original development organizer and supplier. Ordinary authenticated clients confirmed that both participants can read the exact payment view while the unrelated development account receives no agreement row. No participant, wallet binding, RLS policy or agreement state was changed.
+- Confirmed root cause of the owner's latest **Route unavailable** screen: the browser was signed into an account that is not a participant in this private fixture. The intended ignored test-account labels are `organizer` for the funding/payment view and `supplier` for the provider view. Credentials remain only in ignored local test state and are not documented in Git.
+- The route now distinguishes a private/missing agreement from a backend/query failure. A null participant-scoped result renders a privacy-safe **Agreement unavailable** view with **Back to workspace** and **Sign in with another account**. A database, join, wallet-prerequisite or escrow-prerequisite error reaches the workspace error boundary with retry instead of being misreported as a missing record.
+- The browser regression covers signed-out return preservation, authorized organizer direct open/refresh/list navigation, assigned supplier access, unrelated-account denial and a genuinely missing UUID. The authorized organizer view must render the real agreement heading, Stellar Testnet disclosure and wallet prerequisite; an HTTP 200 alone is not accepted as proof.
+- Local application tests (32/32), TypeScript, Biome and production-mode multi-account Chromium verification pass. The final local build compiled and typechecked, then hit the known OneDrive `EPERM` while creating a generated onboarding segment; the existing Vercel build remains the clean hosted build gate for this change.
+- `README.md` now describes the released product, Testnet trust boundaries, real architecture, verified package commands, environment placement, migrations/functions/workers, deployment, testing prerequisites and explicit deferred checks. It contains no fixture credentials or private onboarding link.
+- Real Freighter ownership/signing, conversion, escrow funding and release for this rehearsal remain unverified until the owner performs the private wallet actions. Password recovery and the full multi-person Pactset Go browser rehearsal also remain unverified.
+
 ## 2026-10-12 release-candidate checkpoint
 
 - Pull request `#1` merged the verified branch normally into `main` as `9b6d76d554f332d9bb27d72ba516906164155777`. Vercel Production deployment `dpl_8kcFAohxNwniRSN87MGLLgbUszU7` completed **Ready** and serves `https://pactset.vercel.app`. Build logs confirm branch `main`, commit `9b6d76d`, all 24 static pages and the existing dynamic application routes.
