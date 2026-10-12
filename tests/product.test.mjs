@@ -336,6 +336,7 @@ test("offer details remain participant-scoped and preserve the intended sign-in 
 test("agreement payment deep links preserve the exact safe destination through sign-in", async () => {
   const page = await read("src/app/workspace/agreements/[id]/payment/page.tsx");
   const fallback = await read("src/components/agreements/agreement-unavailable.tsx");
+  const styles = await read("src/app/globals.css");
   assert.match(page, /const returnTo = `\/workspace\/agreements\/\$\{id\}\/payment/);
   assert.match(page, /requireAccount\(undefined, returnTo\)/);
   assert.match(page, /if \(agreementResult\.error \|\| walletResult\.error \|\| escrowResult\.error\)/);
@@ -344,4 +345,6 @@ test("agreement payment deep links preserve the exact safe destination through s
   assert.match(fallback, /does not reveal private agreement details/i);
   assert.match(fallback, /Back to workspace/);
   assert.match(fallback, /Sign in with another account/);
+  assert.match(styles, /\.workspace-state-shell>\.workspace-state-content:only-child \{ grid-column:1\/-1; \}/);
+  assert.match(styles, /\.workspace-state-card h1 \{ max-width:15ch;/);
 });
